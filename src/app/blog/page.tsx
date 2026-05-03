@@ -43,6 +43,30 @@ const POSTS: Post[] = [
     publishedAt: "2026-06-02",
     readingMinutes: 7,
   },
+  {
+    slug: "etsy-pod-seller-fees-2026",
+    title: "Etsy POD Seller Fees Explained: Every Fee, Every Percentage (2026)",
+    description:
+      "Listing fee, transaction fee, payment processing, offsite ads — every Etsy fee a POD seller pays in 2026, with worked examples in USD, EUR, GBP, and JPY.",
+    publishedAt: "2026-06-09",
+    readingMinutes: 5,
+  },
+  {
+    slug: "how-to-price-print-on-demand-products",
+    title: "How to Price Print-on-Demand Products (2026 Strategy Guide)",
+    description:
+      "A pricing framework that survives Etsy fees, currency conversion, and offsite ads. The 5-step formula that turns POD newcomers into profitable side-hustles.",
+    publishedAt: "2026-06-12",
+    readingMinutes: 7,
+  },
+  {
+    slug: "printful-subscription-worth-it",
+    title: "Is Printful Plus / Pro Worth It? (2026 Break-Even Analysis)",
+    description:
+      "Printful Plus is $9/mo, Pro is $29/mo. We do the math: at what monthly order volume does each subscription pay for itself?",
+    publishedAt: "2026-06-15",
+    readingMinutes: 5,
+  },
 ];
 
 export default function BlogIndexPage() {

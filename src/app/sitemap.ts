@@ -42,6 +42,30 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/blog/etsy-pod-seller-fees-2026`,
+      lastModified: new Date("2026-06-09"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/blog/how-to-price-print-on-demand-products`,
+      lastModified: new Date("2026-06-12"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/blog/printful-subscription-worth-it`,
+      lastModified: new Date("2026-06-15"),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/docs/api`,
+      lastModified: new Date("2026-05-03"),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
       url: `${SITE_URL}/legal/terms`,
       lastModified: new Date("2026-05-03"),
       changeFrequency: "yearly",
