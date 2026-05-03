@@ -1,8 +1,35 @@
 import { Calculator } from "@/components/calculator";
+import { VendorComparison } from "@/components/vendor-comparison";
+import { SoftwareApplicationJsonLd, FaqPageJsonLd } from "@/components/json-ld";
+
+const FAQ_ITEMS: Array<{ q: string; a: string }> = [
+  {
+    q: "How much profit do print-on-demand sellers actually make?",
+    a: "POD seller net margins typically range from 8% (newcomers under $500/mo) to 31% (top 5% of sellers, $10K+/mo). The difference is almost entirely down to vendor selection, retail price discipline, and avoiding Etsy offsite ads on low-margin items.",
+  },
+  {
+    q: "Is PODProfit free?",
+    a: "Yes — the core calculator is free forever. There is no signup required to run a calculation or share a result via URL. A Pro plan is planned for saved calculations, multi-store dashboards, and exports — but the calculator itself stays free.",
+  },
+  {
+    q: "How is PODProfit different from existing POD calculators?",
+    a: "Most POD calculators are vendor-locked (Printful-only or Printify-only), USD-only, or hide their data sources. PODProfit is vendor-neutral (compare both side-by-side), multi-currency (USD, EUR, GBP, CAD, AUD, JPY built in), and transparent (every price has an as-of date and source URL). Every calculation also generates a share-able URL with a dynamic preview image.",
+  },
+  {
+    q: "Where do the prices come from?",
+    a: "Vendor list prices from Printful and Printify public catalogs, manually maintained with monthly verification. Subscription discounts (Printful Plus/Pro, Printify Premium) are not reflected — we always show the public list price as a baseline. Always verify against your dashboard before listing.",
+  },
+  {
+    q: "When does PODProfit launch?",
+    a: "Soft launch: 2026-06-09 on r/PrintOnDemand. Public Product Hunt launch: 2026-06-16. Lifetime access ($149, 100 seats) goes live with the soft launch — first come, first served.",
+  },
+];
 
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-16 px-6 py-12 md:py-20">
+      <SoftwareApplicationJsonLd />
+      {FaqPageJsonLd(FAQ_ITEMS)}
       {/* Hero */}
       <section className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-700 dark:text-brand-300">
@@ -22,6 +49,23 @@ export default function Home() {
       <section aria-labelledby="calculator-heading">
         <h2 id="calculator-heading" className="sr-only">Calculator</h2>
         <Calculator />
+      </section>
+
+      {/* Vendor Comparison (F1b — the differentiator) */}
+      <section aria-labelledby="comparison-heading">
+        <h2
+          id="comparison-heading"
+          className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100"
+        >
+          Printful vs Printify, side-by-side
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-stone-700 dark:text-stone-300">
+          Vendor rank flips by product. The same hoodie that&apos;s cheaper on Printify might be
+          more profitable on Printful after Etsy fees. Run both and compare.
+        </p>
+        <div className="mt-6">
+          <VendorComparison />
+        </div>
       </section>
 
       {/* Trust strip */}

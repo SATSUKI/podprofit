@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   calculateProfit,
 } from "@/lib/calculator/calculate-profit";
@@ -12,6 +12,10 @@ import {
   formatCurrency,
   parseDisplayAmount,
 } from "@/lib/utils/format-currency";
+import {
+  decodeShareLink,
+  encodeShareLink,
+} from "@/lib/calculator/share-link";
 import { cn } from "@/lib/utils/cn";
 import type {
   Currency,
@@ -45,6 +49,21 @@ export function Calculator() {
   const [currency, setCurrency] = useState<Currency>("USD");
   const [retailInput, setRetailInput] = useState<string>("24.00");
   const [includeOffsiteAds, setIncludeOffsiteAds] = useState<boolean>(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
+
+  // Hydrate from share-link URL params (one-shot, on mount).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const decoded = decodeShareLink(window.location.search.replace(/^\?/, ""));
+    if (decoded.productId && ALL_PRODUCTS.some((p) => p.id === decoded.productId)) {
+      setProductId(decoded.productId);
+    }
+    if (decoded.marketplace) setMarketplace(decoded.marketplace);
+    if (decoded.region) setRegion(decoded.region);
+    if (decoded.currency) setCurrency(decoded.currency);
+    if (decoded.retailDisplay) setRetailInput(decoded.retailDisplay);
+    if (decoded.includeOffsiteAds !== undefined) setIncludeOffsiteAds(decoded.includeOffsiteAds);
+  }, []);
 
   const product = useMemo(
     () => ALL_PRODUCTS.find((p) => p.id === productId)!,
@@ -164,7 +183,38 @@ export function Calculator() {
 
       {/* Result */}
       <div className="rounded-2xl border border-brand-800/20 bg-brand-50 p-6 shadow-sm dark:border-brand-700/40 dark:bg-brand-900/30">
-        {result ? <Result product={product} result={result} currency={currency} /> : null}
+        {result ? (
+          <>
+            <Result product={product} result={result} currency={currency} />
+            <button
+              type="button"
+              onClick={() => {
+                const params = encodeShareLink({
+                  productId: product.id,
+                  vendor: product.vendor as Vendor,
+                  marketplace,
+                  region,
+                  currency,
+                  retailDisplay: retailInput,
+                  includeOffsiteAds,
+                });
+                const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+                navigator.clipboard
+                  .writeText(url)
+                  .then(() => {
+                    setCopyState("copied");
+                    setTimeout(() => setCopyState("idle"), 2000);
+                  })
+                  .catch(() => {
+                    /* clipboard blocked: ignore silently */
+                  });
+              }}
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700 focus:ring-offset-2 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+            >
+              {copyState === "copied" ? "✓ Link copied" : "Copy share link"}
+            </button>
+          </>
+        ) : null}
       </div>
     </div>
   );
