@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* PODProfit brand — Deep Forest Green ("Profit Green") */
+  --color-brand-50: #ecf6f0;
+  --color-brand-100: #cfe7d8;
+  --color-brand-200: #a3cfb5;
+  --color-brand-300: #71b48d;
+  --color-brand-400: #459770;
+  --color-brand-500: #1f7c54;
+  --color-brand-600: #166144;
+  --color-brand-700: #114b36;
+  --color-brand-800: #0F3D2E;
+  --color-brand-900: #0a2c22;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  color-scheme: light dark;
+}

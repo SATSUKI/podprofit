@@ -1,0 +1,81 @@
+# Printify product catalog — minimal seed data
+#
+# Source: Printify public catalog at https://printify.com/catalog/
+# As of: 2026-04-28 (sample list prices)
+#
+# Same maintenance pattern as Printful (monthly cron PR).
+
+vendor: printify
+asOfDate: "2026-04-28"
+sourceUrl: "https://printify.com/catalog/"
+disclaimer: |
+  Prices are vendor "list prices" as of the asOfDate.
+  Printify Premium subscription discounts are NOT reflected.
+  Provider variance: Printify routes to multiple printers; prices shown are typical "Generic Brand" Printify-recommended provider.
+
+products:
+  - id: printify-bella-canvas-3001-tee-white-m
+    name: "Bella+Canvas 3001 unisex t-shirt (white, M)"
+    category: apparel
+    baseCostUsdCents: 1095
+    shippingUsdCents:
+      US: 449
+      EU: 749
+      UK: 649
+      CA: 549
+      AU: 1049
+
+  - id: printify-gildan-18000-sweatshirt-black-l
+    name: "Gildan 18000 heavy blend sweatshirt (black, L)"
+    category: apparel
+    baseCostUsdCents: 1995
+    shippingUsdCents:
+      US: 499
+      EU: 849
+      UK: 749
+      CA: 599
+      AU: 1149
+
+  - id: printify-mug-11oz-white
+    name: "11oz ceramic mug (white)"
+    category: drinkware
+    baseCostUsdCents: 595
+    shippingUsdCents:
+      US: 449
+      EU: 599
+      UK: 549
+      CA: 499
+      AU: 749
+
+  - id: printify-aop-hoodie-unisex-m
+    name: "All-Over-Print unisex hoodie (M)"
+    category: apparel
+    baseCostUsdCents: 3895
+    shippingUsdCents:
+      US: 649
+      EU: 1049
+      UK: 949
+      CA: 749
+      AU: 1349
+
+  - id: printify-tote-bag-natural
+    name: "Cotton tote bag (natural, 16x16)"
+    category: accessory
+    baseCostUsdCents: 995
+    shippingUsdCents:
+      US: 399
+      EU: 599
+      UK: 499
+      CA: 449
+      AU: 749
+
+  - id: printify-poster-matte-18x24
+    name: "Matte poster (18x24)"
+    category: wall-art
+    baseCostUsdCents: 1195
+    shippingUsdCents:
+      US: 499
+      EU: 799
+      UK: 699
+      CA: 599
+      AU: 999

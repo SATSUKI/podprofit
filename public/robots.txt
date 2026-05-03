@@ -1,0 +1,38 @@
+# PODProfit — robots.txt
+#
+# AIO-first strategy: explicitly allow LLM crawlers (GPTBot, ClaudeBot, PerplexityBot,
+# Google-Extended, etc.) so our content is discoverable through AI search.
+# Per CEO slim-down decree: free Cloudflare Web Analytics, no paid tools.
+
+User-agent: *
+Allow: /
+
+# Explicit allow for major AI crawlers (ensures no inherited blocks):
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://getpodprofit.com/sitemap.xml

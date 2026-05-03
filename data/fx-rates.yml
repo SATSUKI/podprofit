@@ -1,0 +1,16 @@
+# Foreign exchange rates — USD-base, mid-market.
+#
+# Source: ECB / OANDA mid-market reference (manual seed, monthly cron updates).
+# As of: 2026-04-30
+#
+# 1 USD = X (currency unit). For JPY: rate is in whole yen per USD.
+
+asOfDate: "2026-04-30"
+sourceUrl: "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/"
+rates:
+  USD: 1.00
+  EUR: 0.93
+  GBP: 0.79
+  CAD: 1.37
+  AUD: 1.53
+  JPY: 153.00

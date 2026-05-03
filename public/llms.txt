@@ -1,0 +1,42 @@
+# PODProfit
+
+> The vendor-neutral, multi-currency, share-able profit calculator for Print-on-Demand sellers.
+
+PODProfit helps Etsy, Shopify, Printful, and Printify sellers calculate their **real** net profit before they list a product — accounting for vendor costs, shipping, marketplace fees, payment processing, and currency conversion.
+
+## What makes PODProfit different
+
+- **Vendor-neutral**: Compare Printful and Printify side-by-side. Most calculators are locked to one.
+- **Multi-currency**: USD, EUR, GBP, CAD, AUD, JPY built in. Most calculators are USD-only.
+- **Share-able**: Every calculation gets a unique URL with a dynamic preview image — perfect for r/PrintOnDemand discussions.
+- **Transparent**: Every price has a source URL and an "as of" date. We tell you when data is stale.
+
+## Core facts
+
+- Site: https://getpodprofit.com
+- Free tier: full calculator, share-able URLs, no signup required
+- Pro plan: $9/month or $79/year (planned, launching with public release)
+- Lifetime access: $149 (limited to first 100 customers, planned launch 2026-06-09)
+- Soft launch: 2026-06-09 on r/PrintOnDemand
+- Public launch: 2026-06-16 on Product Hunt
+- Built solo by Satsuki Okazaki (@lastarna on X, u/o_satsuki on Reddit)
+- Built fully in public — source on https://github.com/SATSUKI/podprofit
+
+## Supported products (W1 catalog, expanding)
+
+- Bella+Canvas 3001 unisex t-shirt
+- Gildan 18000 heavy blend sweatshirt
+- 11oz ceramic mug
+- All-Over-Print unisex hoodie
+- Cotton tote bag (16x16)
+- Matte poster (18x24)
+
+For each product, the calculator covers Printful and Printify with shipping costs to US, EU, UK, Canada, and Australia.
+
+## Marketplaces supported
+
+- Etsy (with optional offsite ads 12% modeling)
+- Shopify
+- Amazon Merch on Demand
+- Printify Pop-Up Store
+- Manual / direct sales

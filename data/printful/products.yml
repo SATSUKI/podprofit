@@ -1,0 +1,85 @@
+# Printful product catalog — minimal seed data
+#
+# Source: Printful public catalog at https://www.printful.com/custom-products
+# As of: 2026-04-28 (sample list prices, not subscription-discounted)
+#
+# This file is the source of truth. CI runs `scripts/yaml-to-ts.ts` to generate
+# TS types and validates against zod schema.
+#
+# Maintenance: monthly via GitHub Actions cron (`monthly-pricing-sync.yml`)
+# pulls Printful Catalog API → diff → opens PR → human review → merge.
+
+vendor: printful
+asOfDate: "2026-04-28"
+sourceUrl: "https://www.printful.com/custom-products"
+disclaimer: |
+  Prices are vendor "list prices" as of the asOfDate.
+  Subscription discounts (Printful Plus/Pro) are NOT reflected.
+  Always verify against your Printful dashboard before relying on the calculation.
+
+products:
+  - id: printful-bella-canvas-3001-tee-white-m
+    name: "Bella+Canvas 3001 unisex t-shirt (white, M)"
+    category: apparel
+    baseCostUsdCents: 1295
+    shippingUsdCents:
+      US: 499
+      EU: 699
+      UK: 699
+      CA: 599
+      AU: 999
+
+  - id: printful-gildan-18000-sweatshirt-black-l
+    name: "Gildan 18000 heavy blend sweatshirt (black, L)"
+    category: apparel
+    baseCostUsdCents: 2295
+    shippingUsdCents:
+      US: 549
+      EU: 799
+      UK: 799
+      CA: 649
+      AU: 1099
+
+  - id: printful-mug-11oz-white
+    name: "11oz ceramic mug (white)"
+    category: drinkware
+    baseCostUsdCents: 795
+    shippingUsdCents:
+      US: 499
+      EU: 599
+      UK: 599
+      CA: 549
+      AU: 699
+
+  - id: printful-aop-hoodie-unisex-m
+    name: "All-Over-Print unisex hoodie (M)"
+    category: apparel
+    baseCostUsdCents: 4495
+    shippingUsdCents:
+      US: 699
+      EU: 999
+      UK: 999
+      CA: 799
+      AU: 1299
+
+  - id: printful-tote-bag-natural
+    name: "Cotton tote bag (natural, 16x16)"
+    category: accessory
+    baseCostUsdCents: 1195
+    shippingUsdCents:
+      US: 449
+      EU: 549
+      UK: 549
+      CA: 499
+      AU: 699
+
+  - id: printful-poster-matte-18x24
+    name: "Matte poster (18x24)"
+    category: wall-art
+    baseCostUsdCents: 1395
+    shippingUsdCents:
+      US: 549
+      EU: 749
+      UK: 749
+      CA: 649
+      AU: 949
