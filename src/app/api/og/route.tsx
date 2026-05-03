@@ -14,16 +14,12 @@ import {
 /**
  * Dynamic OG image for share-able calculator results.
  *
- * Renders a 1200×630 PNG showing:
- *   - Brand mark + product name
- *   - The headline number (net profit) in big Geist Mono
- *   - Margin %
- *   - "as of" footer for transparency
- *
- * Per CEO slim-down: Geist fonts are loaded from a self-hosted public/ asset
- * later (Vercel Edge needs ArrayBuffer). For W2 MVP we use ImageResponse
- * defaults (system fallback) — the design is monospace-tabular-numbers heavy
- * so it still reads cleanly. A follow-up commit will pin Geist via fetch+ArrayBuffer.
+ * W3 note: We attempted to load Geist via Google Fonts but @vercel/og's Satori
+ * engine doesn't support woff2 (only TTF/OTF). Per CEO slim-down decree —
+ * don't over-invest in font perfection when system fonts render cleanly at
+ * 144px on a 1200x630 image. Brand identity comes through via color (#0F3D2E)
+ * and tabular-numeric layout. Self-hosted Geist TTF can be added post-launch
+ * if A/B testing shows it moves share-link CTR.
  */
 
 export const runtime = "edge";

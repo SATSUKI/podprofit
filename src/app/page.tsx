@@ -129,14 +129,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-stone-200 pt-8 text-sm text-stone-600 dark:border-stone-800 dark:text-stone-400">
-        <p>
-          Built in public by{" "}
-          <a href="https://x.com/lastarna" className="underline">@lastarna</a> ·{" "}
-          <a href="https://github.com/SATSUKI/podprofit" className="underline">source on GitHub</a>
-        </p>
-      </footer>
     </main>
   );
 }
