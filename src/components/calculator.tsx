@@ -56,6 +56,11 @@ export function Calculator() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   // Hydrate from share-link URL params (one-shot, on mount).
+  // The set-state-in-effect lint rule fires on each setState call here because
+  // we batch-apply multiple URL-derived defaults; the alternative
+  // (useSyncExternalStore for URL state) is heavier than the benefit and the
+  // URL never changes after mount on this page.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (typeof window === "undefined") return;
     const decoded = decodeShareLink(window.location.search.replace(/^\?/, ""));
@@ -68,6 +73,7 @@ export function Calculator() {
     if (decoded.retailDisplay) setRetailInput(decoded.retailDisplay);
     if (decoded.includeOffsiteAds !== undefined) setIncludeOffsiteAds(decoded.includeOffsiteAds);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const product = useMemo(
     () => ALL_PRODUCTS.find((p) => p.id === productId)!,

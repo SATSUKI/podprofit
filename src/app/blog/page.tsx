@@ -34,6 +34,15 @@ const POSTS: Post[] = [
     publishedAt: "2026-05-26",
     readingMinutes: 6,
   },
+  {
+    slug: "printful-vs-printify-vs-gelato-vs-merch",
+    title:
+      "Printful vs Printify vs Gelato vs Merch by Amazon: 2026 Profit Comparison",
+    description:
+      "Four POD vendors, same product, same retail price. The first head-to-head that includes Gelato (best for EU sellers) and Merch by Amazon (royalty model, no upfront cost).",
+    publishedAt: "2026-06-02",
+    readingMinutes: 7,
+  },
 ];
 
 export default function BlogIndexPage() {

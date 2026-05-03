@@ -36,6 +36,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/blog/printful-vs-printify-vs-gelato-vs-merch`,
+      lastModified: new Date("2026-06-02"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/legal/terms`,
       lastModified: new Date("2026-05-03"),
       changeFrequency: "yearly",
