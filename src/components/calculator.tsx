@@ -50,6 +50,10 @@ export function Calculator() {
   const [retailInput, setRetailInput] = useState<string>("24.00");
   const [includeOffsiteAds, setIncludeOffsiteAds] = useState<boolean>(false);
   const [copyState, setCopyState] = useState<"idle" | "copied">("idle");
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "auth_required" | "limit" | "error"
+  >("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Hydrate from share-link URL params (one-shot, on mount).
   useEffect(() => {
@@ -213,6 +217,77 @@ export function Calculator() {
             >
               {copyState === "copied" ? "✓ Link copied" : "Copy share link"}
             </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (saveState === "saving" || saveState === "saved") return;
+                setSaveState("saving");
+                setSaveError(null);
+                try {
+                  const res = await fetch("/api/calculations/save", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      input: {
+                        productId: product.id,
+                        vendor: product.vendor,
+                        marketplace,
+                        region,
+                        retailPriceCents: result.retailPriceCents,
+                        displayCurrency: currency,
+                        includeOffsiteAds,
+                      },
+                      output: {
+                        netProfitCents: result.netProfitCents,
+                        marginPercent: result.marginPercent,
+                        totalCostsCents: result.totalCostsCents,
+                      },
+                    }),
+                  });
+                  if (res.status === 401) {
+                    setSaveState("auth_required");
+                    return;
+                  }
+                  if (res.status === 402) {
+                    setSaveState("limit");
+                    return;
+                  }
+                  if (!res.ok) {
+                    const body = (await res.json().catch(() => ({}))) as {
+                      error?: string;
+                    };
+                    setSaveError(body.error ?? "Save failed");
+                    setSaveState("error");
+                    return;
+                  }
+                  setSaveState("saved");
+                  setTimeout(() => setSaveState("idle"), 3000);
+                } catch (err) {
+                  setSaveError(err instanceof Error ? err.message : "Save failed");
+                  setSaveState("error");
+                }
+              }}
+              className="ml-2 mt-6 inline-flex items-center gap-2 rounded-lg border border-brand-800 px-4 py-2 text-sm font-medium text-brand-800 transition hover:bg-brand-50 focus:outline-none focus:ring-2 focus:ring-brand-700 dark:border-brand-300 dark:text-brand-300 dark:hover:bg-brand-900/20"
+            >
+              {saveState === "saving" && "Saving…"}
+              {saveState === "saved" && "✓ Saved to your account"}
+              {saveState === "auth_required" && (
+                <a href="/login" className="underline">
+                  Sign in to save
+                </a>
+              )}
+              {saveState === "limit" && (
+                <a href="/pricing" className="underline">
+                  Upgrade to Pro to save more
+                </a>
+              )}
+              {(saveState === "idle" || saveState === "error") && "Save calculation"}
+            </button>
+            {saveState === "error" && saveError && (
+              <p className="mt-2 text-xs text-red-600 dark:text-red-400">
+                {saveError}
+              </p>
+            )}
           </>
         ) : null}
       </div>

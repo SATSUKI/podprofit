@@ -1,6 +1,7 @@
 import { Calculator } from "@/components/calculator";
 import { VendorComparison } from "@/components/vendor-comparison";
 import { SoftwareApplicationJsonLd, FaqPageJsonLd } from "@/components/json-ld";
+import { EmailSignup } from "@/components/email-signup";
 
 const FAQ_ITEMS: Array<{ q: string; a: string }> = [
   {
@@ -89,6 +90,14 @@ export default function Home() {
             an &quot;as of&quot; date. We tell you when the data is stale.
           </li>
         </ul>
+      </section>
+
+      {/* Lead Magnet email capture */}
+      <section aria-labelledby="leadmagnet-heading">
+        <h2 id="leadmagnet-heading" className="sr-only">
+          Get the cheat sheet
+        </h2>
+        <EmailSignup source="home_lp" />
       </section>
 
       {/* FAQ — AIO optimized: complete questions, factual answers */}
