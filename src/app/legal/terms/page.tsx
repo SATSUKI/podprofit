@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "v0.1 baseline of the PODProfit Terms of Service, published for the launch of getpodprofit.com on 2026-06-09.",
+    "v0.2 of the PODProfit Terms of Service, adding the Pro Annual ($79/year) plan to scope, payments, and refund policy.",
   alternates: {
     canonical: "/legal/terms",
   },
@@ -15,13 +15,13 @@ export default function TermsPage() {
     <article>
       <h1>Terms of Service</h1>
       <p>
-        <em>Last updated: 2026-06-09 · Version 0.1</em>
+        <em>Last updated: 2026-05-03 · Version 0.2</em>
       </p>
 
       <p>
-        <strong>Effective date</strong>: 2026-06-09
+        <strong>Effective date</strong>: 2026-05-03
         <br />
-        <strong>Version</strong>: 0.1 (initial pre-launch publication)
+        <strong>Version</strong>: 0.2 (Pro Annual addition)
         <br />
         <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), Tokyo, Japan
         <br />
@@ -30,11 +30,14 @@ export default function TermsPage() {
 
       <blockquote>
         <p>
-          <strong>About this version</strong>: This is the v0.1 baseline published for the launch of
-          getpodprofit.com on 2026-06-09. It will be revised to v1.0 before the Excel Template
-          launch on 2026-07-23 to incorporate external counsel review and to expand the EULA and
-          refund language for Lemon Squeezy products. Material changes will be communicated by
-          email at least 30 days in advance.
+          <strong>About this version</strong>: This is the v0.2 revision of the v0.1 baseline
+          (originally drafted for the launch of getpodprofit.com on 2026-06-09). v0.2 adds the{" "}
+          <strong>Pro Annual ($79/year)</strong> plan to the scope, payments section, and refund
+          policy so that the Terms align with the published Refund Policy v1.1. All other sections
+          are carried over unchanged from v0.1. The document will still be revised to v1.0 before
+          the Excel Template launch on 2026-07-23 to incorporate external counsel review and to
+          expand the EULA and refund language for Lemon Squeezy products. Material changes will be
+          communicated by email at least 30 days in advance.
         </p>
       </blockquote>
 
@@ -69,6 +72,10 @@ export default function TermsPage() {
         </li>
         <li>
           The <strong>Pro Monthly plan</strong> ($9/month, sold via Stripe on getpodprofit.com)
+        </li>
+        <li>
+          The <strong>Pro Annual plan</strong> ($79/year, billed yearly, sold via Stripe on
+          getpodprofit.com; saves vs paying monthly)
         </li>
         <li>
           The <strong>PODProfit Excel Template</strong> (sold via Lemon Squeezy as Merchant of
@@ -178,17 +185,26 @@ export default function TermsPage() {
         from the account page; access continues until the end of the current paid period.
       </p>
 
-      <h3>5.3 PODProfit Excel Template (Lemon Squeezy as MoR — planned 2026-07-23)</h3>
+      <h3>5.3 Pro Annual ($79/year, Stripe)</h3>
+      <p>
+        A recurring annual subscription that grants the same Pro feature set as Pro Monthly (saved
+        calculations, exports, priority support), billed yearly in a single charge. Pro Annual
+        saves you a meaningful amount compared with paying month-by-month at the Pro Monthly rate.
+        Cancel at any time from the account page; cancellation stops auto-renewal at the end of the
+        current paid year, and access continues until the end of that paid year.
+      </p>
+
+      <h3>5.4 PODProfit Excel Template (Lemon Squeezy as MoR — planned 2026-07-23)</h3>
       <p>
         A downloadable Excel/Google Sheets workbook. Sold via{" "}
         <strong>Lemon Squeezy as Merchant of Record</strong>, which collects and remits applicable
         VAT, GST, and sales tax on our behalf and acts as the seller of record on the invoice.
       </p>
 
-      <h3>5.4 PODProfit Benchmark Report PDF (Lemon Squeezy as MoR — planned 2026-08-20)</h3>
-      <p>A downloadable PDF report. Same MoR arrangement as 5.3.</p>
+      <h3>5.5 PODProfit Benchmark Report PDF (Lemon Squeezy as MoR — planned 2026-08-20)</h3>
+      <p>A downloadable PDF report. Same MoR arrangement as 5.4.</p>
 
-      <h3>5.5 Free calculator and blog</h3>
+      <h3>5.6 Free calculator and blog</h3>
       <p>
         Free to use without an account. Subject to fair-use limits to prevent abuse of our
         infrastructure.
@@ -198,12 +214,18 @@ export default function TermsPage() {
 
       <h2 id="section-6">6. Payment, billing, and taxes</h2>
 
-      <h3>6.1 Stripe (Lifetime, Pro)</h3>
+      <h3>6.1 Stripe (Lifetime, Pro Monthly, Pro Annual)</h3>
       <p>
-        Lifetime and Pro charges are processed by <strong>Stripe</strong>. We never see or store
-        full card details. Prices on getpodprofit.com are stated in <strong>USD</strong>; your card
-        issuer may apply currency conversion and foreign-transaction fees outside our control.
-        Stripe processing fees are absorbed by us and are not added to the displayed price.
+        Lifetime, Pro Monthly, and Pro Annual charges are processed by <strong>Stripe</strong>. We
+        never see or store full card details. Prices on getpodprofit.com are stated in{" "}
+        <strong>USD</strong>; your card issuer may apply currency conversion and foreign-transaction
+        fees outside our control. Stripe processing fees are absorbed by us and are not added to the
+        displayed price.
+      </p>
+      <p>
+        Pro Monthly is billed on a <strong>monthly billing cycle</strong>. Pro Annual is billed on a{" "}
+        <strong>yearly billing cycle</strong>, in a single charge per year, and renews automatically
+        at the end of each paid year unless cancelled.
       </p>
 
       <h3>6.2 Lemon Squeezy (Excel, Report)</h3>
@@ -217,8 +239,9 @@ export default function TermsPage() {
 
       <h3>6.3 Failed payments</h3>
       <p>
-        If a Pro Monthly renewal fails, we will retry per Stripe&apos;s standard schedule. If
-        recovery fails, the account will be downgraded to free until payment is restored.
+        If a Pro Monthly or Pro Annual renewal fails, we will retry per Stripe&apos;s standard
+        schedule. If recovery fails, the account will be downgraded to free until payment is
+        restored.
       </p>
 
       <hr />
@@ -251,7 +274,17 @@ export default function TermsPage() {
         side.
       </p>
 
-      <h3>7.3 Excel Template / Benchmark Report (Lemon Squeezy)</h3>
+      <h3>7.3 Pro Annual ($79/year)</h3>
+      <p>
+        Full refund within <strong>14 days</strong> of purchase, <strong>no questions asked</strong>
+        . After 14 days, Pro Annual is non-refundable, but the service remains active for the named
+        account holder until the end of the paid year.{" "}
+        <strong>Cancellation stops auto-renewal</strong> at the end of the current paid year;
+        cancelling does not, by itself, trigger a refund of the current year&apos;s charge once the
+        14-day window has passed.
+      </p>
+
+      <h3>7.4 Excel Template / Benchmark Report (Lemon Squeezy)</h3>
       <p>
         Digital downloads are, in general, <strong>non-refundable</strong> once the download link
         has been delivered. Narrow exceptions:
@@ -272,7 +305,7 @@ export default function TermsPage() {
         </li>
       </ul>
 
-      <h3>7.4 EU / UK consumers — 14-day right of withdrawal</h3>
+      <h3>7.5 EU / UK consumers — 14-day right of withdrawal</h3>
       <p>
         Under the EU Consumer Rights Directive (2011/83/EU, Art. 16(m)) and equivalent UK
         regulations, EU and UK consumers normally have a <strong>14-day right of withdrawal</strong>{" "}
@@ -283,11 +316,11 @@ export default function TermsPage() {
           14-day right of withdrawal once download is enabled.
         </strong>{" "}
         Lemon Squeezy collects this consent on our behalf at checkout. The narrow refund exceptions
-        in Section 7.3 still apply.
+        in Section 7.4 still apply.
       </p>
       <p>
-        For Lifetime ($149) and Pro Monthly ($9), the right of withdrawal applies under the
-        conditions described in Section 7.1 / 7.2.
+        For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right of withdrawal applies
+        under the conditions described in Section 7.1, 7.2, and 7.3 respectively.
       </p>
 
       <hr />
@@ -602,6 +635,19 @@ export default function TermsPage() {
                 products), 100-seat cap with 8 reserved seats, governing law (Japan / Tokyo District
                 Court). To be reviewed against external counsel feedback before v1.0 (target:
                 2026-07-23).
+              </td>
+            </tr>
+            <tr>
+              <td>0.2</td>
+              <td>2026-05-03</td>
+              <td>
+                Adds the <strong>Pro Annual ($79/year, Stripe, yearly billing cycle)</strong> plan
+                to Section 2 (scope), Section 5 (renumbered to 5.3 Pro Annual; Excel/Report shifted
+                to 5.4/5.5; Free to 5.6), Section 6.1 (Stripe billing-cycle wording) and 6.3 (failed
+                renewals now cover annual), and Section 7 (new 7.3 Pro Annual refund — 14-day
+                no-questions-asked, non-refundable thereafter, cancellation stops auto-renewal; old
+                7.3/7.4 renumbered to 7.4/7.5). Aligns Terms with the published Refund Policy v1.1.
+                No other substantive changes from v0.1.
               </td>
             </tr>
           </tbody>

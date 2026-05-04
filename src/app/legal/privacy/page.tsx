@@ -275,8 +275,8 @@ export default function PrivacyPage() {
               <td>Anthropic, PBC</td>
               <td>United States</td>
               <td>
-                AI-assisted drafting of customer-support replies (gated; live no earlier than 14
-                days post-launch, after internal QA pass)
+                AI-assisted drafting of customer-support replies (planned to go live approximately
+                2026-06-23, pending post-launch evaluation of demand and quality criteria)
               </td>
             </tr>
           </tbody>
