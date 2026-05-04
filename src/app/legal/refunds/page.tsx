@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Refund Policy",
-  description: "PODProfit refund terms — clear, fair, and standard for the SaaS industry.",
+  description:
+    "PODProfit refund terms — clear, fair, and aligned with our Terms of Service.",
 };
 
 export default function RefundsPage() {
@@ -10,50 +12,115 @@ export default function RefundsPage() {
     <article>
       <h1>Refund Policy</h1>
       <p>
-        <em>Last updated: 2026-05-03 · Version: 1.0</em>
+        <em>Last updated: 2026-06-09 · Version: 1.1</em>
       </p>
 
-      <h2>Pro Monthly</h2>
       <p>
-        We do not offer prorated refunds for the current month. You can cancel anytime; your access
-        continues until the end of your current billing period, after which no further charges occur.
+        This page summarises our refund terms in plain language. The legally
+        binding version lives in our{" "}
+        <Link href="/legal/terms">Terms of Service</Link>, Section 7. If the two
+        differ, the Terms of Service control. We treat refund requests in good
+        faith and respond within <strong>3 business days</strong> (no later than
+        7 business days during heavy launch periods).
       </p>
 
-      <h2>Pro Annual</h2>
+      <h2>Lifetime ($149)</h2>
       <p>
-        Full refund within <strong>14 days of purchase</strong>, no questions asked. After 14 days, the
-        annual plan is non-refundable but remains active until the year is up.
-      </p>
-
-      <h2>Lifetime</h2>
-      <p>
-        Full refund within <strong>14 days of purchase</strong>, no questions asked. After 14 days,
-        Lifetime is non-refundable. When a Lifetime seat is refunded, it returns to the public pool and
-        becomes available for the next customer.
-      </p>
-
-      <h2>Exceptional cases</h2>
-      <p>
-        Beyond the standard 14-day window, we may issue a full or partial refund at our discretion in
-        cases such as:
+        Refundable within <strong>7 days of purchase</strong>, on the combined
+        conditions that:
       </p>
       <ul>
-        <li>The service was unavailable due to our fault for an extended period</li>
-        <li>Calculation errors caused by us led to a documented loss</li>
-        <li>Duplicate accidental charges</li>
+        <li>
+          The calculator has been launched <strong>zero times</strong> from your
+          account (we verify with our server-side access logs), and
+        </li>
+        <li>You provide the order receipt.</li>
       </ul>
+      <p>
+        After either condition fails, Lifetime is non-refundable. When a Lifetime
+        seat is refunded, it returns to the public pool and becomes available
+        for the next customer.
+      </p>
+
+      <h2>Pro Monthly ($9 / month)</h2>
+      <p>
+        Cancelling stops future billing; we do not pro-rate the current period.
+        We do not provide refunds for partial months unless the cancellation is
+        the result of a billing error on our side.
+      </p>
+
+      <h2>Pro Annual ($79 / year)</h2>
+      <p>
+        Full refund within <strong>14 days of purchase</strong>, no questions
+        asked. After 14 days, the annual plan is non-refundable but remains
+        active until the year is up.
+      </p>
+
+      <h2>Excel Template ($19) and Benchmark Report ($29)</h2>
+      <p>
+        Digital downloads sold via Lemon Squeezy are, in general,{" "}
+        <strong>non-refundable</strong> once the download link has been
+        delivered. Narrow exceptions:
+      </p>
+      <ul>
+        <li>
+          <strong>Duplicate charge</strong> — refunded automatically within{" "}
+          <strong>1 business day</strong> of detection.
+        </li>
+        <li>
+          <strong>Zero downloads</strong> — if the download link has been
+          delivered and you can demonstrate it was never used (server-side log
+          shows zero downloads), we will consider a refund within 14 days of
+          purchase at our discretion.
+        </li>
+        <li>
+          <strong>Material defect</strong> — if the file is corrupted or
+          substantially fails to match the published description, we will repair
+          or refund.
+        </li>
+      </ul>
+
+      <h2>EU / UK consumers — 14-day right of withdrawal</h2>
+      <p>
+        Under the EU Consumer Rights Directive (2011/83/EU, Art. 16(m)) and
+        equivalent UK regulations, EU and UK consumers normally have a 14-day
+        right of withdrawal for digital purchases. By completing checkout for
+        any digital download (Excel Template, Benchmark Report) and obtaining
+        immediate access to the file,{" "}
+        <strong>
+          you expressly consent to begin performance immediately and acknowledge
+          that you lose the 14-day right of withdrawal once download is enabled.
+        </strong>{" "}
+        Lemon Squeezy collects this consent on our behalf at checkout. The
+        narrow refund exceptions above still apply.
+      </p>
+      <p>
+        For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right
+        of withdrawal applies under the conditions described in their
+        respective sections above.
+      </p>
 
       <h2>How to request a refund</h2>
       <p>
-        Email <code>billing@getpodprofit.com</code> with the email address associated with your purchase
-        and a brief reason (optional but appreciated for product feedback). We aim to process refunds
-        within <strong>5 business days</strong>.
+        Email <code>hello@getpodprofit.com</code> with the email address
+        associated with your purchase and a brief reason (optional but
+        appreciated for product feedback). Lifetime, Pro Monthly, and Pro
+        Annual purchases are processed via Stripe; Excel Template and Benchmark
+        Report are processed via Lemon Squeezy as Merchant of Record.
       </p>
 
       <h2>Chargebacks</h2>
       <p>
-        If you initiate a chargeback before contacting us, we may suspend your account pending
-        resolution. Please email us first — we&apos;d rather refund you cleanly than fight a dispute.
+        If you initiate a chargeback before contacting us, we may suspend your
+        account pending resolution. Please email us first — we&apos;d rather
+        refund you cleanly than fight a dispute.
+      </p>
+
+      <h2>Trademarks</h2>
+      <p>
+        PODProfit is not affiliated with, endorsed by, or sponsored by Etsy,
+        Shopify, Printful, Printify, Stripe, or Lemon Squeezy. All third-party
+        names and logos are property of their respective owners.
       </p>
     </article>
   );
