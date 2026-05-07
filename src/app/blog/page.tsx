@@ -67,6 +67,15 @@ const POSTS: Post[] = [
     publishedAt: "2026-06-15",
     readingMinutes: 5,
   },
+  {
+    slug: "pod-margin-benchmark-2026",
+    title:
+      "POD Margin Benchmark 2026: The Real Numbers Across 6 Vendors and 5 Marketplaces",
+    description:
+      "The cornerstone benchmark: 6 products, 2 vendors, 5 marketplaces, 6 currencies. Net margin matrices, break-even retail prices, and the 50-100 orders/month threshold where POD stops paying.",
+    publishedAt: "2026-06-15",
+    readingMinutes: 12,
+  },
 ];
 
 export default function BlogIndexPage() {
