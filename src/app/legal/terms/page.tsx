@@ -23,7 +23,8 @@ export default function TermsPage() {
         <br />
         <strong>Version</strong>: 0.2 (Pro Annual addition)
         <br />
-        <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), Tokyo, Japan
+        <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), 8F MIEUX Shibuya Building,
+        5-3 Maruyama-cho, Shibuya-ku, Tokyo 150-0044, Japan
         <br />
         <strong>Contact</strong>: hello@getpodprofit.com
       </p>
@@ -603,8 +604,8 @@ export default function TermsPage() {
             <tr>
               <td>Postal address</td>
               <td>
-                Satsuki Okazaki, Tokyo, Japan (specific address provided on individual written
-                request)
+                Satsuki Okazaki, 8F MIEUX Shibuya Building, 5-3 Maruyama-cho, Shibuya-ku, Tokyo
+                150-0044, Japan
               </td>
             </tr>
           </tbody>

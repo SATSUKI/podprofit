@@ -22,7 +22,8 @@ export default function PrivacyPage() {
         <br />
         <strong>Version</strong>: 0.1 (initial pre-launch publication)
         <br />
-        <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), Tokyo, Japan
+        <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), 8F MIEUX Shibuya Building,
+        5-3 Maruyama-cho, Shibuya-ku, Tokyo 150-0044, Japan
         <br />
         <strong>Contact</strong>: hello@getpodprofit.com
       </p>
@@ -550,8 +551,8 @@ export default function PrivacyPage() {
             <tr>
               <td>Postal address</td>
               <td>
-                Satsuki Okazaki, Tokyo, Japan (specific address provided on individual written
-                request)
+                Satsuki Okazaki, 8F MIEUX Shibuya Building, 5-3 Maruyama-cho, Shibuya-ku, Tokyo
+                150-0044, Japan
               </td>
             </tr>
           </tbody>
