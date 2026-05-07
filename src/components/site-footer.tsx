@@ -7,8 +7,8 @@ export function SiteFooter() {
         <div>
           <p>
             Built in public by{" "}
-            <a href="https://x.com/lastarna" className="underline">
-              @lastarna
+            <a href="mailto:hello@getpodprofit.com" className="underline">
+              Satsuki Okazaki
             </a>
             {" · "}
             <a href="https://github.com/SATSUKI/podprofit" className="underline">

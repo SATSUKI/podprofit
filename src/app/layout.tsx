@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     "Shopify POD calculator",
     "multi currency POD calculator",
   ],
-  authors: [{ name: "Satsuki Okazaki", url: "https://x.com/lastarna" }],
+  authors: [{ name: "Satsuki Okazaki", url: "https://getpodprofit.com" }],
   creator: "Satsuki Okazaki",
   publisher: "PODProfit",
   openGraph: {
@@ -47,7 +47,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@lastarna",
     title: "PODProfit — Real POD profit calculator",
     description:
       "Vendor-neutral. Multi-currency. Share-able. Built in public.",

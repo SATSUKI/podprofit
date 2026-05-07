@@ -31,7 +31,7 @@ const ARTICLE_JSONLD = {
   author: {
     "@type": "Person",
     name: "Satsuki Okazaki",
-    url: "https://x.com/lastarna",
+    url: "https://getpodprofit.com",
   },
   publisher: {
     "@type": "Organization",
@@ -112,7 +112,7 @@ export default function CornerstoneTwoPage() {
       <article className="prose prose-stone max-w-none dark:prose-invert">
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Published {PUBLISHED} · 6 min read · By{" "}
-          <a href="https://x.com/lastarna">Satsuki Okazaki</a>
+          <a href="https://getpodprofit.com">Satsuki Okazaki</a>
         </p>
 
         <h1>
@@ -285,7 +285,7 @@ export default function CornerstoneTwoPage() {
         <p>
           If you find a product where the published table is wrong for your
           actual fulfillment costs, please reply on{" "}
-          <a href="https://x.com/lastarna">@lastarna</a> — we revise the
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> — we revise the
           underlying YAML monthly and credit catches in the changelog.
         </p>
 

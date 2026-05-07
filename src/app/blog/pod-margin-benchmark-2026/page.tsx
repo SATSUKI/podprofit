@@ -32,7 +32,7 @@ const ARTICLE_JSONLD = {
   author: {
     "@type": "Person",
     name: "Satsuki Okazaki",
-    url: "https://x.com/lastarna",
+    url: "https://getpodprofit.com",
   },
   publisher: {
     "@type": "Organization",
@@ -61,7 +61,7 @@ export default function PodMarginBenchmark2026Page() {
       <article className="prose prose-stone max-w-none dark:prose-invert">
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Published {PUBLISHED} · 12 min read · By{" "}
-          <a href="https://x.com/lastarna">Satsuki Okazaki</a>
+          <a href="https://getpodprofit.com">Satsuki Okazaki</a>
         </p>
 
         <h1>
@@ -721,8 +721,8 @@ export default function PodMarginBenchmark2026Page() {
 
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Counter-data, corrections, or a vendor we should add? Reply on{" "}
-          <a href="https://x.com/lastarna">@lastarna</a> or DM{" "}
-          <a href="https://reddit.com/u/o_satsuki">u/o_satsuki</a> on Reddit.
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> or DM{" "}
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> on Reddit.
           We update this post in place when prices or fees change — the{" "}
           <em>Updated</em> date at the top reflects the most recent revision.
         </p>

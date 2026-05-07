@@ -26,7 +26,7 @@ const ARTICLE_JSONLD = {
   author: {
     "@type": "Person",
     name: "Satsuki Okazaki",
-    url: "https://x.com/lastarna",
+    url: "https://getpodprofit.com",
   },
   publisher: {
     "@type": "Organization",
@@ -46,7 +46,7 @@ export default function Page() {
       <article className="prose prose-stone max-w-none dark:prose-invert">
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Published {PUBLISHED} · 5 min read · By{" "}
-          <a href="https://x.com/lastarna">Satsuki Okazaki</a>
+          <a href="https://getpodprofit.com">Satsuki Okazaki</a>
         </p>
 
         <h1>Etsy POD seller fees explained: every fee, every percentage (2026)</h1>

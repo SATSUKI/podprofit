@@ -52,7 +52,7 @@ export function SoftwareApplicationJsonLd() {
     creator: {
       "@type": "Person",
       name: "Satsuki Okazaki",
-      url: "https://x.com/lastarna",
+      url: "https://getpodprofit.com",
     },
   };
   return (

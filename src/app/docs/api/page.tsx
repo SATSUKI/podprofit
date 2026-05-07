@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Public API — calculate POD profit programmatically",
@@ -183,14 +182,14 @@ ads=false"
             calculate-profit.ts
           </a>
           . Found a bug? Open an issue or DM{" "}
-          <a href="https://x.com/lastarna">@lastarna</a>.
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a>.
         </p>
 
         <h2>Contact</h2>
         <p>
           API questions: <code>hello@getpodprofit.com</code>. Want a feature in
           v2 (more vendors, custom marketplace fees, batch endpoint)? Reply on{" "}
-          <Link href="https://x.com/lastarna">@lastarna</Link> with what
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> with what
           you&apos;re building.
         </p>
       </article>

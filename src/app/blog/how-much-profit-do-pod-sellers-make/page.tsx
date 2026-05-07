@@ -25,7 +25,7 @@ const ARTICLE_JSONLD = {
   headline: "How much profit do print-on-demand sellers actually make? (2026 benchmarks)",
   datePublished: PUBLISHED,
   dateModified: PUBLISHED,
-  author: { "@type": "Person", name: "Satsuki Okazaki", url: "https://x.com/lastarna" },
+  author: { "@type": "Person", name: "Satsuki Okazaki", url: "https://getpodprofit.com" },
   publisher: { "@type": "Organization", name: "PODProfit", url: "https://getpodprofit.com" },
   mainEntityOfPage: URL,
   description:
@@ -42,7 +42,7 @@ export default function CornerstoneOnePage() {
       <article className="prose prose-stone max-w-none dark:prose-invert">
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Published {PUBLISHED} · 8 min read · By{" "}
-          <a href="https://x.com/lastarna">Satsuki Okazaki</a>
+          <a href="https://getpodprofit.com">Satsuki Okazaki</a>
         </p>
 
         <h1>How much profit do print-on-demand sellers actually make? (2026 benchmarks)</h1>
@@ -178,8 +178,8 @@ export default function CornerstoneOnePage() {
 
         <p className="text-sm text-stone-500 dark:text-stone-400">
           Have feedback or a counter-data-point? Reply on{" "}
-          <a href="https://x.com/lastarna">@lastarna</a> or DM{" "}
-          <a href="https://reddit.com/u/o_satsuki">u/o_satsuki</a> on Reddit.
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> or DM{" "}
+          <a href="mailto:hello@getpodprofit.com">Satsuki Okazaki</a> on Reddit.
         </p>
       </article>
     </main>
