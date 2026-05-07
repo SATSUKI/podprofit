@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { stashSignupAttribution } from "@/lib/analytics/signup-attribution";
 import { cn } from "@/lib/utils/cn";
 
 export function LoginForm() {
@@ -15,6 +16,10 @@ export function LoginForm() {
     setState("submitting");
     setErrorMsg(null);
     try {
+      // Stash signup attribution BEFORE the magic-link round-trip nukes the
+      // referrer. The callback page reads this back from sessionStorage.
+      stashSignupAttribution("magic_link", document.referrer);
+
       const supabase = getBrowserSupabase();
       const redirectTo = `${window.location.origin}/auth/callback`;
       const { error } = await supabase.auth.signInWithOtp({

@@ -1,24 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type Stripe from "stripe";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe/server";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { PLAN_CATALOG } from "@/lib/stripe/products";
+import {
+  claimWebhookEvent,
+  markWebhookEventProcessed,
+  releaseWebhookEventForRetry,
+} from "@/lib/stripe/webhook-events";
+import { handleLifetimeCheckoutCompleted } from "@/lib/stripe/lifetime-handler";
 
 export const runtime = "nodejs";
 
 /**
- * Stripe Webhook handler.
+ * Stripe webhook handler.
  *
- * Critical responsibilities (per `supabase-er-rls-design.md` ADR):
- *  - Signature verification (refuse anything without a valid Stripe signature)
- *  - Idempotency (event.id stored as PK; replays are no-ops)
- *  - Lifetime seat atomic claim via `fn_claim_lifetime_seat` RPC
- *  - Mirror subscription state into `public.subscriptions` for fast read access
- *
- * Per CEO slim-down: the `webhook_events` idempotency table is a future migration
- * (keeps the W3 surface minimal). For now, idempotency is best-effort via the
- * unique constraint on `lifetime_seats.stripe_payment_intent_id`.
+ * Critical responsibilities (per `measurement-spec-v1.md` §1.2 / §4.3):
+ *   - Signature verification (401 anything without a valid signature).
+ *   - Idempotency via `webhook_events.stripe_event_id` UK — replays are
+ *     no-ops.
+ *   - Lifetime: atomic seat claim via `fn_claim_lifetime_seat` RPC + audit
+ *     log row, all gated by the same idempotency claim.
+ *   - Subscription: mirror Stripe state into `public.subscriptions`.
+ *   - Failure semantics: any side-effect failure deletes the
+ *     `webhook_events` row so Stripe's retry can succeed (avoids "stuck"
+ *     unprocessed rows that would block retries forever).
  */
 export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
@@ -48,90 +56,98 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServerSupabase();
 
-  switch (event.type) {
-    case "checkout.session.completed": {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const planId = session.metadata?.plan_id;
-      if (planId === "lifetime") {
-        const paymentIntentId =
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : session.payment_intent?.id;
-        if (paymentIntentId) {
-          // Atomic seat claim. RPC returns the seat_number or null when sold out.
-          const { data: seatNumber, error } = await supabase.rpc(
-            "fn_claim_lifetime_seat",
-            {
-              p_user_id: null, // anon Lifetime purchases — link to user later
-              p_payment_intent_id: paymentIntentId,
-            },
-          );
-          if (error) {
-            console.error("[stripe.webhook] seat claim failed", error);
-          } else if (seatNumber === null) {
-            // Sold out — issue immediate refund to maintain the cap promise.
-            await stripe.refunds.create({
-              payment_intent: paymentIntentId,
-              reason: "duplicate",
-              metadata: { reason: "lifetime_capacity_exceeded" },
-            });
-          }
-        }
-      }
-      break;
-    }
-
-    case "customer.subscription.created":
-    case "customer.subscription.updated":
-    case "customer.subscription.deleted": {
-      const sub = event.data.object as Stripe.Subscription;
-      const customerId =
-        typeof sub.customer === "string" ? sub.customer : sub.customer.id;
-      const priceId = sub.items.data[0]?.price.id;
-      const lookupKey = sub.items.data[0]?.price.lookup_key ?? "";
-      const planEntry =
-        Object.values(PLAN_CATALOG).find((p) => p.stripeLookupKey === lookupKey) ??
-        null;
-      const planType = planEntry?.id ?? "free";
-
-      // Mirror to subscriptions table. The user_id linkage requires us to look
-      // up the user by stripe_customer_id (set during sign-up flow).
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("user_id")
-        .eq("stripe_customer_id", customerId)
-        .maybeSingle();
-
-      if (profile?.user_id) {
-        // Stripe v22 moved period boundaries onto the SubscriptionItem.
-        const item = sub.items.data[0];
-        const periodStart = item?.current_period_start
-          ? new Date(item.current_period_start * 1000).toISOString()
-          : null;
-        const periodEnd = item?.current_period_end
-          ? new Date(item.current_period_end * 1000).toISOString()
-          : null;
-        await supabase.from("subscriptions").upsert(
-          {
-            user_id: profile.user_id,
-            plan_type: planType,
-            status: sub.status,
-            stripe_subscription_id: sub.id,
-            stripe_price_id: priceId,
-            current_period_start: periodStart,
-            current_period_end: periodEnd,
-            cancel_at_period_end: sub.cancel_at_period_end,
-          },
-          { onConflict: "stripe_subscription_id" },
-        );
-      }
-      break;
-    }
-
-    default:
-      // No-op for events we don't handle yet.
-      break;
+  // Idempotency claim — short-circuit on replays before any side effects.
+  const claim = await claimWebhookEvent(supabase, event.id, event.type, {
+    livemode: event.livemode,
+    api_version: event.api_version ?? null,
+  });
+  if (claim === "already_processed") {
+    return NextResponse.json({ received: true, replay: true });
   }
 
-  return NextResponse.json({ received: true });
+  try {
+    switch (event.type) {
+      case "checkout.session.completed": {
+        await handleLifetimeCheckoutCompleted(
+          stripe,
+          supabase,
+          event.data.object as Stripe.Checkout.Session,
+        );
+        break;
+      }
+
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted": {
+        await handleSubscriptionMirror(
+          supabase,
+          event.data.object as Stripe.Subscription,
+        );
+        break;
+      }
+
+      default:
+        // No-op for events we don't handle yet — still considered "processed"
+        // so Stripe stops retrying.
+        break;
+    }
+
+    await markWebhookEventProcessed(supabase, event.id);
+    return NextResponse.json({ received: true });
+  } catch (err) {
+    console.error("[stripe.webhook] handler failed", err);
+    await releaseWebhookEventForRetry(supabase, event.id, err);
+    return NextResponse.json(
+      { error: "Handler failed", detail: (err as Error).message },
+      { status: 500 },
+    );
+  }
+}
+
+async function handleSubscriptionMirror(
+  supabase: SupabaseClient,
+  sub: Stripe.Subscription,
+): Promise<void> {
+  const customerId =
+    typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+  const priceId = sub.items.data[0]?.price.id;
+  const lookupKey = sub.items.data[0]?.price.lookup_key ?? "";
+  const planEntry =
+    Object.values(PLAN_CATALOG).find((p) => p.stripeLookupKey === lookupKey) ??
+    null;
+  const planType = planEntry?.id ?? "free";
+
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("user_id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  if (!profile?.user_id) return;
+
+  // Stripe v22 moved period boundaries onto the SubscriptionItem.
+  const item = sub.items.data[0];
+  const periodStart = item?.current_period_start
+    ? new Date(item.current_period_start * 1000).toISOString()
+    : null;
+  const periodEnd = item?.current_period_end
+    ? new Date(item.current_period_end * 1000).toISOString()
+    : null;
+
+  const { error } = await supabase.from("subscriptions").upsert(
+    {
+      user_id: profile.user_id,
+      plan_type: planType,
+      status: sub.status,
+      stripe_subscription_id: sub.id,
+      stripe_price_id: priceId,
+      current_period_start: periodStart,
+      current_period_end: periodEnd,
+      cancel_at_period_end: sub.cancel_at_period_end,
+    },
+    { onConflict: "stripe_subscription_id" },
+  );
+  if (error) {
+    throw new Error(`subscriptions upsert failed: ${error.message}`);
+  }
 }

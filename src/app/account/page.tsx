@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSsrSupabase } from "@/lib/supabase/ssr";
+import { SignupEventEmitter } from "@/components/signup-event-emitter";
 
 export const metadata: Metadata = {
   title: "Your account",
   robots: { index: false, follow: false },
 };
 
-export default async function AccountPage() {
+interface AccountPageProps {
+  searchParams: Promise<{ signup?: string }>;
+}
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
+  const { signup } = await searchParams;
+  const isFirstSignup = signup === "1";
   const supabase = await createSsrSupabase();
   if (!supabase) {
     return (
@@ -37,6 +44,7 @@ export default async function AccountPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      <SignupEventEmitter enabled={isFirstSignup} />
       <header className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Your account</h1>
