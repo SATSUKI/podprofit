@@ -17,6 +17,12 @@ import {
   encodeShareLink,
 } from "@/lib/calculator/share-link";
 import { cn } from "@/lib/utils/cn";
+import {
+  DAILY_LIMIT,
+  increment as incrementDailyLimit,
+  readState as readDailyLimitState,
+  type DailyLimitState,
+} from "@/lib/calculator/daily-limit";
 import type {
   Currency,
   Marketplace,
@@ -55,6 +61,36 @@ export function Calculator() {
   >("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // Refund-eligibility access log (Task 19 / Terms §7.1):
+  //   The Refunds page promises "0 calculator launches verified by access
+  //   logs" as a Lifetime refund precondition. We fire a single fact-of-
+  //   launch beacon on the first successful calculation in this session.
+  //   Anonymous users are skipped server-side (they have no purchase to
+  //   gate). Calculator inputs are NEVER sent — the body is empty.
+  const launchTrackedRef = useRef(false);
+
+  // Free-tier daily limit (Task 5 / launch announcement v2: 50 calcs /
+  // day per browser). Pro & Lifetime users bypass — we resolve the
+  // tier on mount via /api/me/plan. While the tier is unknown we
+  // *optimistically* treat the user as free (worst case: a paid user
+  // briefly sees the remaining-calculations banner).
+  const [tier, setTier] = useState<"unknown" | "free" | "pro" | "lifetime">(
+    "unknown",
+  );
+  const [dailyState, setDailyState] = useState<DailyLimitState>({
+    count: 0,
+    blocked: false,
+    remaining: DAILY_LIMIT,
+  });
+  // false when localStorage is unavailable (Safari private mode, locked
+  // down browsers); we then skip the cap entirely (per task spec).
+  // Tracked as state (not a ref) so render reads are React-pure.
+  const [storageAvailable, setStorageAvailable] = useState<boolean>(false);
+  // Guard against double-counting: this is the same trigger as the
+  // refund-log beacon (first parseable result in this session), so we
+  // pin the increment to the same one-shot ref.
+  const dailyIncrementedRef = useRef(false);
+
   // Hydrate from share-link URL params (one-shot, on mount).
   // The set-state-in-effect lint rule fires on each setState call here because
   // we batch-apply multiple URL-derived defaults; the alternative
@@ -75,13 +111,54 @@ export function Calculator() {
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Refund-eligibility access log (Task 19 / Terms §7.1):
-  //   The Refunds page promises "0 calculator launches verified by access
-  //   logs" as a Lifetime refund precondition. We fire a single fact-of-
-  //   launch beacon on the first successful calculation in this session.
-  //   Anonymous users are skipped server-side (they have no purchase to
-  //   gate). Calculator inputs are NEVER sent — the body is empty.
-  const launchTrackedRef = useRef(false);
+  // Probe localStorage on mount + read today's count. If the probe
+  // throws (Safari private mode, restrictive browser policies, quota
+  // exceeded), the daily cap is silently skipped — exactly the
+  // documented Edge-case behaviour for Task 5.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const probeKey = "pp_calc_storage_probe";
+      window.localStorage.setItem(probeKey, "1");
+      window.localStorage.removeItem(probeKey);
+      setStorageAvailable(true);
+      setDailyState(readDailyLimitState(window.localStorage));
+    } catch (err) {
+      // Don't surface — keep the calculator usable. Use console.warn so
+      // it's visible to support without polluting error trackers.
+      console.warn(
+        "[calculator] localStorage unavailable; daily limit disabled",
+        err,
+      );
+      setStorageAvailable(false);
+    }
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Resolve the user's plan tier. Failure → fall back to "free" (the
+  // safe default — paid users are minor in the early-launch window and
+  // a transient API blip costs them at most one banner appearance).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/me/plan", { method: "GET", credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body) => {
+        if (cancelled) return;
+        const t = body && typeof body === "object" ? (body as { tier?: string }).tier : null;
+        if (t === "pro" || t === "lifetime") {
+          setTier(t);
+        } else {
+          setTier("free");
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setTier("free");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const product = useMemo(
     () => ALL_PRODUCTS.find((p) => p.id === productId)!,
@@ -108,12 +185,20 @@ export function Calculator() {
     }
   }, [product, marketplace, region, retailInput, currency, includeOffsiteAds]);
 
+  // Paid tiers (Pro / Lifetime) bypass the daily cap entirely.
+  const dailyLimitBypassed =
+    tier === "pro" || tier === "lifetime" || !storageAvailable;
+
   // Fire the launch beacon once per session, the first time a valid result
   // is produced (i.e., the user has typed a parseable retail price). We
   // dedupe across page navigations within the same tab via sessionStorage
   // so reloading the page in the middle of a session doesn't pile rows
   // up. The fetch is fire-and-forget; failures are intentionally silent
   // (we don't want a tracking error to surface in the calculator UI).
+  //
+  // The same trigger increments the free-tier daily-limit counter (Task
+  // 5). We deliberately use ONE shared trigger so the two counters stay
+  // in lockstep — see `dailyIncrementedRef` for the dedupe guard.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (launchTrackedRef.current) return;
@@ -142,6 +227,37 @@ export function Calculator() {
       /* fire-and-forget */
     });
   }, [result]);
+
+  // Increment the per-day local counter on the FIRST result of a
+  // session. Bypassed for paid tiers and when localStorage is
+  // unavailable (Edge-case: Safari private mode). This ref guards
+  // against double-counting if `result` flickers (e.g., the user edits
+  // retail to invalid then back to valid — second pass should not
+  // double-charge them).
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (dailyIncrementedRef.current) return;
+    if (!result) return;
+    if (dailyLimitBypassed) return;
+    if (tier === "unknown") return; // wait for the plan to resolve once
+    if (!storageAvailable) return;
+
+    dailyIncrementedRef.current = true;
+    try {
+      const next = incrementDailyLimit(window.localStorage);
+      setDailyState(next);
+    } catch (err) {
+      // Quota exceeded mid-session: stop trying to count, but keep the
+      // calculator usable. The contract is fail-open (skip the cap).
+      console.warn(
+        "[calculator] localStorage write failed; daily limit disabled",
+        err,
+      );
+      setStorageAvailable(false);
+    }
+  }, [result, tier, dailyLimitBypassed, storageAvailable]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
@@ -236,7 +352,9 @@ export function Calculator() {
 
       {/* Result */}
       <div className="rounded-2xl border border-brand-800/20 bg-brand-50 p-6 shadow-sm dark:border-brand-700/40 dark:bg-brand-900/30">
-        {result ? (
+        {result && !dailyLimitBypassed && dailyState.blocked ? (
+          <DailyLimitBanner count={dailyState.count} />
+        ) : result ? (
           <>
             <Result product={product} result={result} currency={currency} />
             <button
@@ -411,6 +529,35 @@ function Result({
         </a>{" "}
         as of {product.asOfDate}. FX as of {result.meta.fxAsOfDate}. Subscription discounts (Printful Plus / Pro,
         Printify Premium) not reflected — verify against your dashboard before listing.
+      </p>
+    </div>
+  );
+}
+
+function DailyLimitBanner({ count }: { count: number }) {
+  return (
+    <div className="flex flex-col items-start gap-3" role="status" aria-live="polite">
+      <h2 className="text-lg font-semibold text-brand-800 dark:text-brand-200">
+        Daily limit reached
+      </h2>
+      <p className="text-sm text-stone-700 dark:text-stone-300">
+        You have used all {DAILY_LIMIT} free calculations available to your
+        browser today (used: {count}). The counter resets at midnight in your
+        local time zone.
+      </p>
+      <p className="text-sm text-stone-700 dark:text-stone-300">
+        Sign up for free — no daily limit, save calculations to your account,
+        and unlock the full history view.
+      </p>
+      <a
+        href="/signup"
+        className="inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-700 focus:ring-offset-2 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+      >
+        Sign up free → no daily limit
+      </a>
+      <p className="text-xs text-stone-500 dark:text-stone-400">
+        The Calculate button is disabled until tomorrow. The cap is per
+        browser; signing up removes it on every device you sign in to.
       </p>
     </div>
   );

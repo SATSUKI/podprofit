@@ -7,6 +7,12 @@ import {
   loadAllProducts,
   loadFxRates,
 } from "@/lib/calculator/load-products";
+import {
+  API_RATE_LIMIT_CONFIG,
+  clientIpFromHeaders,
+  consume,
+  type RateLimitResult,
+} from "@/lib/api/rate-limit";
 
 export const runtime = "edge"; // calculator is pure TS — Edge is fast and cheap
 
@@ -15,6 +21,23 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
+
+/**
+ * Compose CORS + rate-limit observability headers. Injected on every
+ * 200/4xx response so well-behaved clients can self-throttle.
+ */
+function withRateLimitHeaders(
+  base: Record<string, string>,
+  rl: RateLimitResult | null,
+): Record<string, string> {
+  if (!rl) return base;
+  return {
+    ...base,
+    "X-RateLimit-Limit": rl.limit.toString(),
+    "X-RateLimit-Remaining": rl.remaining.toString(),
+    "X-RateLimit-Window-Seconds": rl.windowSeconds.toString(),
+  };
+}
 
 export async function OPTIONS() {
   return new NextResponse(null, { headers: CORS_HEADERS });
@@ -56,6 +79,46 @@ const QuerySchema = z.object({
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
+  // Rate limit BEFORE any work — fail fast for abusers and avoid spending
+  // CPU on requests that won't be served. The IP is resolved from the
+  // upstream proxy headers Vercel populates (x-forwarded-for / x-real-ip).
+  // When no upstream proxy is present (e.g., direct local dev) we skip
+  // the limit and surface a structured warning to the platform log.
+  const ip = clientIpFromHeaders(req.headers);
+  let rateLimit: RateLimitResult | null = null;
+  if (ip) {
+    rateLimit = consume(`api-v1-calculate:${ip}`);
+    if (!rateLimit.ok) {
+      return NextResponse.json(
+        {
+          error: "rate_limit_exceeded",
+          limit: rateLimit.limit,
+          period: "1d",
+          retry_after_seconds: rateLimit.retryAfterSeconds,
+          docs: "https://getpodprofit.com/docs/api",
+        },
+        {
+          status: 429,
+          headers: withRateLimitHeaders(
+            {
+              ...CORS_HEADERS,
+              "Retry-After": rateLimit.retryAfterSeconds.toString(),
+            },
+            rateLimit,
+          ),
+        },
+      );
+    }
+  } else {
+    // Headerless environments (CLI tests, local curl without proxy) are
+    // not the abuse vector we care about. Log once per occurrence so
+    // incident review can confirm whether prod traffic is missing the
+    // forwarded-for header (an infra misconfig, not an attack).
+    console.warn(
+      "[api/v1/calculate] no client IP in x-forwarded-for/x-real-ip; rate limit skipped",
+    );
+  }
+
   // Special case: list all available products + currencies (no params).
   if ([...searchParams.keys()].length === 0) {
     return NextResponse.json(
@@ -64,6 +127,11 @@ export async function GET(req: NextRequest) {
         endpoints: {
           GET_calculate:
             "/api/v1/calculate?product=&vendor=&marketplace=&region=&currency=&retail=",
+        },
+        rate_limit: {
+          limit: API_RATE_LIMIT_CONFIG.maxRequestsPerWindow,
+          period: "1d",
+          scope: "per IP, in-memory (soft cap)",
         },
         products: loadAllProducts().map((p) => ({
           id: p.id,
@@ -75,7 +143,7 @@ export async function GET(req: NextRequest) {
         regions: ["US", "EU", "UK", "CA", "AU"],
         currencies: ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"],
       },
-      { headers: CORS_HEADERS },
+      { headers: withRateLimitHeaders(CORS_HEADERS, rateLimit) },
     );
   }
 
@@ -97,7 +165,10 @@ export async function GET(req: NextRequest) {
         detail: (err as Error).message,
         docs: "/docs/api",
       },
-      { status: 400, headers: CORS_HEADERS },
+      {
+        status: 400,
+        headers: withRateLimitHeaders(CORS_HEADERS, rateLimit),
+      },
     );
   }
 
@@ -108,7 +179,10 @@ export async function GET(req: NextRequest) {
         error: `Unknown product "${q.product}"`,
         hint: "Call GET /api/v1/calculate with no params to list valid products.",
       },
-      { status: 404, headers: CORS_HEADERS },
+      {
+        status: 404,
+        headers: withRateLimitHeaders(CORS_HEADERS, rateLimit),
+      },
     );
   }
 
@@ -140,12 +214,15 @@ export async function GET(req: NextRequest) {
           source: "https://github.com/SATSUKI/podprofit",
         },
       },
-      { headers: CORS_HEADERS },
+      { headers: withRateLimitHeaders(CORS_HEADERS, rateLimit) },
     );
   } catch (err) {
     return NextResponse.json(
       { error: (err as Error).message },
-      { status: 400, headers: CORS_HEADERS },
+      {
+        status: 400,
+        headers: withRateLimitHeaders(CORS_HEADERS, rateLimit),
+      },
     );
   }
 }
