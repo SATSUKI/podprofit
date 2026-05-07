@@ -35,9 +35,9 @@ export function SiteFooter() {
           <Link href="/legal/tokushoho" className="hover:text-brand-800 dark:hover:text-brand-300">
             特商法
           </Link>
-          <a href="mailto:hello@getpodprofit.com" className="hover:text-brand-800 dark:hover:text-brand-300">
+          <Link href="/contact" className="hover:text-brand-800 dark:hover:text-brand-300">
             Contact
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

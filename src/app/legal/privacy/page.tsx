@@ -146,6 +146,34 @@ export default function PrivacyPage() {
         to 24 months).
       </p>
 
+      <h3 id="section-2-9">2.9 Contact form submissions</h3>
+      <p>
+        When you submit our website Contact form (<strong>/contact</strong>), we store the
+        following in our private database (Supabase) so we can reply and so we have an audit trail
+        for refunds, bug reports, and abuse investigation:
+      </p>
+      <ul>
+        <li>The name (optional) and email address you provide</li>
+        <li>Category, subject (optional), and the body of your message</li>
+        <li>Your IP address and browser user-agent string at submission time</li>
+        <li>If you are signed in, the link to your account</li>
+        <li>Submission timestamp, status (new / replied / archived / spam), and our reply text</li>
+      </ul>
+      <p>
+        <strong>Default retention</strong>: contact-form records are kept for 6 months from the
+        date we replied, after which the record is archived (status flipped to <code>archived</code>)
+        and remains accessible only for the broader 24-month customer-support history (Section 2.8)
+        before deletion. Records classified as spam are kept for up to 6 months for abuse-pattern
+        analysis, then deleted.
+      </p>
+      <p>
+        <strong>Third-party processing</strong>: contact-form submissions may be processed by
+        Anthropic as our AI sub-processor (Section 5.1) to draft a reply. This pathway is gated on
+        the post-launch evaluation (target: 2026-06-23) and a human always reviews and edits the
+        draft before sending. Until that gate is passed, no contact-form content is sent to
+        Anthropic.
+      </p>
+
       <hr />
 
       <h2 id="section-3">3. What we do NOT collect</h2>
@@ -454,6 +482,14 @@ export default function PrivacyPage() {
             <tr>
               <td>Customer-support correspondence</td>
               <td>Up to 24 months from last activity, then deleted</td>
+            </tr>
+            <tr>
+              <td>Contact-form submissions (inquiries)</td>
+              <td>
+                Active records: until status moves to <code>replied</code>. Replied records: 6
+                months, then archived. Archived records: subject to the 24-month customer-support
+                ceiling. Spam: up to 6 months, then deleted.
+              </td>
             </tr>
           </tbody>
         </table>
