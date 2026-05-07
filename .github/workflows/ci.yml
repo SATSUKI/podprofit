@@ -43,3 +43,11 @@ jobs:
         env:
           # CI build runs without real env — graceful degradation paths exercise.
           NEXT_TELEMETRY_DISABLED: "1"
+
+      - name: Build digital products (Excel template + Benchmark Report PDF)
+        # Regenerates dist/products/ to verify the build pipeline still works
+        # against the current YAML / fee tables. dist/ is gitignored so we do
+        # not commit the artifacts; the unit test guards parity with the
+        # runtime calculator. Manual publishing to Lemon Squeezy is a
+        # separate, deliberate step run from a maintainer's machine.
+        run: pnpm build:products

@@ -20,6 +20,9 @@
 # production
 /build
 
+# generated digital products (Excel templates, PDF reports)
+/dist
+
 # misc
 .DS_Store
 *.pem
