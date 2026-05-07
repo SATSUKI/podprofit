@@ -20,6 +20,9 @@ export function SiteFooter() {
           </p>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2">
+          <Link href="/faq" className="hover:text-brand-800 dark:hover:text-brand-300">
+            FAQ
+          </Link>
           <Link href="/legal/terms" className="hover:text-brand-800 dark:hover:text-brand-300">
             Terms
           </Link>
