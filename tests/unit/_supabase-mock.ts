@@ -18,10 +18,13 @@ interface QueryState {
   table: string;
   filters: Array<{
     column: string;
-    op: "eq" | "is";
+    op: "eq" | "is" | "gt" | "lt" | "gte" | "lte";
     value: unknown;
   }>;
   selectColumns: string | null;
+  /** When `select(..., { count: "exact", head: true })` is used. */
+  countMode: "exact" | null;
+  headOnly: boolean;
   pendingOp:
     | { kind: "select" }
     | { kind: "insert"; values: Row | Row[] }
@@ -53,10 +56,23 @@ export interface SupabaseMock {
   inspect(table: string): Row[];
 }
 
+function compareForOrder(a: unknown, b: unknown): number {
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  // ISO 8601 timestamps and most other strings compare correctly
+  // lexicographically.
+  const sa = String(a);
+  const sb = String(b);
+  return sa < sb ? -1 : sa > sb ? 1 : 0;
+}
+
 function rowMatches(row: Row, filters: QueryState["filters"]): boolean {
   return filters.every((f) => {
     if (f.op === "eq") return row[f.column] === f.value;
     if (f.op === "is") return row[f.column] === f.value;
+    if (f.op === "gt") return compareForOrder(row[f.column], f.value) > 0;
+    if (f.op === "lt") return compareForOrder(row[f.column], f.value) < 0;
+    if (f.op === "gte") return compareForOrder(row[f.column], f.value) >= 0;
+    if (f.op === "lte") return compareForOrder(row[f.column], f.value) <= 0;
     return false;
   });
 }
@@ -74,6 +90,8 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       table,
       filters: [],
       selectColumns: null,
+      countMode: null,
+      headOnly: false,
       pendingOp: null,
     };
 
@@ -147,10 +165,23 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       return { data: null, error: null };
     };
 
+    type CountResult = {
+      data: Row[] | null;
+      count: number | null;
+      error: null | { message: string; code?: string };
+    };
+
     const builder: {
-      select: (cols?: string) => typeof builder;
+      select: (
+        cols?: string,
+        opts?: { count?: "exact"; head?: boolean },
+      ) => typeof builder;
       eq: (col: string, val: unknown) => typeof builder;
       is: (col: string, val: unknown) => typeof builder;
+      gt: (col: string, val: unknown) => typeof builder;
+      lt: (col: string, val: unknown) => typeof builder;
+      gte: (col: string, val: unknown) => typeof builder;
+      lte: (col: string, val: unknown) => typeof builder;
       insert: (values: Row | Row[]) => typeof builder;
       update: (values: Row) => typeof builder;
       upsert: (values: Row | Row[], opts?: { onConflict?: string }) => typeof builder;
@@ -163,10 +194,12 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
         data: Row | null;
         error: null | { message: string; code?: string };
       }>;
-      then: <T>(resolve: (v: { data: Row[] | null; error: null | { message: string; code?: string } }) => T) => Promise<T>;
+      then: <T>(resolve: (v: CountResult) => T) => Promise<T>;
     } = {
-      select(cols?: string) {
+      select(cols, opts) {
         state.selectColumns = cols ?? "*";
+        if (opts?.count === "exact") state.countMode = "exact";
+        if (opts?.head === true) state.headOnly = true;
         if (!state.pendingOp) state.pendingOp = { kind: "select" };
         return builder;
       },
@@ -176,6 +209,22 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       },
       is(col, val) {
         state.filters.push({ column: col, op: "is", value: val });
+        return builder;
+      },
+      gt(col, val) {
+        state.filters.push({ column: col, op: "gt", value: val });
+        return builder;
+      },
+      lt(col, val) {
+        state.filters.push({ column: col, op: "lt", value: val });
+        return builder;
+      },
+      gte(col, val) {
+        state.filters.push({ column: col, op: "gte", value: val });
+        return builder;
+      },
+      lte(col, val) {
+        state.filters.push({ column: col, op: "lte", value: val });
         return builder;
       },
       insert(values) {
@@ -214,7 +263,21 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       then(resolve) {
         const result = finalize();
         const data = Array.isArray(result.data) ? (result.data as Row[]) : null;
-        return Promise.resolve(resolve({ data, error: result.error }));
+        // For `select(..., { count: "exact", head: true })` the caller
+        // reads `count` (and ignores `data`); compute it from the
+        // filtered match set so head:true probes work in tests.
+        let count: number | null = null;
+        if (state.countMode === "exact") {
+          const rows = store[table] ?? [];
+          count = rows.filter((r) => rowMatches(r, state.filters)).length;
+        }
+        return Promise.resolve(
+          resolve({
+            data: state.headOnly ? null : data,
+            count,
+            error: result.error,
+          }),
+        );
       },
     };
 

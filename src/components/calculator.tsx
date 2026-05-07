@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   calculateProfit,
 } from "@/lib/calculator/calculate-profit";
@@ -75,6 +75,14 @@ export function Calculator() {
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // Refund-eligibility access log (Task 19 / Terms §7.1):
+  //   The Refunds page promises "0 calculator launches verified by access
+  //   logs" as a Lifetime refund precondition. We fire a single fact-of-
+  //   launch beacon on the first successful calculation in this session.
+  //   Anonymous users are skipped server-side (they have no purchase to
+  //   gate). Calculator inputs are NEVER sent — the body is empty.
+  const launchTrackedRef = useRef(false);
+
   const product = useMemo(
     () => ALL_PRODUCTS.find((p) => p.id === productId)!,
     [productId],
@@ -99,6 +107,41 @@ export function Calculator() {
       return null;
     }
   }, [product, marketplace, region, retailInput, currency, includeOffsiteAds]);
+
+  // Fire the launch beacon once per session, the first time a valid result
+  // is produced (i.e., the user has typed a parseable retail price). We
+  // dedupe across page navigations within the same tab via sessionStorage
+  // so reloading the page in the middle of a session doesn't pile rows
+  // up. The fetch is fire-and-forget; failures are intentionally silent
+  // (we don't want a tracking error to surface in the calculator UI).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (launchTrackedRef.current) return;
+    if (!result) return;
+
+    const SENTINEL_KEY = "podprofit:calc-launch-tracked";
+    try {
+      if (window.sessionStorage.getItem(SENTINEL_KEY) === "1") {
+        launchTrackedRef.current = true;
+        return;
+      }
+      window.sessionStorage.setItem(SENTINEL_KEY, "1");
+    } catch {
+      // sessionStorage blocked (rare; e.g., Safari private mode pre-15) —
+      // proceed but mark as tracked so we don't loop.
+    }
+    launchTrackedRef.current = true;
+
+    void fetch("/api/track/calculator-launch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      // Empty body — calculator inputs MUST NOT be sent (Privacy §2.2).
+      body: "{}",
+      keepalive: true,
+    }).catch(() => {
+      /* fire-and-forget */
+    });
+  }, [result]);
 
   return (
     <div className="grid gap-6 md:grid-cols-2">
