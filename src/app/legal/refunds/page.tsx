@@ -12,7 +12,7 @@ export default function RefundsPage() {
     <article>
       <h1>Refund Policy</h1>
       <p>
-        <em>Last updated: 2026-06-09 · Version: 1.1</em>
+        <em>Last updated: 2026-05-11 · Version: 1.2</em>
       </p>
 
       <p>
@@ -58,7 +58,15 @@ export default function RefundsPage() {
 
       <h2>Excel Template ($19) and Benchmark Report ($29)</h2>
       <p>
-        Digital downloads sold via Lemon Squeezy are, in general,{" "}
+        These two digital downloads are <strong>not yet on sale</strong>{" "}
+        (planned launches 2026-07-23 and 2026-08-20 respectively). The
+        refund posture below is the policy that will apply once the
+        products are available; the payment processor and seller-of-record
+        arrangement (if any) for each product will be confirmed in a Terms
+        revision published before each launch.
+      </p>
+      <p>
+        Once on sale, digital downloads are, in general,{" "}
         <strong>non-refundable</strong> once the download link has been
         delivered. Narrow exceptions:
       </p>
@@ -91,8 +99,10 @@ export default function RefundsPage() {
           you expressly consent to begin performance immediately and acknowledge
           that you lose the 14-day right of withdrawal once download is enabled.
         </strong>{" "}
-        Lemon Squeezy collects this consent on our behalf at checkout. The
-        narrow refund exceptions above still apply.
+        The narrow refund exceptions above still apply. (Note: the Excel
+        Template and Benchmark Report are not yet on sale; the
+        consent-collection flow at checkout will be described in a Terms
+        revision published before each launch.)
       </p>
       <p>
         For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right
@@ -105,8 +115,7 @@ export default function RefundsPage() {
         Email <code>hello@getpodprofit.com</code> with the email address
         associated with your purchase and a brief reason (optional but
         appreciated for product feedback). Lifetime, Pro Monthly, and Pro
-        Annual purchases are processed via Stripe; Excel Template and Benchmark
-        Report are processed via Lemon Squeezy as Merchant of Record.
+        Annual purchases are processed via Stripe.
       </p>
 
       <h2>Chargebacks</h2>
@@ -119,8 +128,8 @@ export default function RefundsPage() {
       <h2>Trademarks</h2>
       <p>
         PODProfit is not affiliated with, endorsed by, or sponsored by Etsy,
-        Shopify, Printful, Printify, Stripe, or Lemon Squeezy. All third-party
-        names and logos are property of their respective owners.
+        Shopify, Printful, Printify, or Stripe. All third-party names and
+        logos are property of their respective owners.
       </p>
     </article>
   );

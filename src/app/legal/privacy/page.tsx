@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "v0.1 baseline of the PODProfit Privacy Policy, published in time for the public launch of getpodprofit.com on 2026-06-09.",
+    "v0.2 of the PODProfit Privacy Policy. Removes references to a third-party seller-of-record arrangement ahead of the Stripe Live re-approval and the not-yet-launched Excel Template / Benchmark Report products.",
   alternates: {
     canonical: "/legal/privacy",
   },
@@ -14,13 +14,13 @@ export default function PrivacyPage() {
     <article>
       <h1>Privacy Policy</h1>
       <p>
-        <em>Last updated: 2026-06-09 · Version 0.1</em>
+        <em>Last updated: 2026-05-11 · Version 0.2</em>
       </p>
 
       <p>
-        <strong>Effective date</strong>: 2026-06-09
+        <strong>Effective date</strong>: 2026-05-11
         <br />
-        <strong>Version</strong>: 0.1 (initial pre-launch publication)
+        <strong>Version</strong>: 0.2 (third-party seller-of-record references removed)
         <br />
         <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), 8F MIEUX Shibuya Building,
         5-3 Maruyama-cho, Shibuya-ku, Tokyo 150-0044, Japan
@@ -58,10 +58,6 @@ export default function PrivacyPage() {
           pages)
         </li>
         <li>Paid plans purchased through our checkout (Stripe)</li>
-        <li>
-          Digital products sold via Lemon Squeezy as Merchant of Record (Excel Template, Benchmark
-          Report PDF — scheduled launch 2026-07-23 and 2026-08-20 respectively)
-        </li>
         <li>Email subscriptions delivered via Buttondown</li>
       </ul>
 
@@ -107,14 +103,8 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>Stripe</strong> processes payments for getpodprofit.com plans (Lifetime $149, Pro
-          $9/month). We receive the metadata Stripe shares with us: card brand, last 4 digits,
-          billing country, Stripe customer ID, and amount/currency.
-        </li>
-        <li>
-          <strong>Lemon Squeezy</strong> acts as Merchant of Record (MoR) for our digital downloads
-          (Excel Template, Benchmark Report). For those purchases the customer-facing data
-          controller is Lemon Squeezy; we receive only the order confirmation, email, and a redacted
-          billing summary necessary to grant access and provide support.
+          $9/month, Pro Annual $79/year). We receive the metadata Stripe shares with us: card
+          brand, last 4 digits, billing country, Stripe customer ID, and amount/currency.
         </li>
       </ul>
 
@@ -219,7 +209,7 @@ export default function PrivacyPage() {
             </tr>
             <tr>
               <td>Payment processing, fraud prevention</td>
-              <td>Stripe / Lemon Squeezy metadata</td>
+              <td>Stripe metadata</td>
               <td>Contract + legal obligation (tax law)</td>
             </tr>
             <tr>
@@ -289,11 +279,6 @@ export default function PrivacyPage() {
               <td>Stripe, Inc.</td>
               <td>United States</td>
               <td>Payment processing for getpodprofit.com plans</td>
-            </tr>
-            <tr>
-              <td>Lemon Squeezy, LLC</td>
-              <td>United States</td>
-              <td>Merchant of Record for digital products (Excel, Report)</td>
             </tr>
             <tr>
               <td>Buttondown, LLC</td>
@@ -468,7 +453,7 @@ export default function PrivacyPage() {
               <td>Until you delete them, or until account deletion</td>
             </tr>
             <tr>
-              <td>Stripe / Lemon Squeezy payment records</td>
+              <td>Stripe payment records</td>
               <td>7 years (Japanese tax-law requirement)</td>
             </tr>
             <tr>
@@ -511,8 +496,7 @@ export default function PrivacyPage() {
         </li>
         <li>Database access is restricted by Row-Level Security and least-privilege keys.</li>
         <li>
-          Payment card data is fully isolated at Stripe / Lemon Squeezy (PCI-DSS Level 1
-          environments).
+          Payment card data is fully isolated at Stripe (PCI-DSS Level 1 environment).
         </li>
         <li>
           Production access keys are rotated on a documented schedule and stored in a secrets
@@ -554,8 +538,8 @@ export default function PrivacyPage() {
 
       <h2 id="section-13">13. Third-party trademarks</h2>
       <p>
-        Etsy, Shopify, Printful, Printify, Stripe, Lemon Squeezy, Buttondown, Vercel, Supabase,
-        Cloudflare, and Anthropic are trademarks of their respective owners. PODProfit is an
+        Etsy, Shopify, Printful, Printify, Stripe, Buttondown, Vercel, Supabase, Cloudflare, and
+        Anthropic are trademarks of their respective owners. PODProfit is an
         independent tool and is{" "}
         <strong>not affiliated with, endorsed by, or sponsored by</strong> any of these companies.
         We reference them solely under nominative fair use to identify the platforms our calculator
@@ -630,10 +614,23 @@ export default function PrivacyPage() {
               <td>0.1</td>
               <td>2026-06-09</td>
               <td>
-                Initial pre-launch publication. Adds AI sub-processor disclosure (Anthropic), Lemon
-                Squeezy MoR clarification, GDPR / CCPA / APPI explicit sections, sub-processor
-                table. To be reviewed against external counsel feedback before v1.0 (target:
-                2026-07-23).
+                Initial pre-launch publication. Adds AI sub-processor disclosure (Anthropic), GDPR
+                / CCPA / APPI explicit sections, sub-processor table. To be reviewed against
+                external counsel feedback before v1.0 (target: 2026-07-23).
+              </td>
+            </tr>
+            <tr>
+              <td>0.2</td>
+              <td>2026-05-11</td>
+              <td>
+                Removes references to a previously named third-party seller-of-record across this
+                Policy (Section 1 scope, Section 2.4 payment information, Section 4 legal-bases
+                table, Section 5 sub-processor table, Section 9 retention table, Section 10
+                security, Section 13 trademarks). The Excel Template and Benchmark Report
+                products are not yet on sale (planned 2026-07-23 and 2026-08-20);
+                processor-specific disclosures will be reintroduced in a later revision before
+                those products launch. See docs/adr/0002 for context. No other substantive
+                changes from v0.1.
               </td>
             </tr>
           </tbody>

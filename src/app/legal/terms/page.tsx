@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "v0.2 of the PODProfit Terms of Service, adding the Pro Annual ($79/year) plan to scope, payments, and refund policy.",
+    "v0.3 of the PODProfit Terms of Service. Removes references to a third-party seller-of-record arrangement ahead of the Stripe Live re-approval and the not-yet-launched Excel Template / Benchmark Report products.",
   alternates: {
     canonical: "/legal/terms",
   },
@@ -15,13 +15,13 @@ export default function TermsPage() {
     <article>
       <h1>Terms of Service</h1>
       <p>
-        <em>Last updated: 2026-05-03 · Version 0.2</em>
+        <em>Last updated: 2026-05-11 · Version 0.3</em>
       </p>
 
       <p>
-        <strong>Effective date</strong>: 2026-05-03
+        <strong>Effective date</strong>: 2026-05-11
         <br />
-        <strong>Version</strong>: 0.2 (Pro Annual addition)
+        <strong>Version</strong>: 0.3 (third-party seller-of-record references removed)
         <br />
         <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), 8F MIEUX Shibuya Building,
         5-3 Maruyama-cho, Shibuya-ku, Tokyo 150-0044, Japan
@@ -31,14 +31,17 @@ export default function TermsPage() {
 
       <blockquote>
         <p>
-          <strong>About this version</strong>: This is the v0.2 revision of the v0.1 baseline
-          (originally drafted for the launch of getpodprofit.com on 2026-06-09). v0.2 adds the{" "}
-          <strong>Pro Annual ($79/year)</strong> plan to the scope, payments section, and refund
-          policy so that the Terms align with the published Refund Policy v1.1. All other sections
-          are carried over unchanged from v0.1. The document will still be revised to v1.0 before
-          the Excel Template launch on 2026-07-23 to incorporate external counsel review and to
-          expand the EULA and refund language for Lemon Squeezy products. Material changes will be
-          communicated by email at least 30 days in advance.
+          <strong>About this version</strong>: This is the v0.3 revision of the v0.1 baseline
+          (originally drafted for the launch of getpodprofit.com on 2026-06-09). v0.2 added the{" "}
+          <strong>Pro Annual ($79/year)</strong> plan. v0.3 removes all references to a
+          previously named third-party seller-of-record arrangement; the Excel Template and
+          Benchmark Report products are not yet on sale (planned 2026-07-23 and 2026-08-20), so
+          processor-specific contractual language for those products is being deferred to a
+          later revision published before each of those launches. The document will still be
+          revised to v1.0 before the Excel Template launch on 2026-07-23 to incorporate
+          external counsel review and to expand the EULA and refund language for the Excel
+          Template and Benchmark Report. Material changes will be communicated by email at
+          least 30 days in advance.
         </p>
       </blockquote>
 
@@ -79,12 +82,12 @@ export default function TermsPage() {
           getpodprofit.com; saves vs paying monthly)
         </li>
         <li>
-          The <strong>PODProfit Excel Template</strong> (sold via Lemon Squeezy as Merchant of
-          Record; planned launch 2026-07-23)
+          The <strong>PODProfit Excel Template</strong> (planned launch 2026-07-23; payment and
+          tax-collection terms will be specified before launch)
         </li>
         <li>
-          The <strong>PODProfit Benchmark Report (PDF)</strong> (sold via Lemon Squeezy as Merchant
-          of Record; planned launch 2026-08-20)
+          The <strong>PODProfit Benchmark Report (PDF)</strong> (planned launch 2026-08-20;
+          payment and tax-collection terms will be specified before launch)
         </li>
       </ul>
       <p>
@@ -145,10 +148,10 @@ export default function TermsPage() {
           versions of the free + Pro feature set)
         </li>
         <li>
-          The <strong>PODProfit Excel Template</strong> (when it launches via Lemon Squeezy)
+          The <strong>PODProfit Excel Template</strong> (when it launches)
         </li>
         <li>
-          The <strong>PODProfit Benchmark Report PDF</strong> (when it launches via Lemon Squeezy)
+          The <strong>PODProfit Benchmark Report PDF</strong> (when it launches)
         </li>
         <li>
           Future <strong>PODProfit Pro tools</strong> released under the PODProfit brand during the
@@ -195,15 +198,19 @@ export default function TermsPage() {
         current paid year, and access continues until the end of that paid year.
       </p>
 
-      <h3>5.4 PODProfit Excel Template (Lemon Squeezy as MoR — planned 2026-07-23)</h3>
+      <h3>5.4 PODProfit Excel Template (planned 2026-07-23)</h3>
       <p>
-        A downloadable Excel/Google Sheets workbook. Sold via{" "}
-        <strong>Lemon Squeezy as Merchant of Record</strong>, which collects and remits applicable
-        VAT, GST, and sales tax on our behalf and acts as the seller of record on the invoice.
+        A downloadable Excel/Google Sheets workbook. The product is not yet on sale. The payment
+        processor, the seller-of-record arrangement (if any), and the international
+        tax-collection mechanism for this product will be specified in a revision of these Terms
+        published before the launch date.
       </p>
 
-      <h3>5.5 PODProfit Benchmark Report PDF (Lemon Squeezy as MoR — planned 2026-08-20)</h3>
-      <p>A downloadable PDF report. Same MoR arrangement as 5.4.</p>
+      <h3>5.5 PODProfit Benchmark Report PDF (planned 2026-08-20)</h3>
+      <p>
+        A downloadable PDF report. The product is not yet on sale. Payment, seller-of-record,
+        and tax-collection terms will be specified before launch on the same basis as 5.4.
+      </p>
 
       <h3>5.6 Free calculator and blog</h3>
       <p>
@@ -229,13 +236,13 @@ export default function TermsPage() {
         at the end of each paid year unless cancelled.
       </p>
 
-      <h3>6.2 Lemon Squeezy (Excel, Report)</h3>
+      <h3>6.2 Excel Template and Benchmark Report (not yet on sale)</h3>
       <p>
-        Excel Template and Benchmark Report purchases are processed by{" "}
-        <strong>Lemon Squeezy as Merchant of Record</strong>, which means Lemon Squeezy is the
-        seller of record on your receipt and is responsible for VAT/GST/sales-tax collection and
-        remittance in your jurisdiction. The customer-facing tax line on your invoice will be
-        calculated by Lemon Squeezy at checkout.
+        The Excel Template and Benchmark Report are not yet available for purchase (planned
+        launches 2026-07-23 and 2026-08-20 respectively). Payment processing, the
+        seller-of-record arrangement (if any), and the international tax-collection mechanism
+        for those two products will be specified in a revision of these Terms published before
+        each launch date.
       </p>
 
       <h3>6.3 Failed payments</h3>
@@ -285,7 +292,7 @@ export default function TermsPage() {
         14-day window has passed.
       </p>
 
-      <h3>7.4 Excel Template / Benchmark Report (Lemon Squeezy)</h3>
+      <h3>7.4 Excel Template / Benchmark Report</h3>
       <p>
         Digital downloads are, in general, <strong>non-refundable</strong> once the download link
         has been delivered. Narrow exceptions:
@@ -316,8 +323,9 @@ export default function TermsPage() {
           you expressly consent to begin performance immediately and acknowledge that you lose the
           14-day right of withdrawal once download is enabled.
         </strong>{" "}
-        Lemon Squeezy collects this consent on our behalf at checkout. The narrow refund exceptions
-        in Section 7.4 still apply.
+        The narrow refund exceptions in Section 7.4 still apply. (Note: the Excel Template and
+        Benchmark Report are not yet on sale; the consent-collection flow at checkout will be
+        described in a revision of these Terms published before each launch.)
       </p>
       <p>
         For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right of withdrawal applies
@@ -453,8 +461,8 @@ export default function TermsPage() {
 
       <h2 id="section-13">13. Third-party trademarks and non-affiliation</h2>
       <p>
-        Etsy, Shopify, Printful, Printify, Stripe, Lemon Squeezy, Buttondown, Vercel, Supabase,
-        Cloudflare, Anthropic, Excel, Google Sheets, and any other third-party names referenced in
+        Etsy, Shopify, Printful, Printify, Stripe, Buttondown, Vercel, Supabase, Cloudflare,
+        Anthropic, Excel, Google Sheets, and any other third-party names referenced in
         the service are trademarks of their respective owners. PODProfit is an independent tool and
         is <strong>not affiliated with, endorsed by, or sponsored by</strong> any of these
         companies. We model their publicly published fee structures and rate cards under nominative
@@ -515,8 +523,8 @@ export default function TermsPage() {
       <p>
         We are not liable for failure or delay in performance caused by events beyond our reasonable
         control, including outages of upstream providers (Vercel, Cloudflare, Supabase, Stripe,
-        Lemon Squeezy, Anthropic), network interruptions, natural disasters, government action, or
-        labour disputes. We will use reasonable efforts to restore service.
+        Anthropic), network interruptions, natural disasters, government action, or labour
+        disputes. We will use reasonable efforts to restore service.
       </p>
 
       <hr />
@@ -630,12 +638,11 @@ export default function TermsPage() {
               <td>0.1</td>
               <td>2026-06-09</td>
               <td>
-                Initial pre-launch publication. Adds Lemon Squeezy MoR clarification, EU/UK 14-day
-                right-of-withdrawal waiver language, AI-assisted CS disclosure, Lifetime scope
-                clarification (includes future PODProfit Pro tools, excludes separate-brand
-                products), 100-seat cap with 8 reserved seats, governing law (Japan / Tokyo District
-                Court). To be reviewed against external counsel feedback before v1.0 (target:
-                2026-07-23).
+                Initial pre-launch publication. Adds EU/UK 14-day right-of-withdrawal waiver
+                language, AI-assisted CS disclosure, Lifetime scope clarification (includes future
+                PODProfit Pro tools, excludes separate-brand products), 100-seat cap with 8
+                reserved seats, governing law (Japan / Tokyo District Court). To be reviewed
+                against external counsel feedback before v1.0 (target: 2026-07-23).
               </td>
             </tr>
             <tr>
@@ -649,6 +656,23 @@ export default function TermsPage() {
                 no-questions-asked, non-refundable thereafter, cancellation stops auto-renewal; old
                 7.3/7.4 renumbered to 7.4/7.5). Aligns Terms with the published Refund Policy v1.1.
                 No other substantive changes from v0.1.
+              </td>
+            </tr>
+            <tr>
+              <td>0.3</td>
+              <td>2026-05-11</td>
+              <td>
+                Removes references to a previously named third-party seller-of-record across this
+                document (Section 2 scope bullets for Excel/Report; Section 5.1 Lifetime
+                inclusions; Section 5.4/5.5 Excel/Report headings and bodies; Section 6.2
+                replaced with a &quot;not yet on sale&quot; placeholder; Section 7.4 heading;
+                Section 7.5 EU/UK 14-day waiver — the third-party consent-collection sentence
+                was dropped; Section 13 trademarks list; Section 17 force-majeure provider list).
+                The Excel Template and Benchmark Report products are not yet on sale (planned
+                2026-07-23 and 2026-08-20); processor-specific contractual language for those
+                products will be reintroduced in a later revision before each launch. See
+                docs/adr/0002 for context. No changes to refund timeframes, EULA scope,
+                governing law, or any other substantive obligation.
               </td>
             </tr>
           </tbody>
