@@ -75,8 +75,8 @@ export default async function PricingPage() {
             "Pause subscription up to 3 months",
             "Email support",
           ]}
-          ctaHref="#notify-pro"
-          ctaLabel="Notify me when available"
+          ctaHref="/api/stripe/checkout?plan=pro_monthly"
+          ctaLabel="Subscribe"
           ctaVariant="outline"
         />
         <PlanCard
@@ -91,8 +91,8 @@ export default async function PricingPage() {
             "Locked-in pricing for 12 months",
             "Email support",
           ]}
-          ctaHref="#notify-pro"
-          ctaLabel="Notify me when available"
+          ctaHref="/api/stripe/checkout?plan=pro_yearly"
+          ctaLabel="Subscribe"
           ctaVariant="outline"
         />
         <PlanCard
@@ -111,7 +111,7 @@ export default async function PricingPage() {
             "Founding member status — name credit",
             "One-time payment, no subscription",
           ]}
-          ctaHref={remaining > 0 ? "/lifetime" : undefined}
+          ctaHref={remaining > 0 ? "/api/stripe/checkout?plan=lifetime" : undefined}
           ctaLabel={remaining > 0 ? "Reserve seat" : "Sold out"}
           ctaDisabled={remaining <= 0}
           ctaVariant="solid"

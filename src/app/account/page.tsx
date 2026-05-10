@@ -10,12 +10,13 @@ export const metadata: Metadata = {
 };
 
 interface AccountPageProps {
-  searchParams: Promise<{ signup?: string }>;
+  searchParams: Promise<{ signup?: string; portal?: string }>;
 }
 
 export default async function AccountPage({ searchParams }: AccountPageProps) {
-  const { signup } = await searchParams;
+  const { signup, portal } = await searchParams;
   const isFirstSignup = signup === "1";
+  const portalUnavailable = portal === "unavailable";
   const supabase = await createSsrSupabase();
   if (!supabase) {
     return (
@@ -23,7 +24,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         <h1 className="text-2xl font-bold">Account</h1>
         <p className="mt-3 text-sm text-stone-700 dark:text-stone-300">
           Authentication isn&apos;t configured yet (Supabase env vars missing).
-          Per project plan, this lands during W6 (2026-06-04+).
         </p>
       </main>
     );
@@ -34,13 +34,38 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     redirect("/login");
   }
 
-  // Load the user's saved calculations (RLS ensures owner-only read).
-  const { data: calculations } = await supabase
-    .from("calculations")
-    .select("id, share_slug, input_json, output_json, created_at, view_count")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  // Run plan, lifetime, and saved-calc reads in parallel — RLS guards them.
+  const [
+    { data: subscriptions },
+    { data: lifetimeSeat },
+    { data: calculations },
+  ] = await Promise.all([
+    supabase
+      .from("subscriptions")
+      .select("plan_type, status, current_period_end, cancel_at_period_end")
+      .eq("user_id", user.id),
+    supabase
+      .from("lifetime_seats")
+      .select("seat_number, status, claimed_at")
+      .eq("user_id", user.id)
+      .eq("status", "claimed")
+      .maybeSingle(),
+    supabase
+      .from("calculations")
+      .select("id, share_slug, input_json, output_json, created_at, view_count")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+  ]);
+
+  const activePro = (subscriptions ?? []).find(
+    (s) =>
+      (s.plan_type === "pro_monthly" || s.plan_type === "pro_yearly") &&
+      ["active", "trialing", "past_due", "paused", "incomplete"].includes(
+        String(s.status),
+      ),
+  );
+  const isLifetime = Boolean(lifetimeSeat);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
@@ -61,6 +86,70 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           </button>
         </form>
       </header>
+
+      {/* Plan + billing portal */}
+      <section className="mt-8 rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+        <h2 className="text-lg font-semibold">Plan</h2>
+        {isLifetime ? (
+          <div className="mt-3 flex items-center gap-3">
+            <span className="inline-flex items-center rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-brand-800 dark:bg-brand-900 dark:text-brand-200">
+              Lifetime member · seat #{lifetimeSeat?.seat_number}
+            </span>
+            <span className="text-sm text-stone-700 dark:text-stone-300">
+              Every Pro feature, forever. No subscription to manage.
+            </span>
+          </div>
+        ) : activePro ? (
+          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="text-sm text-stone-700 dark:text-stone-300">
+              <strong className="text-stone-900 dark:text-stone-100">
+                {activePro.plan_type === "pro_monthly"
+                  ? "Pro · Monthly"
+                  : "Pro · Annual"}
+              </strong>
+              <span className="ml-2 text-xs uppercase tracking-wide text-stone-500">
+                {activePro.status}
+              </span>
+              {activePro.current_period_end ? (
+                <span className="ml-2 text-stone-500">
+                  Renews{" "}
+                  {new Date(
+                    String(activePro.current_period_end),
+                  ).toLocaleDateString()}
+                  {activePro.cancel_at_period_end ? " (will cancel)" : ""}
+                </span>
+              ) : null}
+            </div>
+            <form action="/api/stripe/portal" method="post">
+              <button
+                type="submit"
+                className="rounded-md border border-brand-800 bg-white px-4 py-1.5 text-sm font-medium text-brand-800 hover:bg-brand-50 dark:border-brand-300 dark:bg-stone-900 dark:text-brand-300 dark:hover:bg-brand-900/20"
+              >
+                Manage subscription
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-stone-700 dark:text-stone-300">
+              Free plan. Upgrade for unlimited saved calculations and CSV
+              exports.
+            </p>
+            <Link
+              href="/pricing"
+              className="inline-flex items-center justify-center rounded-md bg-brand-800 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-700 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+            >
+              See plans
+            </Link>
+          </div>
+        )}
+        {portalUnavailable ? (
+          <p className="mt-3 text-xs text-amber-700 dark:text-amber-400">
+            You don&apos;t have a paid subscription yet, so the billing portal
+            isn&apos;t available.
+          </p>
+        ) : null}
+      </section>
 
       <section className="mt-10">
         <h2 className="text-lg font-semibold">Saved calculations</h2>
