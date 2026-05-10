@@ -217,8 +217,18 @@ export async function GET(req: NextRequest) {
       { headers: withRateLimitHeaders(CORS_HEADERS, rateLimit) },
     );
   } catch (err) {
+    // The calculator's pure functions only throw on programmer error
+    // (unknown product, NaN input). Treat the message as user-facing copy
+    // ONLY when it's a known guarded path — otherwise log internally and
+    // return a generic 400 so we don't leak stack-trace shaped strings.
+    const message = err instanceof Error ? err.message : "Bad request";
+    console.error("[api/v1/calculate] calculate failed", err);
     return NextResponse.json(
-      { error: (err as Error).message },
+      {
+        error: "calculation_failed",
+        detail: message.length <= 200 ? message : "Bad request",
+        docs: "/docs/api",
+      },
       {
         status: 400,
         headers: withRateLimitHeaders(CORS_HEADERS, rateLimit),

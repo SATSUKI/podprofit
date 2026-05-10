@@ -67,8 +67,11 @@ export async function POST(req: NextRequest) {
   try {
     supabase = createServerSupabase();
   } catch (err) {
+    // Don't surface internal env / Supabase error strings to public clients —
+    // they can hint at infra layout. Log for ops and return a generic 500.
+    console.error("[api.contact] supabase init failed", err);
     return NextResponse.json(
-      { error: "server_error", detail: (err as Error).message },
+      { error: "server_error" },
       { status: 500 },
     );
   }
@@ -111,8 +114,11 @@ export async function POST(req: NextRequest) {
       // probe for our dedupe state by submitting the same payload twice.
       return NextResponse.json({ ok: true, inquiryId: null }, { status: 200 });
     case "server_error":
+      // Internal `result.detail` (Supabase / handler errors) is logged for
+      // ops but never surfaced to the client.
+      console.error("[api.contact] handler server_error", result.detail);
       return NextResponse.json(
-        { error: "server_error", detail: result.detail },
+        { error: "server_error" },
         { status: 500 },
       );
   }
