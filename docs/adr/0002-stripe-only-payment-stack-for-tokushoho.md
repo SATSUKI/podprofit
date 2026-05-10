@@ -90,3 +90,63 @@ then they accurately describe the legal posture for those products.
   This is a known, time-limited inconsistency; QA should confirm a
   follow-up ticket exists to align all surfaces before the
   2026-07-23 Excel launch.
+
+### 2026-05-10 — PODP-32 (Phase 2: long-form legal docs)
+
+The temporary inconsistency described above was closed for the
+long-form legal documents on 2026-05-10:
+
+- `/legal/privacy` → v0.2 (2026-05-11): Lemon Squeezy / MoR removed
+  from scope, payment-information, legal-bases table, sub-processor
+  table, retention table, security, and trademarks sections.
+- `/legal/terms` → v0.3 (2026-05-11): Excel/Report sections rewritten
+  to "not yet on sale; payment, seller-of-record, and tax-collection
+  terms specified before launch"; Lemon Squeezy removed from
+  trademarks and force-majeure provider lists.
+- `/legal/refunds` → v1.2 (2026-05-11): Excel/Report rewritten as
+  "not yet on sale"; LSQ MoR sentence and EU/UK 14-day waiver
+  consent-collection sentence removed; trademarks de-listed.
+
+Out of scope for PODP-32 (intentionally untouched): the
+`/api/lemonsqueezy/webhook` stub and `src/lib/refund/check-eligibility.ts`
+helper. These are non-public-surface code reserved as a stub for the
+2026-07-23 Excel launch decision; the rollback path (re-introducing
+processor sections before launch) is unchanged.
+
+### 2026-05-11 — PODP-34 (Phase 3: FAQ sync)
+
+A follow-up audit found 17 Lemon Squeezy / MoR references remaining
+in `src/app/faq/page.tsx`. To eliminate the Stripe re-review risk of
+the reviewer reading `/faq` and finding it inconsistent with
+`/legal/tokushoho`, `/legal/privacy`, `/legal/terms`, and
+`/legal/refunds`, COO authorized scope expansion to also synchronize
+FAQ on 2026-05-11:
+
+- Q10 (Excel Template) and Q12 (Benchmark Report) now state "not yet
+  on sale; payment processor and tax-collection arrangement to be
+  specified in Terms before launch", with prices and planned launch
+  dates retained.
+- Q14 (Refunds), Q15 (Payment Methods), Q16 (Currency), Q17 (Missing
+  email), Q21 (Privacy/Terms reference) consolidate to a Stripe-only
+  description for the products on sale, with Excel/Report processor
+  details deferred to a future Terms revision.
+- Q25 question + answer and the page-footer trademarks paragraph
+  drop "Lemon Squeezy" from the trademark/affiliation list, matching
+  the trademark list now used in `/legal/terms` v0.3 and
+  `/legal/privacy` v0.2.
+- FAQPage JSON-LD schema (which AIO sources cite as a fact source)
+  was preserved structurally; only the `acceptedAnswer.text` and
+  rendered rich text were edited in-place.
+- Last-updated date moved 2026-05-04 → 2026-05-11.
+
+After PODP-34, a strict word-boundary grep across the public web
+surface (`src/app/legal/**/page.tsx`, `src/app/faq/page.tsx`, `/`,
+`/pricing`, `/legal/tokushoho`) returns zero hits for "Lemon
+Squeezy", "lemonsqueezy", "LSQ", "Merchant of Record", and "MoR".
+The `/api/lemonsqueezy/webhook` stub and the refund-helper file
+remain intentionally out of scope (same justification as PODP-32).
+
+Stripe re-approval consistency is now closed across all public
+documents. The rollback path before the 2026-07-23 Excel launch is
+to revise Terms (and re-add the relevant processor / MoR / EU-UK
+consent paragraphs that were removed in v0.3) at that time.

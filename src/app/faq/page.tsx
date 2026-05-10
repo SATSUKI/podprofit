@@ -280,7 +280,7 @@ const CATEGORIES: FaqCategory[] = [
         id: "q10",
         q: "What is the Excel Profit Template, when can I get it, and how is it sold?",
         plain:
-          "The Excel Profit Template is a structured workbook that mirrors the PODProfit calculator's logic offline: per-SKU profit sheets, batch comparison tabs, breakeven and target-margin calculators, pre-built drop-downs for supported marketplaces and suppliers. It is for sellers who want a permanent, editable record of pricing decisions outside the web app. Release: 2026-07-23. Standalone price: $19 USD, processed by Lemon Squeezy (our merchant of record for downloadable digital goods, who also handles VAT/sales tax). Lifetime license holders receive it free, automatically — a download link arrives by email on release day.",
+          "The Excel Profit Template is a structured workbook that mirrors the PODProfit calculator's logic offline: per-SKU profit sheets, batch comparison tabs, breakeven and target-margin calculators, pre-built drop-downs for supported marketplaces and suppliers. It is for sellers who want a permanent, editable record of pricing decisions outside the web app. Planned release: 2026-07-23. Standalone price: $19 USD. The Excel Template is not yet on sale; the payment processor and tax-collection arrangement will be specified in our Terms of Service before launch. Lifetime license holders receive it free, automatically — a download link arrives by email on release day.",
         rich: (
           <p>
             The Excel Profit Template is a structured workbook that mirrors the
@@ -288,11 +288,15 @@ const CATEGORIES: FaqCategory[] = [
             batch comparison tabs, breakeven and target-margin calculators,
             pre-built drop-downs for supported marketplaces and suppliers. It is
             for sellers who want a permanent, editable record of pricing decisions
-            outside the web app. <strong>Release: 2026-07-23. Standalone price:
-            $19 USD, processed by Lemon Squeezy</strong> (our merchant of record
-            for downloadable digital goods, who also handles VAT/sales tax).
-            Lifetime license holders receive it free, automatically — a download
-            link arrives by email on release day.
+            outside the web app. <strong>Planned release: 2026-07-23. Standalone
+            price: $19 USD.</strong> The Excel Template is not yet on sale; the
+            payment processor and tax-collection arrangement will be specified in
+            our{" "}
+            <Link href="/legal/terms" className="underline">
+              Terms of Service
+            </Link>{" "}
+            before launch. Lifetime license holders receive it free,
+            automatically — a download link arrives by email on release day.
           </p>
         ),
       },
@@ -329,7 +333,7 @@ const CATEGORIES: FaqCategory[] = [
         id: "q12",
         q: "What is included in the Quarterly POD Benchmark Report, and where do I report data corrections?",
         plain:
-          "The Benchmark Report is a quarterly PDF aggregating anonymized pricing, margin, and category trends across the POD market — drawn from public marketplace data, supplier rate cards, and (with explicit consent) opted-in user inputs. Each issue covers top categories (apparel, mugs, posters, accessories), median selling prices and margins by marketplace, supplier cost movement, and ad-cost benchmarks. First issue: 2026-08-20. Standalone price: $29 USD via Lemon Squeezy per issue. Lifetime holders receive every future issue free. To report a wrong number in the report or fee tables: (a) hello@getpodprofit.com for fastest response, or (b) GitHub Issues for public tracking — best effort to confirm and patch within 1 business day (JST, Mon–Fri).",
+          "The Benchmark Report is a quarterly PDF aggregating anonymized pricing, margin, and category trends across the POD market — drawn from public marketplace data, supplier rate cards, and (with explicit consent) opted-in user inputs. Each issue covers top categories (apparel, mugs, posters, accessories), median selling prices and margins by marketplace, supplier cost movement, and ad-cost benchmarks. Planned first issue: 2026-08-20. Standalone price: $29 USD per issue. The Benchmark Report is not yet on sale; the payment processor and tax-collection arrangement will be specified in our Terms of Service before launch. Lifetime holders receive every future issue free. To report a wrong number in the report or fee tables: (a) hello@getpodprofit.com for fastest response, or (b) GitHub Issues for public tracking — best effort to confirm and patch within 1 business day (JST, Mon–Fri).",
         rich: (
           <p>
             The Benchmark Report is a quarterly PDF aggregating anonymized
@@ -338,9 +342,14 @@ const CATEGORIES: FaqCategory[] = [
             consent) opted-in user inputs. Each issue covers top categories
             (apparel, mugs, posters, accessories), median selling prices and
             margins by marketplace, supplier cost movement, and ad-cost
-            benchmarks. First issue: <strong>2026-08-20</strong>. Standalone
-            price: <strong>$29 USD via Lemon Squeezy</strong> per issue. Lifetime
-            holders receive every future issue free.{" "}
+            benchmarks. <strong>Planned first issue: 2026-08-20. Standalone
+            price: $29 USD per issue.</strong> The Benchmark Report is not yet on
+            sale; the payment processor and tax-collection arrangement will be
+            specified in our{" "}
+            <Link href="/legal/terms" className="underline">
+              Terms of Service
+            </Link>{" "}
+            before launch. Lifetime holders receive every future issue free.{" "}
             <strong>To report a wrong number</strong> in the report or fee tables:
             (a){" "}
             <a href="mailto:hello@getpodprofit.com" className="underline">
@@ -388,7 +397,7 @@ const CATEGORIES: FaqCategory[] = [
         id: "q14",
         q: "What is your refund policy?",
         plain:
-          "PODProfit is a digital product delivered instantly, so as a general rule all sales are final. We make narrow exceptions in clearly unintended situations, structured to match our Terms of Service §7. Lifetime refunds ($149): refundable within 7 days of purchase AND with 0 calculator launches from the account (verified by server-side access logs). Both conditions must hold; if either fails, Lifetime is non-refundable. (See Terms §7.1.) Duplicate charges: always refundable, separate from the Lifetime policy above. We refund duplicate charges automatically within 1 business day of detection, regardless of usage. Pro Monthly ($9/month): cancelling stops future billing; we do not pro-rate the current period unless the cancellation is the result of a billing error on our side. (See Terms §7.2.) Excel Template ($19) / Benchmark Report ($29) — sold via Lemon Squeezy: digital downloads are generally non-refundable once the download link is delivered, with narrow exceptions for duplicate charges, zero-download cases, and material defects. (See Terms §7.3.) Refund requests must be sent to hello@getpodprofit.com within the applicable window with your order ID. We review each request individually with the relevant logs and respond typically within 3 business days, and no later than 7 business days. Approved refunds are processed back to the original payment method (Stripe for Lifetime/Pro; Lemon Squeezy for Excel/Report). EU/UK customers: under the EU Consumer Rights Directive (and equivalent UK regulations), you normally have a 14-day right of withdrawal for digital purchases. By completing checkout and accessing the product immediately, you expressly agree to waive this right — Stripe (for Lifetime/Pro) and Lemon Squeezy (for Excel/Report) collect this consent on our behalf at checkout. The narrow refund exceptions above still apply.",
+          "PODProfit is a digital product delivered instantly, so as a general rule all sales are final. We make narrow exceptions in clearly unintended situations, structured to match our Terms of Service §7. Lifetime refunds ($149): refundable within 7 days of purchase AND with 0 calculator launches from the account (verified by server-side access logs). Both conditions must hold; if either fails, Lifetime is non-refundable. (See Terms §7.1.) Duplicate charges: always refundable, separate from the Lifetime policy above. We refund duplicate charges automatically within 1 business day of detection, regardless of usage. Pro Monthly ($9/month): cancelling stops future billing; we do not pro-rate the current period unless the cancellation is the result of a billing error on our side. (See Terms §7.2.) Excel Template ($19) / Benchmark Report ($29): not yet on sale (planned 2026-07-23 and 2026-08-20). Refund terms, payment processor, and seller-of-record arrangement will be specified in a future revision of our Terms of Service before each launch. (See Terms §7.3.) Refund requests must be sent to hello@getpodprofit.com within the applicable window with your order ID. We review each request individually with the relevant logs and respond typically within 3 business days, and no later than 7 business days. Approved refunds are processed back to the original payment method (Stripe). EU/UK customers: under the EU Consumer Rights Directive (and equivalent UK regulations), you normally have a 14-day right of withdrawal for digital purchases. By completing checkout and accessing the product immediately, you expressly agree to waive this right — Stripe collects this consent on our behalf at checkout for Lifetime/Pro. The narrow refund exceptions above still apply. The equivalent consent flow for the Excel Template and Benchmark Report will be described before each launch.",
         rich: (
           <>
             <p>
@@ -419,10 +428,12 @@ const CATEGORIES: FaqCategory[] = [
               </li>
               <li>
                 <strong>Excel Template</strong> ($19) /{" "}
-                <strong>Benchmark Report</strong> ($29) — sold via Lemon Squeezy:
-                digital downloads are generally non-refundable once the download
-                link is delivered, with narrow exceptions for duplicate charges,
-                zero-download cases, and material defects. (See Terms §7.3.)
+                <strong>Benchmark Report</strong> ($29):{" "}
+                <strong>not yet on sale</strong> (planned 2026-07-23 and
+                2026-08-20). Refund terms, payment processor, and
+                seller-of-record arrangement will be specified in a future
+                revision of our Terms of Service before each launch. (See Terms
+                §7.3.)
               </li>
             </ul>
             <p>
@@ -437,17 +448,18 @@ const CATEGORIES: FaqCategory[] = [
                 days
               </strong>
               . Approved refunds are processed back to the original payment method
-              (Stripe for Lifetime/Pro; Lemon Squeezy for Excel/Report).
+              (Stripe).
             </p>
             <p>
               <strong>EU/UK customers</strong>: under the EU Consumer Rights
               Directive (and equivalent UK regulations), you normally have a
               14-day right of withdrawal for digital purchases. By completing
               checkout and accessing the product immediately, you{" "}
-              <strong>expressly agree to waive this right</strong> — Stripe (for
-              Lifetime/Pro) and Lemon Squeezy (for Excel/Report) collect this
-              consent on our behalf at checkout. The narrow refund exceptions
-              above still apply. Full policy:{" "}
+              <strong>expressly agree to waive this right</strong> — Stripe
+              collects this consent on our behalf at checkout for Lifetime/Pro.
+              The narrow refund exceptions above still apply. The equivalent
+              consent flow for the Excel Template and Benchmark Report will be
+              described before each launch. Full policy:{" "}
               <Link href="/legal/refunds" className="underline">
                 /legal/refunds
               </Link>
@@ -460,28 +472,27 @@ const CATEGORIES: FaqCategory[] = [
         id: "q15",
         q: "Which payment methods do you accept, and who handles billing?",
         plain:
-          "Two payment processors are involved depending on the product. Lifetime ($149) and Pro ($9/month) are processed by Stripe. Your card statement will show a charge from Stripe / PODProfit. Stripe accepts major credit/debit cards, Apple Pay, Google Pay, and other regional methods. Excel Template ($19) and Quarterly Report PDF ($29) are processed by Lemon Squeezy, our merchant of record for downloadable digital goods. Lemon Squeezy handles VAT, sales tax, and invoicing on our behalf for these items, and your statement will show a charge from Lemon Squeezy. You can manage Pro subscription, update payment method, download invoices, and cancel at any time via the customer portal links in your purchase confirmation emails. Lifetime is a one-time charge with no recurring billing.",
+          "At launch, the only product on sale is the calculator (Lifetime $149 and Pro $9/month), and both are processed by Stripe. Your card statement will show a charge from Stripe / PODProfit. Stripe accepts major credit/debit cards, Apple Pay, Google Pay, and other regional methods. The Excel Template ($19, planned 2026-07-23) and Quarterly Report PDF ($29, planned 2026-08-20) are not yet on sale. The payment processor, seller-of-record, and tax-collection arrangement for those products will be specified in a future revision of our Terms of Service before each launch. You can manage Pro subscription, update payment method, download invoices, and cancel at any time via the customer portal links in your purchase confirmation emails. Lifetime is a one-time charge with no recurring billing.",
         rich: (
           <>
             <p>
-              Two payment processors are involved depending on the product:
+              At launch, the only product on sale is the calculator
+              (Lifetime $149 and Pro $9/month), and both are processed by{" "}
+              <strong>Stripe</strong>. Your card statement will show a charge
+              from Stripe / PODProfit. Stripe accepts major credit/debit cards,
+              Apple Pay, Google Pay, and other regional methods.
             </p>
-            <ul>
-              <li>
-                <strong>Lifetime ($149) and Pro ($9/month)</strong> are processed
-                by <strong>Stripe</strong>. Your card statement will show a charge
-                from Stripe / PODProfit. Stripe accepts major credit/debit cards,
-                Apple Pay, Google Pay, and other regional methods.
-              </li>
-              <li>
-                <strong>Excel Template ($19) and Quarterly Report PDF ($29)</strong>{" "}
-                are processed by <strong>Lemon Squeezy</strong>, our{" "}
-                <strong>merchant of record</strong> for downloadable digital
-                goods. Lemon Squeezy handles VAT, sales tax, and invoicing on our
-                behalf for these items, and your statement will show a charge from
-                Lemon Squeezy.
-              </li>
-            </ul>
+            <p>
+              The <strong>Excel Template ($19, planned 2026-07-23)</strong> and{" "}
+              <strong>Quarterly Report PDF ($29, planned 2026-08-20)</strong>{" "}
+              are <strong>not yet on sale</strong>. The payment processor,
+              seller-of-record, and tax-collection arrangement for those
+              products will be specified in a future revision of our{" "}
+              <Link href="/legal/terms" className="underline">
+                Terms of Service
+              </Link>{" "}
+              before each launch.
+            </p>
             <p>
               You can manage Pro subscription, update payment method, download
               invoices, and cancel at any time via the customer portal links in
@@ -495,12 +506,12 @@ const CATEGORIES: FaqCategory[] = [
         id: "q16",
         q: "What currency are charges in, and will my bank add fees?",
         plain:
-          "All prices are listed in USD. Stripe and Lemon Squeezy will charge your card in USD, and your issuing bank will convert to your local currency at its prevailing FX rate. Foreign-currency conversion fees and cross-border transaction fees are charged by your bank, not by us — typical ranges are 1–3% depending on your card issuer. If you have a USD-denominated card or a no-FX-fee card, you can avoid these. We are unable to refund bank-side FX or cross-border fees.",
+          "All prices are listed in USD. Stripe will charge your card in USD, and your issuing bank will convert to your local currency at its prevailing FX rate. Foreign-currency conversion fees and cross-border transaction fees are charged by your bank, not by us — typical ranges are 1–3% depending on your card issuer. If you have a USD-denominated card or a no-FX-fee card, you can avoid these. We are unable to refund bank-side FX or cross-border fees.",
         rich: (
           <p>
-            All prices are listed in <strong>USD</strong>. Stripe and Lemon
-            Squeezy will charge your card in USD, and your issuing bank will
-            convert to your local currency at its prevailing FX rate.{" "}
+            All prices are listed in <strong>USD</strong>. Stripe will charge
+            your card in USD, and your issuing bank will convert to your local
+            currency at its prevailing FX rate.{" "}
             <strong>
               Foreign-currency conversion fees and cross-border transaction fees
               are charged by your bank, not by us
@@ -515,19 +526,19 @@ const CATEGORIES: FaqCategory[] = [
         id: "q17",
         q: "I was charged but never received my license key or download — what do I do?",
         plain:
-          "First, check your spam and promotions folder for an email from Stripe, Lemon Squeezy, or hello@getpodprofit.com — delivery is usually within minutes but can take up to an hour during release-day spikes. If it still hasn't arrived, email hello@getpodprofit.com with the email you used at checkout and the order ID (in your card statement and Stripe / Lemon Squeezy receipt). We will verify the order and resend your license key or download link, typically within 1 business day. Please do not file a chargeback before contacting us — almost every \"missing email\" case is resolved within hours.",
+          "First, check your spam and promotions folder for an email from Stripe or hello@getpodprofit.com — delivery is usually within minutes but can take up to an hour during release-day spikes. If it still hasn't arrived, email hello@getpodprofit.com with the email you used at checkout and the order ID (in your card statement and Stripe receipt). We will verify the order and resend your license key, typically within 1 business day. Please do not file a chargeback before contacting us — almost every \"missing email\" case is resolved within hours.",
         rich: (
           <p>
-            First, check your spam and promotions folder for an email from Stripe,
-            Lemon Squeezy, or hello@getpodprofit.com — delivery is usually within
-            minutes but can take up to an hour during release-day spikes. If it
-            still hasn&apos;t arrived, email{" "}
+            First, check your spam and promotions folder for an email from Stripe
+            or hello@getpodprofit.com — delivery is usually within minutes but
+            can take up to an hour during release-day spikes. If it still
+            hasn&apos;t arrived, email{" "}
             <a href="mailto:hello@getpodprofit.com" className="underline">
               hello@getpodprofit.com
             </a>{" "}
             with the email you used at checkout and the order ID (in your card
-            statement and Stripe / Lemon Squeezy receipt). We will verify the
-            order and resend your license key or download link,{" "}
+            statement and Stripe receipt). We will verify the order and resend
+            your license key,{" "}
             <strong>typically within 1 business day</strong>. Please do not file a
             chargeback before contacting us — almost every &quot;missing
             email&quot; case is resolved within hours.
@@ -652,7 +663,7 @@ const CATEGORIES: FaqCategory[] = [
         id: "q21",
         q: "Where can I read your full Privacy Policy and Terms?",
         plain:
-          "Both documents are linked in the footer of getpodprofit.com and available at fixed URLs. Privacy Policy: https://getpodprofit.com/legal/privacy. Terms of Service: https://getpodprofit.com/legal/terms. Current version: v0.1, published 2026-06-09 alongside launch, covering: (1) AI use in product features and support (with the staged rollout described in Q20), (2) Stripe as processor for Lifetime/Pro and Lemon Squeezy as merchant of record for Excel/Report, and (3) GDPR/CCPA-aligned language. A substantive update is planned before the Excel Template launch on 2026-07-23 to expand AI usage details and EU/UK-specific language. Existing users will be notified by email of any material changes with a clear summary of what changed and when it takes effect. For specific privacy or terms questions, email hello@getpodprofit.com.",
+          "Both documents are linked in the footer of getpodprofit.com and available at fixed URLs. Privacy Policy: https://getpodprofit.com/legal/privacy. Terms of Service: https://getpodprofit.com/legal/terms. Published 2026-06-09 alongside launch, covering: (1) AI use in product features and support (with the staged rollout described in Q20), (2) Stripe as the payment processor for the calculator (Lifetime/Pro), and (3) GDPR/CCPA-aligned language. A substantive update is planned before the Excel Template launch on 2026-07-23 to add the payment-processor and tax-collection terms for the Excel Template and Benchmark Report, and to expand AI usage and EU/UK-specific language. Existing users will be notified by email of any material changes with a clear summary of what changed and when it takes effect. For specific privacy or terms questions, email hello@getpodprofit.com.",
         rich: (
           <>
             <p>
@@ -674,20 +685,21 @@ const CATEGORIES: FaqCategory[] = [
               </li>
             </ul>
             <p>
-              Current version:{" "}
-              <strong>v0.1, published 2026-06-09 alongside launch</strong>,
+              <strong>Published 2026-06-09 alongside launch</strong>,
               covering: (1) AI use in product features and support (with the
               staged rollout described in{" "}
               <Link href="#q20" className="underline">
                 Q20
               </Link>
-              ), (2) Stripe as processor for Lifetime/Pro and Lemon Squeezy as
-              merchant of record for Excel/Report, and (3) GDPR/CCPA-aligned
-              language. A substantive update is planned before the Excel Template
-              launch on 2026-07-23 to expand AI usage details and EU/UK-specific
-              language. Existing users will be notified by email of any material
-              changes with a clear summary of what changed and when it takes
-              effect. For specific privacy or terms questions, email{" "}
+              ), (2) Stripe as the payment processor for the calculator
+              (Lifetime/Pro), and (3) GDPR/CCPA-aligned language. A substantive
+              update is planned before the Excel Template launch on 2026-07-23
+              to add the payment-processor and tax-collection terms for the
+              Excel Template and Benchmark Report, and to expand AI usage and
+              EU/UK-specific language. Existing users will be notified by email
+              of any material changes with a clear summary of what changed and
+              when it takes effect. For specific privacy or terms questions,
+              email{" "}
               <a href="mailto:hello@getpodprofit.com" className="underline">
                 hello@getpodprofit.com
               </a>
@@ -779,19 +791,19 @@ const CATEGORIES: FaqCategory[] = [
     entries: [
       {
         id: "q25",
-        q: "Are you affiliated with Etsy, Shopify, Printful, Printify, Stripe, or Lemon Squeezy?",
+        q: "Are you affiliated with Etsy, Shopify, Printful, Printify, or Stripe?",
         plain:
-          "No. Etsy, Shopify, Printful, Printify, Stripe, and Lemon Squeezy are trademarks of their respective owners. PODProfit is an independent tool and is not affiliated with, endorsed by, or sponsored by any of these companies. We model their publicly published fee structures and rate cards under nominative fair use, solely to identify the platforms our calculator supports and the payment processors we use. If you have an issue with one of these companies' services, please contact them directly — we cannot intervene on their behalf.",
+          "No. Etsy, Shopify, Printful, Printify, and Stripe are trademarks of their respective owners. PODProfit is an independent tool and is not affiliated with, endorsed by, or sponsored by any of these companies. We model their publicly published fee structures and rate cards under nominative fair use, solely to identify the platforms our calculator supports and the payment processor we use. If you have an issue with one of these companies' services, please contact them directly — we cannot intervene on their behalf.",
         rich: (
           <p>
-            <strong>No.</strong> Etsy, Shopify, Printful, Printify, Stripe, and
-            Lemon Squeezy are trademarks of their respective owners. PODProfit is
-            an <strong>independent tool</strong> and is{" "}
+            <strong>No.</strong> Etsy, Shopify, Printful, Printify, and Stripe
+            are trademarks of their respective owners. PODProfit is an{" "}
+            <strong>independent tool</strong> and is{" "}
             <strong>not affiliated with, endorsed by, or sponsored by</strong>{" "}
             any of these companies. We model their publicly published fee
             structures and rate cards under nominative fair use, solely to
             identify the platforms our calculator supports and the payment
-            processors we use. If you have an issue with one of these
+            processor we use. If you have an issue with one of these
             companies&apos; services, please contact them directly — we cannot
             intervene on their behalf.
           </p>
@@ -844,7 +856,7 @@ export default function FaqPage() {
           <code>#q26</code>.
         </p>
         <p className="mt-3 text-sm text-stone-600 dark:text-stone-400">
-          Last updated: 2026-05-04. Audience: Etsy / Shopify sellers using
+          Last updated: 2026-05-11. Audience: Etsy / Shopify sellers using
           Printful / Printify (English-speaking markets). Contact:{" "}
           <a href="mailto:hello@getpodprofit.com" className="underline">
             hello@getpodprofit.com
@@ -961,12 +973,12 @@ export default function FaqPage() {
       <section className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
         <p>
           <strong>Trademarks &amp; Affiliation.</strong> Etsy, Shopify, Printful,
-          Printify, Stripe, and Lemon Squeezy are trademarks of their respective
-          owners. PODProfit is an independent tool and is{" "}
+          Printify, and Stripe are trademarks of their respective owners.
+          PODProfit is an independent tool and is{" "}
           <strong>not affiliated with, endorsed by, or sponsored by</strong> any
           of these companies. We model their publicly published fee structures
           and rate cards under nominative fair use, solely to identify the
-          platforms our calculator supports and the payment processors we use.
+          platforms our calculator supports and the payment processor we use.
         </p>
         <p className="mt-3">
           <strong>Final Disclaimer.</strong> PODProfit provides estimation tools
