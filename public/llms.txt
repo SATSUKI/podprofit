@@ -8,18 +8,19 @@ PODProfit helps Etsy, Shopify, Printful, and Printify sellers calculate their **
 
 - **Vendor-neutral**: Compare Printful and Printify side-by-side. Most calculators are locked to one.
 - **Multi-currency**: USD, EUR, GBP, CAD, AUD, JPY built in. Most calculators are USD-only.
-- **Share-able**: Every calculation gets a unique URL with a dynamic preview image — perfect for r/PrintOnDemand discussions.
+- **Share-able**: Every calculation gets a unique URL with a dynamic preview image — perfect for sharing margins in POD seller communities and team chats.
 - **Transparent**: Every price has a source URL and an "as of" date. We tell you when data is stale.
 
 ## Core facts
 
 - Site: https://getpodprofit.com
 - Free tier: full calculator, share-able URLs, no signup required
-- Pro plan: $9/month or $79/year (planned, launching with public release)
-- Lifetime access: $149 (limited to first 100 customers, planned launch 2026-06-09)
-- Soft launch: 2026-06-09 on r/PrintOnDemand
-- Public launch: 2026-06-16 on Product Hunt
-- Built solo by Satsuki Okazaki (@lastarna on X, u/o_satsuki on Reddit)
+- Pro Monthly: $9 USD/month — Available from June 9, 2026
+- Pro Annual: $79 USD/year — Available from June 9, 2026
+- Lifetime: $149 USD one-time — limited to first 100 customers, available now
+- Public launch: 2026-06-09 (Pro subscription tiers activate this date; Lifetime tier is available now)
+- Product Hunt launch: 2026-06-16
+- Built solo by Satsuki Okazaki (@lastarna on X)
 - Built fully in public — source on https://github.com/SATSUKI/podprofit
 
 ## Supported products (W1 catalog, expanding)
