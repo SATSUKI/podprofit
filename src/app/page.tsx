@@ -10,7 +10,7 @@ const FAQ_ITEMS: Array<{ q: string; a: string }> = [
   },
   {
     q: "Is PODProfit free?",
-    a: "Yes — the core calculator is free forever. There is no signup required to run a calculation or share a result via URL. A Pro plan is planned for saved calculations, multi-store dashboards, and exports — but the calculator itself stays free.",
+    a: "Yes — the core calculator is free forever. There is no signup required to run a calculation or share a result via URL. Pro Monthly ($9 USD/month) and Pro Annual ($79 USD/year) unlock saved calculations, multi-store dashboards, and exports — both available from June 9, 2026. The calculator itself stays free.",
   },
   {
     q: "How is PODProfit different from existing POD calculators?",
@@ -114,8 +114,9 @@ export default function Home() {
           </Faq>
           <Faq q="Is PODProfit free?">
             Yes — the core calculator is free forever. There&apos;s no signup required to run a calculation
-            or share a result via URL. A Pro plan is planned for saved calculations, multi-store dashboards,
-            and exports — but the calculator itself stays free.
+            or share a result via URL. <strong>Pro Monthly: $9 USD/month</strong> and{" "}
+            <strong>Pro Annual: $79 USD/year</strong> unlock saved calculations, multi-store dashboards,
+            and exports — both <strong>available from June 9, 2026</strong>. The calculator itself stays free.
           </Faq>
           <Faq q="How is PODProfit different from existing POD calculators?">
             Most POD calculators are vendor-locked (Printful-only or Printify-only), USD-only, or hide

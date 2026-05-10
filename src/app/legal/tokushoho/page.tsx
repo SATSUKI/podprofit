@@ -14,7 +14,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-07 / バージョン: 1.0</em>
+        <em>最終更新日: 2026-05-10 / バージョン: 1.1</em>
       </p>
 
       <p>
@@ -33,8 +33,6 @@ export default function TokushohoPage() {
         〒150-0044
         <br />
         東京都渋谷区円山町5番3号 MIEUX渋谷ビル8階
-        <br />
-        (DMM バーチャルオフィス渋谷道玄坂店)
       </p>
       <p>
         <em>
@@ -93,25 +91,20 @@ export default function TokushohoPage() {
           <tr>
             <td>POD Profit Calculator Excel Template</td>
             <td>USD 19</td>
-            <td>
-              2026-07-23 販売開始予定。Lemon Squeezy 経由の単発デジタル商品
-            </td>
+            <td>2026-07-23 販売開始予定の単発デジタル商品</td>
           </tr>
           <tr>
             <td>POD Margin Benchmark Report PDF</td>
             <td>USD 29</td>
-            <td>
-              2026-08-20 販売開始予定。Lemon Squeezy 経由の単発デジタル商品
-            </td>
+            <td>2026-08-20 販売開始予定の単発デジタル商品</td>
           </tr>
         </tbody>
       </table>
       <p>
         <em>
           価格は USD 建てで表示されます。日本円での請求額はカード会社の
-          為替レートにより変動します。Lemon Squeezy 経由の商品は、消費税
-          / VAT / Sales Tax を Lemon Squeezy が販売事業者として代行徴収・
-          納付します (Merchant of Record モデル)。
+          為替レートにより変動します。海外取引における消費税 / VAT / Sales
+          Tax は Stripe Tax により決済時に自動計算・徴収されます。
         </em>
       </p>
 
@@ -127,19 +120,14 @@ export default function TokushohoPage() {
       </ul>
 
       <h2 id="payment-method">支払方法</h2>
-      <ul>
-        <li>
-          <strong>本体 SaaS (Lifetime / Pro Monthly / Pro Annual)</strong>:
-          クレジットカード決済のみ (Stripe 経由)
-        </li>
-        <li>
-          <strong>Excel Template / Benchmark Report PDF</strong>: クレジット
-          カード決済 (Lemon Squeezy 経由、Lemon Squeezy が販売事業者)
-        </li>
-      </ul>
+      <p>
+        全商品 (Lifetime / Pro Monthly / Pro Annual / Excel Template /
+        Benchmark Report PDF) のクレジットカード決済を Stripe, Inc. 経由で
+        受け付けます。
+      </p>
       <p>
         対応カードブランド: Visa / Mastercard / American Express / JCB /
-        Discover / Diners Club (Stripe / Lemon Squeezy 各社の対応に準じる)
+        Discover / Diners Club (Stripe の対応に準じる)
       </p>
 
       <h2 id="payment-timing">支払時期</h2>
@@ -166,7 +154,7 @@ export default function TokushohoPage() {
         </li>
         <li>
           <strong>Excel Template / Benchmark Report PDF</strong>: 決済完了後、
-          即時 Lemon Squeezy のダウンロードリンクをメール送信
+          即時にダウンロードリンクをメール送信
         </li>
       </ul>
 
@@ -190,7 +178,7 @@ export default function TokushohoPage() {
           以降は返金不可ですが、年度末までサービスは継続利用可能
         </li>
         <li>
-          <strong>Excel / Report (Lemon Squeezy 経由)</strong>: ダウンロード履歴が 0 件であることをサーバーログで確認できた場合のみ、ご注文後 14 日以内に限り返金検討
+          <strong>Excel / Report</strong>: ダウンロード履歴が 0 件であることをサーバーログで確認できた場合のみ、ご注文後 14 日以内に限り返金検討
         </li>
         <li>
           <strong>重複課金</strong>: いかなる商品でも、システム起因で重複課金が
