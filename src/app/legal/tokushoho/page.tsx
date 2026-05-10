@@ -14,7 +14,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-11 / バージョン: 1.2</em>
+        <em>最終更新日: 2026-05-11 / バージョン: 1.3</em>
       </p>
 
       <p>
@@ -26,7 +26,10 @@ export default function TokushohoPage() {
       </p>
 
       <h2 id="seller">販売事業者</h2>
-      <p>岡崎 五月 (個人事業主)</p>
+      <p>岡崎 五月 (屋号: PODProfit / 個人事業主)</p>
+
+      <h2 id="responsible-manager">運営統括責任者</h2>
+      <p>岡崎 五月 (販売事業者と同一)</p>
 
       <h2 id="address">所在地</h2>
       <p>
@@ -107,6 +110,13 @@ export default function TokushohoPage() {
           Tax は Stripe Tax により決済時に自動計算・徴収されます。
         </em>
       </p>
+      <p>
+        <em>
+          ※ 当事業者は消費税法上の免税事業者であり、適格請求書 (インボイス) の
+          発行はできません。日本国内の課税事業者様で仕入税額控除を必要とされる
+          場合は、ご購入前にメールにてご相談ください。
+        </em>
+      </p>
 
       <h2 id="extra-charges">価格以外の追加費用</h2>
       <p>
@@ -167,15 +177,19 @@ export default function TokushohoPage() {
       <ul>
         <li>
           <strong>Lifetime</strong>: ご注文後 7 日以内、かつ計算機を 1 度も
-          起動していない場合 (アクセスログで確認)
+          起動していない場合 (アクセスログで確認)。Lifetime
+          ライセンスは PODProfit のサービス運営期間中の利用権を保証するもので
+          あり、サービスが終了した場合の返金保証は含みません。
         </li>
         <li>
-          <strong>Pro Monthly</strong>: 解約以降の自動課金を停止 (日割り
-          返金は行いません)。当社側のシステム起因の課金エラーの場合は全額返金
+          <strong>Pro Monthly</strong>: 解約以降の自動課金を停止します (日割り
+          返金は行いません)。解約後も<strong>当月末まで</strong>サービスは継続
+          利用可能です。当社側のシステム起因の課金エラーの場合は全額返金。
         </li>
         <li>
           <strong>Pro Annual</strong>: ご注文後 14 日以内は無条件で全額返金。
-          以降は返金不可ですが、年度末までサービスは継続利用可能
+          以降は返金不可ですが、解約後も<strong>年度末 (次回更新日)
+          まで</strong>サービスは継続利用可能です。
         </li>
         <li>
           <strong>Excel / Report</strong>: ダウンロード履歴が 0 件であることをサーバーログで確認できた場合のみ、ご注文後 14 日以内に限り返金検討

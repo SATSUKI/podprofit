@@ -146,6 +146,26 @@ async function handleCheckout(req: NextRequest) {
     cancel_url: cancelUrl,
     allow_promotion_codes: true,
     automatic_tax: { enabled: true },
+    // EU/UK Consumer Rights Directive Article 16(m) waiver — required to
+    // hold the line on "no refund after access granted" for EU/UK
+    // Lifetime customers. Without an explicit waiver collected at
+    // checkout, those customers retain a 14-day right of withdrawal even
+    // after we've granted seat access (high-cost rollback path on a $149
+    // SKU). Stripe surfaces this as a "must check the box" UI on the
+    // checkout page when consent_collection.terms_of_service is set.
+    //
+    // Custom message text is the literal waiver language reviewed by
+    // Legal — kept inline so it can be diffed without grepping a
+    // separate copy module.
+    consent_collection: {
+      terms_of_service: "required",
+    },
+    custom_text: {
+      terms_of_service_acceptance: {
+        message:
+          "I agree to immediate access and acknowledge that I waive my 14-day EU/UK right of withdrawal once access is granted.",
+      },
+    },
     metadata: {
       plan_id: planEntry.id,
       ...(authedUser ? { user_id: authedUser.id } : {}),
