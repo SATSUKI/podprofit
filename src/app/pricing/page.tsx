@@ -27,8 +27,18 @@ export const metadata: Metadata = {
     description:
       "Free forever calculator. Pro Monthly $9 USD/month and Pro Annual $79 USD/year available June 9, 2026. Lifetime $149 (one-time) — limited to 100 seats, available now.",
     siteName: "PODProfit",
-    // Inherit the brand-fallback /api/og image from the root layout —
-    // pricing has no per-page hero image worth a dynamic OG render.
+    // NOTE: Next.js does NOT merge `openGraph.images` from a parent
+    // layout when a child page defines its own `openGraph` block — the
+    // child block overrides the parent entirely. So we must repeat the
+    // /api/og image declaration on every page with its own openGraph.
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "PODProfit Pricing — Free, Pro Monthly, Pro Annual, Lifetime",
+      },
+    ],
   },
 };
 

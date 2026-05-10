@@ -22,12 +22,24 @@ export const metadata: Metadata = {
     title: "PODProfit Lifetime — $149 for 100 builders",
     description:
       "100 seats, $149 one-time. Calculator + every future Pro tool, forever.",
+    // Re-declare the OG image — Next does not inherit `openGraph.images`
+    // from a parent layout when a child page defines its own openGraph
+    // block. See pricing/page.tsx for the same pattern.
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "PODProfit Lifetime — $149 for 100 builders",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "PODProfit Lifetime — $149 for 100 builders",
     description:
       "100 seats, $149 one-time. Calculator + every future Pro tool, forever.",
+    images: ["/api/og"],
   },
 };
 

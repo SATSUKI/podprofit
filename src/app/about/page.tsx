@@ -44,12 +44,23 @@ export const metadata: Metadata = {
     description:
       "Solo-operated, vendor-neutral profit calculator for Print-on-Demand sellers. Meet the founder, read the operating principles, and see who replies when you email support.",
     siteName: "PODProfit",
+    // Re-declare image — Next.js does not inherit images from a parent
+    // layout's openGraph when a child page sets its own block.
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "About PODProfit — Built by a POD seller for POD sellers",
+      },
+    ],
   },
   twitter: {
     card: "summary",
     title: "About PODProfit — Built by a POD seller",
     description:
       "Solo-operated and built in public by Satsuki Okazaki. 20+ years engineering, vendor-neutral pricing, fast personal support.",
+    images: ["/api/og"],
   },
 };
 

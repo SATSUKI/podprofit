@@ -17,6 +17,16 @@ export const metadata: Metadata = {
     title: "Contact — PODProfit",
     description:
       "Bug, refund, feature idea, or pricing question — drop a note and we'll reply within 3 business days.",
+    // Re-declare image — Next does not inherit images from a parent
+    // layout's openGraph when a child page sets its own block.
+    images: [
+      {
+        url: "/api/og",
+        width: 1200,
+        height: 630,
+        alt: "Contact — PODProfit",
+      },
+    ],
   },
 };
 
