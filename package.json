@@ -10,6 +10,7 @@
     "build:products": "tsx scripts/build-products.ts"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^9.4.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "@vercel/og": "^0.11.1",

@@ -2,25 +2,45 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { PLAN_CATALOG, type PlanId } from "@/lib/stripe/products";
+import { createSsrSupabase } from "@/lib/supabase/ssr";
+import { createServerSupabase } from "@/lib/supabase/server";
+import {
+  getCurrentPlanSnapshot,
+  getLifetimeRemaining,
+} from "@/lib/stripe/current-plan";
+import { evaluateCheckoutPrecheck } from "@/lib/stripe/checkout-precheck";
 
 export const runtime = "nodejs";
 
 /**
  * Create a Stripe Checkout Session for the chosen plan.
  *
- * Request: GET /api/stripe/checkout?plan=lifetime
- * Returns: 303 redirect to Stripe Checkout, or JSON error with helpful message.
+ * Routes (both supported, GET keeps `<a href>` working without JS):
+ *   GET  /api/stripe/checkout?plan=lifetime
+ *   POST /api/stripe/checkout?plan=lifetime    ← preferred for forms
  *
- * Notes:
- *  - Stripe price IDs are resolved by `lookup_key` so the code is
- *    test/prod-mode independent. The dashboard must have prices with the
- *    matching lookup_keys (see `lib/stripe/products.ts`).
- *  - Per CEO slim-down: env vars are not required at build time. If they're
- *    missing at request time, we return a clear 503 explaining the deferral.
+ * Pre-Stripe gates (PODP-35):
+ *   - Auth required for Pro plans (anonymous Lifetime is allowed; user_id is
+ *     linked at webhook time when present).
+ *   - Lifetime + Pro conflict → deny / redirect / confirm (see
+ *     `evaluateCheckoutPrecheck`).
+ *
+ * Stripe price resolution prefers `lookup_key` (test/prod-mode independent).
+ * Falls back to `STRIPE_PRICE_ID_*` env vars when the dashboard hasn't been
+ * tagged with lookup_keys yet — useful in pure Test Mode bring-up.
  */
 export async function GET(req: NextRequest) {
+  return handleCheckout(req);
+}
+
+export async function POST(req: NextRequest) {
+  return handleCheckout(req);
+}
+
+async function handleCheckout(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const plan = searchParams.get("plan") as PlanId | null;
+  const confirmed = searchParams.get("confirmed") === "true";
 
   if (!plan || !(plan in PLAN_CATALOG)) {
     return NextResponse.json(
@@ -33,7 +53,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         error: "Stripe is not yet configured.",
-        hint: "Per project plan, Stripe production keys are set up in W6 (2026-06-04+). The checkout endpoint is built and ready — only env vars are missing.",
+        hint: "Set STRIPE_SECRET_KEY (Test or Live) before invoking this endpoint.",
       },
       { status: 503 },
     );
@@ -42,35 +62,121 @@ export async function GET(req: NextRequest) {
   const planEntry = PLAN_CATALOG[plan];
   const stripe = getStripe();
 
-  // Resolve Stripe price by lookup_key (decouples test/prod IDs).
-  const prices = await stripe.prices.list({
-    lookup_keys: [planEntry.stripeLookupKey],
-    active: true,
-    limit: 1,
-  });
-  const price = prices.data[0];
-  if (!price) {
+  // ── Auth (optional for Lifetime, required for Pro) ─────────────────────
+  // Lifetime allows anonymous purchase because Stripe creates the customer at
+  // checkout and the webhook links the seat back to the user_id present in
+  // metadata. Pro plans must be tied to a Supabase user up-front so the
+  // billing portal link in /account works.
+  const sessionSupabase = await createSsrSupabase();
+  const authedUser = sessionSupabase
+    ? (await sessionSupabase.auth.getUser()).data.user
+    : null;
+
+  if (planEntry.mode === "subscription" && !authedUser) {
+    const origin = getOrigin(req);
+    return NextResponse.redirect(
+      `${origin}/login?next=${encodeURIComponent(`/api/stripe/checkout?plan=${plan}`)}`,
+      { status: 303 },
+    );
+  }
+
+  // ── PODP-35 pre-check (only when we know who the user is) ──────────────
+  let preCustomerId: string | null = null;
+  if (authedUser) {
+    const supabaseAdmin = createServerSupabase();
+    const [snapshot, lifetimeRemaining] = await Promise.all([
+      getCurrentPlanSnapshot(supabaseAdmin, authedUser.id),
+      planEntry.id === "lifetime"
+        ? getLifetimeRemaining(supabaseAdmin)
+        : Promise.resolve(Number.POSITIVE_INFINITY),
+    ]);
+    preCustomerId = snapshot.stripeCustomerId;
+
+    const decision = evaluateCheckoutPrecheck({
+      desiredPlan: plan,
+      snapshot,
+      lifetimeRemaining,
+      confirmed,
+    });
+
+    if (decision.decision === "deny") {
+      return NextResponse.json(
+        { error: decision.message, reason: decision.reason },
+        { status: 400 },
+      );
+    }
+    if (decision.decision === "redirect_portal") {
+      const origin = getOrigin(req);
+      return NextResponse.redirect(`${origin}/api/stripe/portal`, {
+        status: 303,
+      });
+    }
+    if (decision.decision === "confirm_required") {
+      return NextResponse.json(
+        {
+          error: decision.message,
+          reason: "confirm_required",
+          retry_url: `${getOrigin(req)}/api/stripe/checkout?plan=${plan}&confirmed=true`,
+        },
+        { status: 409 },
+      );
+    }
+  }
+
+  // ── Resolve the Stripe price (lookup_key preferred, env fallback) ──────
+  const priceId = await resolvePriceId(stripe, planEntry.id, planEntry.stripeLookupKey);
+  if (!priceId) {
     return NextResponse.json(
       {
-        error: `No active Stripe price with lookup_key="${planEntry.stripeLookupKey}".`,
-        hint: "Create the price in the Stripe dashboard with this exact lookup_key.",
+        error: `No active Stripe price for plan="${planEntry.id}".`,
+        hint: `Tag the price with lookup_key="${planEntry.stripeLookupKey}" or set STRIPE_PRICE_ID_${envSuffix(planEntry.id)} in env.`,
       },
       { status: 500 },
     );
   }
 
-  const origin = req.headers.get("origin") ?? "https://getpodprofit.com";
+  const origin = getOrigin(req);
+  const successUrl = `${origin}/account/welcome?session_id={CHECKOUT_SESSION_ID}`;
+  const cancelUrl = `${origin}/pricing?canceled=1`;
 
   const session = await stripe.checkout.sessions.create({
     mode: planEntry.mode,
-    line_items: [{ price: price.id, quantity: 1 }],
-    success_url: `${origin}/account/welcome?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/pricing?canceled=1`,
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: successUrl,
+    cancel_url: cancelUrl,
     allow_promotion_codes: true,
     automatic_tax: { enabled: true },
-    metadata: { plan_id: planEntry.id },
-    // For one-time Lifetime payments, capture customer email even without account
-    customer_creation: planEntry.mode === "payment" ? "always" : undefined,
+    metadata: {
+      plan_id: planEntry.id,
+      ...(authedUser ? { user_id: authedUser.id } : {}),
+    },
+    // Bind to existing Stripe customer when we have one (preserves payment
+    // methods + tax id). For Lifetime without a known customer, tell Stripe
+    // to always create one so we can link it via webhook.
+    ...(preCustomerId
+      ? { customer: preCustomerId }
+      : authedUser
+        ? { customer_email: authedUser.email ?? undefined }
+        : {}),
+    customer_creation:
+      !preCustomerId && planEntry.mode === "payment" ? "always" : undefined,
+    // Carry user_id onto subscription/PI objects too, so webhooks for
+    // `customer.subscription.*` and `payment_intent.*` can find the user
+    // even when `checkout.session.completed` arrives later.
+    ...(planEntry.mode === "subscription" && authedUser
+      ? {
+          subscription_data: {
+            metadata: { plan_id: planEntry.id, user_id: authedUser.id },
+          },
+        }
+      : {}),
+    ...(planEntry.mode === "payment" && authedUser
+      ? {
+          payment_intent_data: {
+            metadata: { plan_id: planEntry.id, user_id: authedUser.id },
+          },
+        }
+      : {}),
   });
 
   if (!session.url) {
@@ -80,4 +186,44 @@ export async function GET(req: NextRequest) {
     );
   }
   return NextResponse.redirect(session.url, { status: 303 });
+}
+
+function getOrigin(req: NextRequest): string {
+  return (
+    req.headers.get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "https://getpodprofit.com"
+  );
+}
+
+function envSuffix(planId: PlanId): string {
+  if (planId === "pro_monthly") return "MONTHLY";
+  if (planId === "pro_yearly") return "ANNUAL";
+  return "LIFETIME";
+}
+
+async function resolvePriceId(
+  stripe: ReturnType<typeof getStripe>,
+  planId: PlanId,
+  lookupKey: string,
+): Promise<string | null> {
+  // 1) Prefer lookup_key.
+  try {
+    const prices = await stripe.prices.list({
+      lookup_keys: [lookupKey],
+      active: true,
+      limit: 1,
+    });
+    if (prices.data[0]) return prices.data[0].id;
+  } catch {
+    // fall through to env fallback
+  }
+  // 2) Env-var fallback (pure Test Mode bring-up).
+  const envId =
+    planId === "pro_monthly"
+      ? process.env.STRIPE_PRICE_ID_MONTHLY
+      : planId === "pro_yearly"
+        ? process.env.STRIPE_PRICE_ID_ANNUAL
+        : process.env.STRIPE_PRICE_ID_LIFETIME;
+  return envId && envId.startsWith("price_") ? envId : null;
 }

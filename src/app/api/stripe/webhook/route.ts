@@ -11,6 +11,12 @@ import {
   releaseWebhookEventForRetry,
 } from "@/lib/stripe/webhook-events";
 import { handleLifetimeCheckoutCompleted } from "@/lib/stripe/lifetime-handler";
+import {
+  handleChargeRefunded,
+  logInvoicePaid,
+  logInvoicePaymentFailed,
+  logPaymentIntentSucceeded,
+} from "@/lib/stripe/audit-events";
 
 export const runtime = "nodejs";
 
@@ -22,11 +28,14 @@ export const runtime = "nodejs";
  *   - Idempotency via `webhook_events.stripe_event_id` UK — replays are
  *     no-ops.
  *   - Lifetime: atomic seat claim via `fn_claim_lifetime_seat` RPC + audit
- *     log row, all gated by the same idempotency claim.
- *   - Subscription: mirror Stripe state into `public.subscriptions`.
+ *     log row + auto-cancel of any active Pro sub (PODP-35), all gated by
+ *     the same idempotency claim.
+ *   - Subscription: mirror Stripe state into `public.subscriptions` and
+ *     persist the `stripe_customer_id` onto the user_profile.
+ *   - Invoice + PaymentIntent + Charge events: write audit_log rows and (for
+ *     refunded Lifetime charges) re-open the seat.
  *   - Failure semantics: any side-effect failure deletes the
- *     `webhook_events` row so Stripe's retry can succeed (avoids "stuck"
- *     unprocessed rows that would block retries forever).
+ *     `webhook_events` row so Stripe's retry can succeed.
  */
 export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
@@ -35,7 +44,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: "Stripe webhook signature or secret missing.",
-        hint: "Set STRIPE_WEBHOOK_SECRET when Stripe is configured (W6).",
+        hint: "Set STRIPE_WEBHOOK_SECRET when Stripe is configured.",
       },
       { status: 503 },
     );
@@ -68,11 +77,13 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        await handleLifetimeCheckoutCompleted(
-          stripe,
-          supabase,
-          event.data.object as Stripe.Checkout.Session,
-        );
+        const session = event.data.object as Stripe.Checkout.Session;
+        // Subscription mode: link the Stripe customer back to the user_profile
+        // so /api/stripe/portal can find them.
+        if (session.mode === "subscription") {
+          await linkCustomerToProfile(supabase, session);
+        }
+        await handleLifetimeCheckoutCompleted(stripe, supabase, session);
         break;
       }
 
@@ -82,6 +93,35 @@ export async function POST(req: NextRequest) {
         await handleSubscriptionMirror(
           supabase,
           event.data.object as Stripe.Subscription,
+        );
+        break;
+      }
+
+      case "invoice.paid": {
+        await logInvoicePaid(supabase, event.data.object as Stripe.Invoice);
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        await logInvoicePaymentFailed(
+          supabase,
+          event.data.object as Stripe.Invoice,
+        );
+        break;
+      }
+
+      case "payment_intent.succeeded": {
+        await logPaymentIntentSucceeded(
+          supabase,
+          event.data.object as Stripe.PaymentIntent,
+        );
+        break;
+      }
+
+      case "charge.refunded": {
+        await handleChargeRefunded(
+          supabase,
+          event.data.object as Stripe.Charge,
         );
         break;
       }
@@ -104,6 +144,28 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function linkCustomerToProfile(
+  supabase: SupabaseClient,
+  session: Stripe.Checkout.Session,
+): Promise<void> {
+  const userId = session.metadata?.user_id;
+  const customerId =
+    typeof session.customer === "string"
+      ? session.customer
+      : session.customer?.id;
+  if (!userId || !customerId) return;
+
+  await supabase
+    .from("user_profiles")
+    .upsert(
+      {
+        user_id: userId,
+        stripe_customer_id: customerId,
+      },
+      { onConflict: "user_id" },
+    );
+}
+
 async function handleSubscriptionMirror(
   supabase: SupabaseClient,
   sub: Stripe.Subscription,
@@ -115,7 +177,13 @@ async function handleSubscriptionMirror(
   const planEntry =
     Object.values(PLAN_CATALOG).find((p) => p.stripeLookupKey === lookupKey) ??
     null;
-  const planType = planEntry?.id ?? "free";
+  // Default to pro_monthly when status indicates an active subscription but
+  // we couldn't resolve the plan from lookup_key (e.g. price was created
+  // without a lookup_key in Test Mode bring-up). On `deleted`, force `free`.
+  const planType =
+    sub.status === "canceled" || sub.status === "incomplete_expired"
+      ? "free"
+      : (planEntry?.id ?? "pro_monthly");
 
   const { data: profile } = await supabase
     .from("user_profiles")
@@ -123,7 +191,22 @@ async function handleSubscriptionMirror(
     .eq("stripe_customer_id", customerId)
     .maybeSingle();
 
-  if (!profile?.user_id) return;
+  // No profile yet — try to resolve via subscription metadata (set during
+  // Checkout) and link the customer in passing.
+  let userId = (profile?.user_id as string | null | undefined) ?? null;
+  if (!userId) {
+    const metaUserId = sub.metadata?.user_id;
+    if (metaUserId) {
+      await supabase
+        .from("user_profiles")
+        .upsert(
+          { user_id: metaUserId, stripe_customer_id: customerId },
+          { onConflict: "user_id" },
+        );
+      userId = metaUserId;
+    }
+  }
+  if (!userId) return;
 
   // Stripe v22 moved period boundaries onto the SubscriptionItem.
   const item = sub.items.data[0];
@@ -136,7 +219,7 @@ async function handleSubscriptionMirror(
 
   const { error } = await supabase.from("subscriptions").upsert(
     {
-      user_id: profile.user_id,
+      user_id: userId,
       plan_type: planType,
       status: sub.status,
       stripe_subscription_id: sub.id,
