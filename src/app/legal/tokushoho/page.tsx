@@ -14,7 +14,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-10 / バージョン: 1.1</em>
+        <em>最終更新日: 2026-05-11 / バージョン: 1.2</em>
       </p>
 
       <p>

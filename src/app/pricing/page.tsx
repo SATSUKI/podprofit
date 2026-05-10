@@ -134,8 +134,8 @@ export default async function PricingPage() {
       <section className="text-sm text-stone-600 dark:text-stone-400">
         <p>
           All prices in USD. International tax (VAT / Sales Tax) is calculated
-          and collected automatically at checkout via Stripe Tax. Refunds
-          available within 14 days (Pro Annual / Lifetime). See{" "}
+          and collected automatically at checkout via Stripe Tax. Refunds: 14
+          days (Pro Annual) / 7 days + 0 launches (Lifetime). See{" "}
           <Link href="/legal/refunds" className="underline">
             refund policy
           </Link>

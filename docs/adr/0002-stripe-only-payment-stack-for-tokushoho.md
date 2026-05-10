@@ -150,3 +150,41 @@ Stripe re-approval consistency is now closed across all public
 documents. The rollback path before the 2026-07-23 Excel launch is
 to revise Terms (and re-add the relevant processor / MoR / EU-UK
 consent paragraphs that were removed in v0.3) at that time.
+
+### 2026-05-11 — PODP-32 follow-up: privacy/terms/refunds sync confirmed
+
+The long-form legal docs (`/legal/privacy` v0.2, `/legal/terms` v0.3,
+`/legal/refunds` v1.2) were synchronized in commit `216f091`. A
+production word-boundary grep on `/legal/{terms,privacy,refunds}`
+returns zero hits for "Lemon Squeezy", "lemonsqueezy", "LSQ",
+"Merchant of Record", and "MoR".
+
+### 2026-05-11 — PODP-34: /faq sync + bundled consistency fixes
+
+Bundled with the FAQ sync (commit `df0ed59`), QA review on
+2026-05-11 surfaced four additional public-surface inconsistencies
+that posed a Stripe re-review risk. All were fixed in a single
+follow-up commit alongside an ADR re-confirmation:
+
+- `/faq` (`src/app/faq/page.tsx`): production curl re-verified.
+  `grep -ciE "lemon|merchant of record"` returns zero on the
+  rendered HTML, including FAQPage JSON-LD `acceptedAnswer.text`.
+- `/pricing` refund window line corrected from "Refunds available
+  within 14 days (Pro Annual / Lifetime)" to "Refunds: 14 days
+  (Pro Annual) / 7 days + 0 launches (Lifetime)" — matches
+  `/legal/refunds` v1.2 and `/legal/tokushoho` v1.2.
+- `/legal/privacy` "About this version" blockquote updated to
+  "v0.1 baseline (revised to v0.2 on 2026-05-11)" — closes the
+  internal contradiction with the v0.2 metadata.
+- `/legal/tokushoho` last-updated date moved 2026-05-10 → 2026-05-11
+  and version bumped 1.1 → 1.2 — aligns with the rest of the legal
+  page set.
+- `src/app/sitemap.ts` adds `/legal/tokushoho` (priority 0.5) as a
+  new sitemap entry and bumps `/legal/{terms,privacy,refunds}`
+  lastModified to 2026-05-11.
+
+After this bundle, the public-surface state for Stripe re-review is:
+all four legal pages dated 2026-05-11, FAQ dated 2026-05-11, /pricing
+refund window matches /legal/refunds, no Lemon-Squeezy / MoR
+mentions on any rendered page, and sitemap fully advertises the
+Tokushoho page to crawlers (including Stripe's reviewer).

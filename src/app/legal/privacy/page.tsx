@@ -30,8 +30,9 @@ export default function PrivacyPage() {
 
       <blockquote>
         <p>
-          <strong>About this version</strong>: This is the v0.1 baseline published in time for the
-          public launch of getpodprofit.com on 2026-06-09. It will be updated to v1.0 before the
+          <strong>About this version</strong>: This is the v0.1 baseline (revised to v0.2 on
+          2026-05-11) published in time for the public launch of getpodprofit.com on 2026-06-09.
+          It will be updated to v1.0 before the
           Excel Template launch on 2026-07-23 to incorporate any feedback from external counsel and
           to expand AI-related disclosures. We will notify existing accounts by email of material
           changes.

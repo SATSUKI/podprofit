@@ -85,21 +85,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${SITE_URL}/legal/terms`,
-      lastModified: new Date("2026-05-03"),
+      lastModified: new Date("2026-05-11"),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/legal/privacy`,
-      lastModified: new Date("2026-05-03"),
+      lastModified: new Date("2026-05-11"),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/legal/refunds`,
-      lastModified: new Date("2026-05-03"),
+      lastModified: new Date("2026-05-11"),
       changeFrequency: "yearly",
       priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/legal/tokushoho`,
+      lastModified: new Date("2026-05-11"),
+      changeFrequency: "yearly",
+      priority: 0.5,
     },
   ];
 }
