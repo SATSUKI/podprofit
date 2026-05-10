@@ -7,16 +7,18 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * These are *internal admin* helpers. We do not expose them to end-users
  * (no "click to verify your refund" UI yet) — the goal at launch is that
- * when a Stripe / Lemon Squeezy refund request lands in support, we can
- * answer the eligibility question deterministically from the database.
+ * when a Stripe refund request lands in support, we can answer the
+ * eligibility question deterministically from the database.
  *
  * The two product-level promises:
  *
  * 1. **Lifetime ($149)** — Terms §7.1: refundable within 7 days AND with
  *    zero calculator launches from the account.
- * 2. **Excel Template / Benchmark Report** (Lemon Squeezy) — Terms §7.3:
- *    refundable if and only if the download log shows zero downloads of
- *    that specific product.
+ * 2. **Excel Template / Benchmark Report** — Terms §7.3 (per ADR 0002 the
+ *    payment processor for these products is deferred to a future Terms
+ *    revision before the 2026-07-23 Excel launch): refundable if and
+ *    only if the download log shows zero downloads of that specific
+ *    product.
  *
  * Both probe `usage_events` filtered by `occurred_at > purchase_at` so a
  * launch / download that happened *before* the purchase (e.g., the user

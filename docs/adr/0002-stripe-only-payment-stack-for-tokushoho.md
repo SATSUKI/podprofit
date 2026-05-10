@@ -188,3 +188,65 @@ all four legal pages dated 2026-05-11, FAQ dated 2026-05-11, /pricing
 refund window matches /legal/refunds, no Lemon-Squeezy / MoR
 mentions on any rendered page, and sitemap fully advertises the
 Tokushoho page to crawlers (including Stripe's reviewer).
+
+### 2026-05-11 — Lemon Squeezy webhook stub removed (PODP-52)
+
+The non-public stub at `src/app/api/lemonsqueezy/webhook/route.ts`
+was deleted ahead of the Stripe re-approval submission. The endpoint
+returned `503` with a Lemon-Squeezy-branded message body, and would
+have surfaced in `next build`'s route table — a Stripe reviewer
+inspecting the deployed build (or running a routes scan) would have
+encountered it and contradicted the "Stripe-only" stance baked into
+the public-surface copy + the Tokushoho page.
+
+Rationale: the stub's stated value (URL stability for the future
+Lemon-Squeezy webhook configuration) has zero benefit during
+pre-launch — there is no LSQ account configured against the URL.
+The endpoint will be re-introduced if and when the Excel/Report
+products are migrated to a third-party processor (PODP-32 +
+PODP-34 follow-up), at which point the Terms revision and refund
+helper will also be rewritten in the same change.
+
+Companion edits:
+
+- `src/lib/refund/check-eligibility.ts`: docstring updated to drop
+  the explicit "Lemon Squeezy" attribution on Excel/Report refunds
+  (still mentions §7.3 of Terms; processor identity is "deferred to
+  a future Terms revision" per ADR 0002).
+- `next build` route table after this commit: zero `lemonsqueezy`
+  entries — verified by `grep -i lemonsqueezy .next/server/app/api`
+  returning no hits.
+
+This closes the "non-public surface" caveat from the 2026-05-10
+PODP-32 entry above. The rollback path (re-add the stub when the
+Excel launch decision lands) is unchanged: a single `route.ts`
+file, not a system migration.
+
+### 2026-05-11 — /account/welcome route added (PODP-48)
+
+The Stripe checkout `success_url` configured at
+`src/app/api/stripe/checkout/route.ts:139` pointed at
+`${origin}/account/welcome?session_id=...`. The route did not exist,
+so a Stripe reviewer running the test-card flow would have hit a
+404 immediately after a successful charge — read by review as
+"product not yet operating".
+
+Created `src/app/account/welcome/page.tsx` as a server-rendered
+post-checkout landing page that:
+
+- Reads `session_id` from the query string and resolves the
+  Checkout Session via Stripe SDK (best-effort — the webhook
+  remains the source of truth for entitlement).
+- Branches the headline + next-steps for Lifetime (founding-member
+  copy + "what membership means" block) vs. Pro (subscription
+  active + portal link).
+- Handles the anonymous-Lifetime case explicitly: when no Supabase
+  session is present, prompts the user to sign in with the email
+  they paid with (the magic-link callback will land them in
+  `/account` proper, where the lifetime_seats row is now visible).
+- Sets `robots: { index: false, follow: false }` — these are
+  per-user dynamic URLs and have no SEO/AIO value.
+
+This closes the only remaining `success_url`-side 404 risk for
+Stripe re-review. Companion checkout-route changes (EU/UK Article
+16(m) consent collection) ship in the P2 commit.
