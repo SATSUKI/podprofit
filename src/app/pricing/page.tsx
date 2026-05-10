@@ -3,18 +3,32 @@ import Link from "next/link";
 import { PLAN_CATALOG } from "@/lib/stripe/products";
 import { getLifetimeClaimedCount } from "@/lib/lifetime/get-claimed";
 import { EmailSignup } from "@/components/email-signup";
+import { ProductOffersJsonLd, type ProductOffer } from "@/components/json-ld";
 import { cn } from "@/lib/utils/cn";
 
+const SITE_URL = "https://getpodprofit.com";
 const PRO_AVAILABLE_DATE = "June 9, 2026";
 
 export const metadata: Metadata = {
   title: "Pricing — Free, Pro Monthly, Pro Annual, Lifetime",
   description:
     "Free forever calculator. Pro Monthly $9 USD/month and Pro Annual $79 USD/year available June 9, 2026. Lifetime $149 (one-time) — limited to 100 seats, available now.",
+  // Explicit canonical — root layout sets the homepage as the default
+  // canonical, so without this `/pricing` would advertise itself as a
+  // duplicate of `/`. Same reason we explicitly set canonical on every
+  // other indexable page.
+  alternates: {
+    canonical: `${SITE_URL}/pricing`,
+  },
   openGraph: {
+    type: "website",
+    url: `${SITE_URL}/pricing`,
     title: "PODProfit Pricing — Free, Pro Monthly, Pro Annual, Lifetime",
     description:
       "Free forever calculator. Pro Monthly $9 USD/month and Pro Annual $79 USD/year available June 9, 2026. Lifetime $149 (one-time) — limited to 100 seats, available now.",
+    siteName: "PODProfit",
+    // Inherit the brand-fallback /api/og image from the root layout —
+    // pricing has no per-page hero image worth a dynamic OG render.
   },
 };
 
@@ -26,8 +40,50 @@ export default async function PricingPage() {
   const lifetime = PLAN_CATALOG.lifetime;
   const remaining = (lifetime.capacity ?? 100) - claimed;
 
+  // Product+Offers schema. We expose the four user-visible plans in their
+  // current marketplace state — Pro plans are PreOrder until 2026-06-09,
+  // Lifetime is LimitedAvailability/SoldOut depending on the live counter.
+  const offers: ProductOffer[] = [
+    {
+      name: "Free",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+    {
+      name: "Pro Monthly",
+      price: "9",
+      priceCurrency: "USD",
+      availability: "https://schema.org/PreOrder",
+      priceValidUntil: "2026-06-09",
+    },
+    {
+      name: "Pro Annual",
+      price: "79",
+      priceCurrency: "USD",
+      availability: "https://schema.org/PreOrder",
+      priceValidUntil: "2026-06-09",
+    },
+    {
+      name: "Lifetime",
+      price: "149",
+      priceCurrency: "USD",
+      availability:
+        remaining > 0
+          ? "https://schema.org/LimitedAvailability"
+          : "https://schema.org/SoldOut",
+      inventoryLevel: Math.max(remaining, 0),
+    },
+  ];
+
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-12 px-6 py-12 md:py-20">
+      <ProductOffersJsonLd
+        productName="PODProfit"
+        productDescription="Vendor-neutral, multi-currency Print-on-Demand profit calculator. Pro tier unlocks saved calculations, multi-store dashboards, CSV exports, and email support."
+        productUrl={`${SITE_URL}/pricing`}
+        offers={offers}
+      />
       <header className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-700 dark:text-brand-300">
           Pricing

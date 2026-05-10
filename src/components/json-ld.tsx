@@ -138,3 +138,86 @@ export function FaqPageJsonLd(items: Array<{ q: string; a: string }>) {
     />
   );
 }
+
+/**
+ * Product + Offers schema for the pricing-style pages.
+ *
+ * Why a dedicated schema instead of stretching the existing
+ * SoftwareApplication offers list?
+ *
+ *   - SoftwareApplication.offers is the authoritative *application-level*
+ *     pricing description, but Google's pricing-page rich result requires
+ *     `@type: Product` with a price-bearing `offers` block — different
+ *     surface, different rich result.
+ *   - AIO citation rate is meaningfully better when each page surfaces a
+ *     schema that exactly matches its visible content (per
+ *     analytics-monitoring-design.md). A pricing page citing only
+ *     SoftwareApplication is "metadata-correct, content-mismatched".
+ *
+ * The shape mirrors https://developers.google.com/search/docs/appearance/structured-data/product
+ * with `aggregateRating` deliberately omitted (we have zero reviews
+ * pre-launch and faking the count would be a Google-quality penalty).
+ */
+export interface ProductOffer {
+  /** Plan display name (e.g. "Pro Monthly"). */
+  name: string;
+  /** Decimal string — `"9"` not `9` per schema.org guidance. */
+  price: string;
+  priceCurrency: "USD";
+  /** Schema.org availability URL — `InStock` / `LimitedAvailability` / `SoldOut`. */
+  availability:
+    | "https://schema.org/InStock"
+    | "https://schema.org/LimitedAvailability"
+    | "https://schema.org/SoldOut"
+    | "https://schema.org/PreOrder";
+  /** Optional inventory hint (Lifetime seats remaining). */
+  inventoryLevel?: number;
+  /** Optional ISO date for `priceValidUntil` — Pro launch date for pre-orders. */
+  priceValidUntil?: string;
+}
+
+export function ProductOffersJsonLd({
+  productName,
+  productDescription,
+  productUrl,
+  offers,
+}: {
+  productName: string;
+  productDescription: string;
+  productUrl: string;
+  offers: ProductOffer[];
+}) {
+  const json = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: productName,
+    description: productDescription,
+    url: productUrl,
+    brand: { "@type": "Brand", name: "PODProfit" },
+    offers: offers.map((offer) => ({
+      "@type": "Offer",
+      name: offer.name,
+      price: offer.price,
+      priceCurrency: offer.priceCurrency,
+      availability: offer.availability,
+      url: productUrl,
+      ...(offer.inventoryLevel !== undefined
+        ? {
+            inventoryLevel: {
+              "@type": "QuantitativeValue",
+              value: offer.inventoryLevel,
+            },
+          }
+        : {}),
+      ...(offer.priceValidUntil
+        ? { priceValidUntil: offer.priceValidUntil }
+        : {}),
+    })),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+    />
+  );
+}

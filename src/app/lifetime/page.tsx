@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PLAN_CATALOG } from "@/lib/stripe/products";
 import { getLifetimeClaimedCount } from "@/lib/lifetime/get-claimed";
 import { EmailSignup } from "@/components/email-signup";
+import { ProductOffersJsonLd } from "@/components/json-ld";
 import { cn } from "@/lib/utils/cn";
 
 const SITE_URL = "https://getpodprofit.com";
@@ -46,6 +47,27 @@ export default async function LifetimePage() {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-12 px-6 py-12 md:py-20">
+      {/* Product+Offers JSON-LD — focused on the single Lifetime SKU.
+          AIO citation rate benefits from a page-specific schema that
+          mirrors the visible offer rather than re-emitting the four-plan
+          comparison from /pricing. inventoryLevel is the live remaining
+          counter so AI overviews can quote scarcity accurately. */}
+      <ProductOffersJsonLd
+        productName="PODProfit Lifetime"
+        productDescription="One-time $149 USD payment for lifetime access to PODProfit — calculator, every future Pro tool (Excel Profit Template, Quarterly Benchmark Report PDF), and founding-member status. Limited to 100 seats."
+        productUrl={`${SITE_URL}/lifetime`}
+        offers={[
+          {
+            name: "Lifetime",
+            price: "149",
+            priceCurrency: "USD",
+            availability: soldOut
+              ? "https://schema.org/SoldOut"
+              : "https://schema.org/LimitedAvailability",
+            inventoryLevel: Math.max(remaining, 0),
+          },
+        ]}
+      />
       {/* Hero */}
       <header className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-brand-700 dark:text-brand-300">
