@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Refund Policy",
   description:
-    "PODProfit refund terms — clear, fair, and aligned with our Terms of Service.",
+    "PODProfit refund terms (v1.3) — Lifetime 14-day cooling-off (no questions asked), Pro Monthly / Pro Annual not pro-rated, access continues to period end.",
 };
 
 export default function RefundsPage() {
@@ -12,7 +12,7 @@ export default function RefundsPage() {
     <article>
       <h1>Refund Policy</h1>
       <p>
-        <em>Last updated: 2026-05-11 · Version: 1.2</em>
+        <em>Last updated: 2026-05-11 · Version: 1.3</em>
       </p>
 
       <p>
@@ -24,36 +24,55 @@ export default function RefundsPage() {
         7 business days during heavy launch periods).
       </p>
 
+      <p>
+        <em>
+          v1.3 (2026-05-11) aligns the Lifetime cooling-off period with the
+          UK/EU 14-day standard and clarifies that Pro subscriptions are not
+          pro-rated on cancellation. The previous &quot;7 days + zero
+          launches&quot; condition for Lifetime has been dropped — calendar age
+          of the purchase is now the sole eligibility gate.
+        </em>
+      </p>
+
       <h2>Lifetime ($149)</h2>
       <p>
-        Refundable within <strong>7 days of purchase</strong>, on the combined
-        conditions that:
+        Refundable within <strong>14 days of purchase</strong>, full refund,
+        no questions asked. After 14 days, Lifetime is non-refundable. When a
+        Lifetime seat is refunded, it returns to the public pool and becomes
+        available for the next customer.
       </p>
-      <ul>
-        <li>
-          The calculator has been launched <strong>zero times</strong> from your
-          account (we verify with our server-side access logs), and
-        </li>
-        <li>You provide the order receipt.</li>
-      </ul>
       <p>
-        After either condition fails, Lifetime is non-refundable. When a Lifetime
-        seat is refunded, it returns to the public pool and becomes available
-        for the next customer.
+        <em>
+          The 14-day window is unconditional within the window — you may use
+          the calculator during the cooling-off period without losing the right
+          to a refund. This aligns with the UK Consumer Contracts (Information,
+          Cancellation and Additional Charges) Regulations 2013 and the EU
+          Consumer Rights Directive 2011/83/EU; we extend the same window to
+          all customers regardless of jurisdiction.
+        </em>
       </p>
 
       <h2>Pro Monthly ($9 / month)</h2>
       <p>
-        Cancelling stops future billing; we do not pro-rate the current period.
-        We do not provide refunds for partial months unless the cancellation is
-        the result of a billing error on our side.
+        Pro Monthly is a recurring subscription.{" "}
+        <strong>We do not pro-rate refunds for partial months.</strong>{" "}
+        Cancelling from your{" "}
+        <strong>Stripe Customer Portal</strong> (linked from your account page)
+        stops future billing <strong>immediately</strong>; access to Pro
+        features continues until the end of the current paid billing period.
+        Refunds for partial months are issued only when the cancellation is the
+        result of a billing error on our side.
       </p>
 
       <h2>Pro Annual ($79 / year)</h2>
       <p>
-        Full refund within <strong>14 days of purchase</strong>, no questions
-        asked. After 14 days, the annual plan is non-refundable but remains
-        active until the year is up.
+        Pro Annual is a recurring annual subscription.{" "}
+        <strong>We do not pro-rate refunds for partial years.</strong>{" "}
+        Cancelling from your <strong>Stripe Customer Portal</strong> stops the
+        next renewal <strong>immediately</strong>; access to Pro features
+        continues until the end of the current paid year. After cancellation,
+        no refund of the unused portion of the current year is issued unless
+        the cancellation is the result of a billing error on our side.
       </p>
 
       <h2>Excel Template ($19) and Benchmark Report ($29)</h2>
@@ -105,9 +124,20 @@ export default function RefundsPage() {
         revision published before each launch.)
       </p>
       <p>
-        For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right
-        of withdrawal applies under the conditions described in their
-        respective sections above.
+        For <strong>Lifetime ($149)</strong>, the 14-day Lifetime refund window
+        described above is offered to all customers worldwide and is fully
+        consistent with the UK/EU right of withdrawal — no separate
+        consent-collection step is required, and EU/UK consumers receive the
+        same unconditional 14-day window as everyone else.
+      </p>
+      <p>
+        For <strong>Pro Monthly ($9)</strong> and <strong>Pro Annual ($79)</strong>,
+        the right of withdrawal applies as follows: cancellation from the
+        Customer Portal stops future billing immediately; access continues
+        until the end of the paid period; we do not pro-rate the current
+        period. Subscriptions are continuous-supply digital services, and once
+        you have used the service in the current paid period, no pro-rated
+        refund of that period is provided.
       </p>
 
       <h2>How to request a refund</h2>

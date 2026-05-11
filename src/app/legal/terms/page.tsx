@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "v0.5 of the PODProfit Terms of Service. Lifetime 14-day cooling-off (no questions asked, no launch-count gate) and explicit no-proration of Pro Monthly / Pro Annual subscriptions. Retains the v0.4 codification of permanent priority early access for Lifetime supporters.",
+    "v0.5 of the PODProfit Terms of Service. Lifetime 14-day cooling-off (no questions asked, no launch-count gate) and explicit no-proration of Pro Monthly / Pro Annual subscriptions.",
   alternates: {
     canonical: "/legal/terms",
   },
@@ -34,19 +34,18 @@ export default function TermsPage() {
           <strong>About this version</strong>: This is the v0.5 revision of the v0.1 baseline.
           v0.2 added the <strong>Pro Annual ($79/year)</strong> plan; v0.3 removed references
           to a previously named third-party seller-of-record arrangement; v0.4 codified the
-          permanent priority early access commitment for Lifetime supporters (§5.1) which is{" "}
-          <strong>retained unchanged</strong> in v0.5. <strong>v0.5 updates the cooling-off /
-          refund regime</strong>: Lifetime is now refundable within{" "}
-          <strong>14 days</strong> of purchase (raised from 7), and the previous &quot;zero
-          calculator launches&quot; condition has been removed. The change aligns with the UK
-          Consumer Contracts (Information, Cancellation and Additional Charges) Regulations
-          2013 and the EU Consumer Rights Directive 2011/83/EU 14-day cooling-off standard,
-          extended to all customers worldwide regardless of jurisdiction. v0.5 also makes the
-          no-proration rule for Pro Monthly and Pro Annual <strong>explicit</strong> in §5
-          and §7. The document will still be revised to v1.0 before the Excel Template launch
-          on 2026-07-23 to incorporate external counsel review and to expand the EULA and
-          refund language for the Excel Template and Benchmark Report. Material changes will
-          be communicated by email at least 30 days in advance.
+          permanent priority early access commitment for Lifetime supporters. <strong>v0.5
+          updates the cooling-off / refund regime</strong>: Lifetime is now refundable within{" "}
+          <strong>14 days</strong> of purchase (raised from 7), and the previous
+          &quot;zero calculator launches&quot; condition has been removed. The change aligns
+          with the UK Consumer Contracts Regulations 2013 and the EU Consumer Rights
+          Directive 2011/83/EU 14-day cooling-off standard, extended to all customers
+          worldwide regardless of jurisdiction. v0.5 also makes the no-proration rule for
+          Pro Monthly and Pro Annual <strong>explicit</strong> in §5 and §7. The document
+          will still be revised to v1.0 before the Excel Template launch on 2026-07-23 to
+          incorporate external counsel review and to expand the EULA and refund language for
+          the Excel Template and Benchmark Report. Material changes will be communicated by
+          email at least 30 days in advance.
         </p>
       </blockquote>
 
@@ -216,8 +215,8 @@ export default function TermsPage() {
         calculations, exports, priority support), billed yearly in a single charge. Pro Annual
         saves you a meaningful amount compared with paying month-by-month at the Pro Monthly rate.
         You can cancel at any time from the <strong>Stripe Customer Portal</strong> (linked from
-        your account page); cancellation stops auto-renewal immediately, and access continues to
-        the end of the current paid year. <strong>Pro Annual is not pro-rated</strong>:
+        your account page); cancellation stops auto-renewal immediately, and access continues
+        until the end of the current paid year. <strong>Pro Annual is not pro-rated</strong>:
         cancelling mid-year does not, by itself, trigger a refund of the unused portion of the
         current year (see §7.3).
       </p>
@@ -288,32 +287,40 @@ export default function TermsPage() {
 
       <h3>7.1 Lifetime ($149)</h3>
       <p>
-        Refundable within <strong>7 days</strong> of purchase, on the combined conditions that:
+        Full refund within <strong>14 days of purchase</strong>,{" "}
+        <strong>no questions asked</strong>. The cooling-off window is unconditional within
+        14 days — using the calculator during this period does not waive the refund right.
+        After 14 days, Lifetime is non-refundable. Provide the order receipt or the email
+        address associated with the purchase. When a Lifetime seat is refunded, it returns to
+        the public pool and becomes available for the next customer.
       </p>
-      <ul>
-        <li>
-          The calculator has been launched <strong>zero times</strong> from the account (server-side
-          log check), and
-        </li>
-        <li>The order receipt is provided.</li>
-      </ul>
-      <p>After either condition fails, Lifetime is non-refundable.</p>
+      <p>
+        <em>
+          This window is set to align with the UK Consumer Contracts (Information,
+          Cancellation and Additional Charges) Regulations 2013 and the EU Consumer Rights
+          Directive 2011/83/EU 14-day cooling-off standard. We extend the same window to all
+          customers regardless of jurisdiction.
+        </em>
+      </p>
 
       <h3>7.2 Pro Monthly ($9/month)</h3>
       <p>
-        Cancelling stops future billing; we do not pro-rate the current period. We do not provide
-        refunds for partial months unless the cancellation is the result of a billing error on our
-        side.
+        Pro Monthly is a continuous-supply digital subscription.{" "}
+        <strong>We do not pro-rate refunds for partial months.</strong> Cancelling from your{" "}
+        <strong>Stripe Customer Portal</strong> stops future billing immediately; access to Pro
+        features continues until the end of the current paid billing period. Refunds for
+        partial months are issued only when the cancellation is the result of a billing error
+        on our side.
       </p>
 
       <h3>7.3 Pro Annual ($79/year)</h3>
       <p>
-        Full refund within <strong>14 days</strong> of purchase, <strong>no questions asked</strong>
-        . After 14 days, Pro Annual is non-refundable, but the service remains active for the named
-        account holder until the end of the paid year.{" "}
-        <strong>Cancellation stops auto-renewal</strong> at the end of the current paid year;
-        cancelling does not, by itself, trigger a refund of the current year&apos;s charge once the
-        14-day window has passed.
+        Pro Annual is a continuous-supply digital subscription.{" "}
+        <strong>We do not pro-rate refunds for partial years.</strong> Cancelling from your{" "}
+        <strong>Stripe Customer Portal</strong> stops auto-renewal immediately; access to Pro
+        features continues until the end of the current paid year. After cancellation, no
+        refund of the unused portion of the current year is issued unless the cancellation is
+        the result of a billing error on our side.
       </p>
 
       <h3>7.4 Excel Template / Benchmark Report</h3>
@@ -352,8 +359,20 @@ export default function TermsPage() {
         described in a revision of these Terms published before each launch.)
       </p>
       <p>
-        For Lifetime ($149), Pro Monthly ($9), and Pro Annual ($79), the right of withdrawal applies
-        under the conditions described in Section 7.1, 7.2, and 7.3 respectively.
+        For <strong>Lifetime ($149)</strong>, the 14-day cooling-off window in §7.1 is offered
+        unconditionally to all customers worldwide, which fully satisfies the UK/EU 14-day
+        right of withdrawal. EU/UK consumers receive the same unconditional window as everyone
+        else, and no separate Art 16(m) consent step is collected for Lifetime purchases at
+        checkout.
+      </p>
+      <p>
+        For <strong>Pro Monthly ($9)</strong> and <strong>Pro Annual ($79)</strong>,
+        cancellation from the Stripe Customer Portal stops future billing immediately and
+        access continues to the end of the current paid period. As continuous-supply digital
+        services, the unused portion of the current paid period is not refunded; consistent
+        with §7.2 and §7.3, no pro-rated refund is provided. Where mandatory consumer-protection
+        law in the customer&apos;s jurisdiction grants a non-waivable right that exceeds the
+        terms in §7.2 / §7.3, the mandatory minimum applies for that customer.
       </p>
 
       <hr />
@@ -711,6 +730,28 @@ export default function TermsPage() {
                 law, payment terms, or any other substantive obligation. The commitment is
                 permanent for the duration the Lifetime supporter holds their seat and survives
                 any future change in operator branding.
+              </td>
+            </tr>
+            <tr>
+              <td>0.5</td>
+              <td>2026-05-11</td>
+              <td>
+                <strong>Cooling-off / refund policy update.</strong> §7.1 Lifetime: window
+                raised from 7 days → <strong>14 days</strong>; the previous combined condition
+                requiring zero calculator launches has been <strong>dropped</strong>; the
+                14-day window is now <strong>unconditional</strong> and operates as a true
+                cooling-off period aligned with the UK Consumer Contracts (Information,
+                Cancellation and Additional Charges) Regulations 2013 and the EU Consumer
+                Rights Directive 2011/83/EU. §5.2 / §5.3 / §7.2 / §7.3: explicit{" "}
+                <strong>no-proration</strong> language added for Pro Monthly and Pro Annual,
+                and references to the Stripe Customer Portal as the immediate-cancellation
+                surface added. §7.3 (Pro Annual): the prior 14-day no-questions-asked window
+                for Pro Annual is <strong>removed</strong>; access continues until the period
+                end and the unused portion is not refunded. §7.5: EU/UK section updated to
+                note that Lifetime now satisfies the 14-day right of withdrawal directly,
+                without separate Art 16(m) consent collection. The existing Excel Template /
+                Benchmark Report Art 16(m) consent flow is preserved unchanged. No changes to
+                governing law, EULA scope, fees, or licence scope.
               </td>
             </tr>
           </tbody>

@@ -407,69 +407,84 @@ const CATEGORIES: FaqCategory[] = [
         id: "q14",
         q: "What is your refund policy?",
         plain:
-          "PODProfit is a digital product delivered instantly, so as a general rule all sales are final. We make narrow exceptions in clearly unintended situations, structured to match our Terms of Service §7. Lifetime refunds ($149): refundable within 7 days of purchase AND with 0 calculator launches from the account (verified by server-side access logs). Both conditions must hold; if either fails, Lifetime is non-refundable. (See Terms §7.1.) Duplicate charges: always refundable, separate from the Lifetime policy above. We refund duplicate charges automatically within 1 business day of detection, regardless of usage. Pro Monthly ($9/month): cancelling stops future billing; we do not pro-rate the current period unless the cancellation is the result of a billing error on our side. (See Terms §7.2.) Excel Template ($19) / Benchmark Report ($29): not yet on sale (planned 2026-07-23 and 2026-08-20). Refund terms, payment processor, and seller-of-record arrangement will be specified in a future revision of our Terms of Service before each launch. (See Terms §7.3.) Refund requests must be sent to hello@getpodprofit.com within the applicable window with your order ID. We review each request individually with the relevant logs and respond typically within 3 business days, and no later than 7 business days. Approved refunds are processed back to the original payment method (Stripe). EU/UK customers: under the EU Consumer Rights Directive (and equivalent UK regulations), you normally have a 14-day right of withdrawal for digital purchases. By completing checkout and accessing the product immediately, you expressly agree to waive this right — Stripe collects this consent on our behalf at checkout for Lifetime/Pro. The narrow refund exceptions above still apply. The equivalent consent flow for the Excel Template and Benchmark Report will be described before each launch.",
+          "Updated 2026-05-11. Lifetime ($149): full refund within 14 days of purchase, no questions asked. The 14-day cooling-off window is unconditional — using the calculator during this period does not waive your refund right. After 14 days, Lifetime is non-refundable. The window aligns with the UK Consumer Contracts Regulations 2013 and the EU Consumer Rights Directive 2011/83/EU 14-day cooling-off standard, and we extend it to all customers worldwide. (Terms §7.1.) Pro Monthly ($9/month) and Pro Annual ($79/year): subscriptions are not pro-rated. Cancel anytime from the Stripe Customer Portal (linked from your account page); cancellation stops future billing immediately, and access to Pro features continues until the end of the current paid period (month or year, respectively). The unused portion of the current period is not refunded. (Terms §7.2, §7.3.) Duplicate charges: always refundable, separate from the above. We refund duplicate charges automatically within 1 business day of detection. Excel Template ($19) / Benchmark Report ($29): not yet on sale (planned 2026-07-23 and 2026-08-20). Refund terms and payment processor will be specified in a future revision of our Terms of Service before each launch. (Terms §7.4.) Refund requests for Lifetime should be sent to hello@getpodprofit.com within 14 days of purchase. We respond typically within 3 business days, no later than 7. Approved refunds go back to the original payment method (Stripe). EU/UK customers: Lifetime customers receive the same unconditional 14-day window as everyone else, so no separate Art 16(m) consent flow is collected for Lifetime at checkout. For Pro subscriptions, where mandatory consumer-protection law in your jurisdiction grants a non-waivable right exceeding §7.2 / §7.3, that mandatory minimum applies. For the Excel Template and Benchmark Report (not yet on sale), the Art 16(m) consent flow will be described before each launch.",
         rich: (
           <>
             <p>
-              PODProfit is a digital product delivered instantly, so as a general
-              rule <strong>all sales are final</strong>. We make narrow exceptions
-              in clearly unintended situations, structured to match our Terms of
-              Service §7:
+              <em>Updated 2026-05-11.</em> Our cooling-off / refund regime, by
+              product:
             </p>
             <ul>
               <li>
-                <strong>Lifetime refunds</strong> ($149): refundable within{" "}
-                <strong>7 days of purchase AND with 0 calculator launches</strong>{" "}
-                from the account (verified by server-side access logs). Both
-                conditions must hold; if either fails, Lifetime is non-refundable.
-                (See Terms §7.1.)
+                <strong>Lifetime</strong> ($149):{" "}
+                <strong>full refund within 14 days of purchase, no questions
+                asked.</strong>{" "}
+                The 14-day window is unconditional — using the calculator
+                during this period does <em>not</em> waive your refund right.
+                After 14 days, Lifetime is non-refundable. The window aligns
+                with the UK Consumer Contracts Regulations 2013 and the EU
+                Consumer Rights Directive 2011/83/EU, and we extend it to all
+                customers worldwide. (See Terms{" "}
+                <Link href="/legal/terms#section-7" className="underline">
+                  §7.1
+                </Link>
+                .)
+              </li>
+              <li>
+                <strong>Pro Monthly</strong> ($9/month) and{" "}
+                <strong>Pro Annual</strong> ($79/year):{" "}
+                <strong>subscriptions are not pro-rated.</strong> Cancel anytime
+                from the <strong>Stripe Customer Portal</strong> (linked from
+                your account page); cancellation stops future billing{" "}
+                <strong>immediately</strong>, and access to Pro features
+                continues until the end of the current paid period (month or
+                year, respectively). The unused portion of the current period
+                is not refunded. (See Terms{" "}
+                <Link href="/legal/terms#section-7" className="underline">
+                  §7.2 / §7.3
+                </Link>
+                .)
               </li>
               <li>
                 <strong>Duplicate charges</strong>: always refundable, separate
-                from the Lifetime policy above. We refund duplicate charges
-                automatically within 1 business day of detection, regardless of
-                usage.
-              </li>
-              <li>
-                <strong>Pro Monthly</strong> ($9/month): cancelling stops future
-                billing; we do not pro-rate the current period unless the
-                cancellation is the result of a billing error on our side. (See
-                Terms §7.2.)
+                from the above. We refund duplicate charges automatically
+                within 1 business day of detection.
               </li>
               <li>
                 <strong>Excel Template</strong> ($19) /{" "}
                 <strong>Benchmark Report</strong> ($29):{" "}
                 <strong>not yet on sale</strong> (planned 2026-07-23 and
-                2026-08-20). Refund terms, payment processor, and
-                seller-of-record arrangement will be specified in a future
-                revision of our Terms of Service before each launch. (See Terms
-                §7.3.)
+                2026-08-20). Refund terms and payment processor will be
+                specified in a future revision of our Terms of Service before
+                each launch. (See Terms{" "}
+                <Link href="/legal/terms#section-7" className="underline">
+                  §7.4
+                </Link>
+                .)
               </li>
             </ul>
             <p>
-              Refund requests must be sent to{" "}
+              Refund requests for Lifetime should be sent to{" "}
               <a href="mailto:hello@getpodprofit.com" className="underline">
                 hello@getpodprofit.com
               </a>{" "}
-              within the applicable window with your order ID. We review each
-              request individually with the relevant logs and respond{" "}
+              within 14 days of purchase with your order ID. We respond{" "}
               <strong>
-                typically within 3 business days, and no later than 7 business
-                days
+                typically within 3 business days, no later than 7
               </strong>
-              . Approved refunds are processed back to the original payment method
-              (Stripe).
+              . Approved refunds are processed back to the original payment
+              method (Stripe).
             </p>
             <p>
-              <strong>EU/UK customers</strong>: under the EU Consumer Rights
-              Directive (and equivalent UK regulations), you normally have a
-              14-day right of withdrawal for digital purchases. By completing
-              checkout and accessing the product immediately, you{" "}
-              <strong>expressly agree to waive this right</strong> — Stripe
-              collects this consent on our behalf at checkout for Lifetime/Pro.
-              The narrow refund exceptions above still apply. The equivalent
-              consent flow for the Excel Template and Benchmark Report will be
-              described before each launch. Full policy:{" "}
+              <strong>EU/UK customers</strong>: Lifetime customers receive the
+              same unconditional 14-day window as everyone else, so no separate
+              Art 16(m) consent step is collected for Lifetime at checkout. For
+              Pro Monthly / Pro Annual, where mandatory consumer-protection law
+              in your jurisdiction grants a non-waivable right that exceeds
+              §7.2 / §7.3, that mandatory minimum applies for you. For the
+              Excel Template and Benchmark Report (not yet on sale), the Art
+              16(m) consent flow will be described before each launch. Full
+              policy:{" "}
               <Link href="/legal/refunds" className="underline">
                 /legal/refunds
               </Link>

@@ -5,8 +5,15 @@ import TokushohoPage, { metadata } from "@/app/legal/tokushoho/page";
 /**
  * /legal/tokushoho is the JP-mandated 特定商取引法 disclosure page. The
  * exact phrasing of certain clauses is contractual — Stripe review reads
- * this surface, and we have a v1.3 set of Legal-recommended fixes
- * (PODP-50) that need to land before re-submission.
+ * this surface, and we have a v1.4 set of Legal-recommended fixes (PODP-50
+ * + 2026-05-11 cooling-off policy update) that need to land before
+ * re-submission.
+ *
+ * v1.4 (2026-05-11) realigns the Tokushoho refund section with the
+ * CEO-confirmed cooling-off policy:
+ *   - Lifetime: 14-day unconditional refund (no launches gate)
+ *   - Pro Monthly / Pro Annual: no-proration, access continues to
+ *     period end via Stripe Customer Portal cancellation
  *
  * These tests walk the rendered React tree and assert on text content,
  * which is sturdier than HTML-string snapshots (resilient to whitespace
@@ -24,7 +31,7 @@ function renderToText(node: React.ReactNode): string {
   return "";
 }
 
-describe("/legal/tokushoho v1.3 metadata", () => {
+describe("/legal/tokushoho v1.4 metadata", () => {
   it("declares the canonical Tokushoho URL", () => {
     expect(metadata.alternates?.canonical).toBe(
       "https://getpodprofit.com/legal/tokushoho",
@@ -34,14 +41,26 @@ describe("/legal/tokushoho v1.3 metadata", () => {
   it("uses the legally required title (JP regulators search by exact phrase)", () => {
     expect(metadata.title).toBe("特定商取引法に基づく表記");
   });
+
+  it("surfaces the v1.4 cooling-off / no-proration summary in the metadata description", () => {
+    // The description is the Stripe-review-readable summary; v1.4 must
+    // surface both the Lifetime 14-day cooling-off and the Pro
+    // no-proration commitment so reviewers can see what changed at a
+    // glance without opening the page.
+    expect(typeof metadata.description).toBe("string");
+    expect(metadata.description).toContain("v1.4");
+    expect(metadata.description).toMatch(/14日|14 日/);
+    expect(metadata.description).toContain("cooling-off");
+    expect(metadata.description).toContain("日割り");
+  });
 });
 
-describe("/legal/tokushoho v1.3 content (PODP-50 Legal recommendations)", () => {
+describe("/legal/tokushoho v1.4 content (PODP-50 + 2026-05-11 cooling-off update)", () => {
   const text = renderToText(TokushohoPage());
 
-  it("publishes the v1.3 / 2026-05-11 stamp (matches the rest of the legal set)", () => {
+  it("publishes the v1.4 / 2026-05-11 stamp (matches the rest of the legal set)", () => {
     expect(text).toContain("最終更新日: 2026-05-11");
-    expect(text).toContain("バージョン: 1.3");
+    expect(text).toContain("バージョン: 1.4");
   });
 
   it("strengthens 販売事業者 with the trade name (推奨-3)", () => {
@@ -76,7 +95,11 @@ describe("/legal/tokushoho v1.3 content (PODP-50 Legal recommendations)", () => 
   });
 
   it("documents Pro Monthly cancellation timing (当月末まで利用可能) (推奨-7a)", () => {
-    expect(text).toContain("当月末まで");
+    // v1.4 phrasing: "当月末 (次回更新日) まで". The split lets us be
+    // precise about which "month-end" — the next renewal date — while
+    // still anchoring on the legally-required "当月末" concept.
+    expect(text).toContain("当月末");
+    expect(text).toContain("次回更新日");
   });
 
   it("documents Pro Annual cancellation timing (年度末まで利用可能) (推奨-7b)", () => {
@@ -84,10 +107,12 @@ describe("/legal/tokushoho v1.3 content (PODP-50 Legal recommendations)", () => 
     expect(text).toContain("次回更新日");
   });
 
-  it("retains the EU/UK Article 16(m) waiver disclosure (W1 prerequisite)", () => {
-    // This existed before; we're verifying the Stripe checkout-side
-    // consent_collection landing in this commit is consistent with
-    // what the Tokushoho already promises the customer.
+  it("retains the EU/UK Article 16(m) waiver disclosure (W1 prerequisite, Excel / Report only as of v1.4)", () => {
+    // Existed since v1.3; v1.4 retains the consent flow for Excel /
+    // Benchmark Report (those products remain subject to Art 16(m)
+    // waiver because they are downloaded immediately). Lifetime no
+    // longer needs Art 16(m) collection because the 14-day window is
+    // now unconditional.
     expect(text).toContain("EU 2011/83/EU 第 16 条 m");
     expect(text).toContain("チェックアウト時に明示的に同意取得");
   });
@@ -104,5 +129,65 @@ describe("/legal/tokushoho v1.3 content (PODP-50 Legal recommendations)", () => 
     expect(text.toLowerCase()).not.toContain("lemon squeezy");
     expect(text.toLowerCase()).not.toContain("merchant of record");
     expect(text).not.toContain("MoR");
+  });
+
+  // ────────────────────────────────────────────────────────────────
+  // v1.4 cooling-off / no-proration policy (2026-05-11)
+  // CEO-confirmed policy: Lifetime gets a 14-day unconditional refund
+  // window (no launch-count gate). Pro Monthly / Pro Annual are NOT
+  // pro-rated. These tests pin the contractual phrasing so a future
+  // commit cannot regress it silently.
+  // ────────────────────────────────────────────────────────────────
+
+  it("[v1.4] Lifetime now offers an unconditional 14-day cooling-off window (was 7 days + 0 launches in v1.3)", () => {
+    // Lifetime section must mention the 14-day window and frame it as
+    // "no questions asked" / unconditional. The previous gate of "7
+    // days AND zero launches" must NOT appear.
+    expect(text).toMatch(/Lifetime[^。]*14\s*日以内[^。]*無条件/);
+    expect(text).toContain("cooling-off");
+    // Regression guard: the old 7-day window and 0-launch gate must be
+    // gone from the public surface (still allowed in internal SOP).
+    expect(text).not.toMatch(/Lifetime[^。]*7\s*日以内/);
+    expect(text).not.toMatch(/計算機を\s*1\s*度も\s*起動していない/);
+  });
+
+  it("[v1.4] Pro Monthly is documented as non-pro-rated with explicit 日割り返金は行いません wording", () => {
+    // Stripe + JP regulators read this exact phrasing — any softening
+    // (e.g. "原則として日割り返金しない") would weaken our position
+    // in a 苦情処理 case. Keep the assertion exact-match.
+    expect(text).toContain("日割り計算による返金は行いません");
+    // Pro Monthly section must reference the Customer Portal as the
+    // immediate-cancellation surface so consumers know where to act.
+    expect(text).toMatch(/Pro Monthly[\s\S]*Stripe Customer Portal/);
+  });
+
+  it("[v1.4] Pro Annual is documented as non-pro-rated AND explicitly without a 14-day Pro-Annual refund window", () => {
+    // v1.3 had a 14-day no-questions-asked window for Pro Annual; v1.4
+    // removes it. The phrase "Pro Annual には設けておりません" guards
+    // against accidental re-introduction.
+    expect(text).toMatch(/Pro Annual[\s\S]*日割り計算による返金は行いません/);
+    expect(text).toContain("Pro Annual には設けて");
+  });
+
+  it("[v1.4] EU/UK section distinguishes Lifetime (no Art 16(m) consent) from Excel/Report (consent retained)", () => {
+    // Lifetime no longer triggers Art 16(m) waiver collection because
+    // the 14-day window is now unconditional and granted to everyone
+    // worldwide. Excel / Benchmark Report keep the Art 16(m) consent
+    // flow because they are downloaded immediately.
+    expect(text).toContain("Lifetime に関しては別途の Art 16(m) 同意取得は行いません");
+    // The Art 16(m) consent for Excel / Report must still be present.
+    expect(text).toMatch(
+      /Excel\s*\/\s*Benchmark Report[\s\S]*第 16 条 m[\s\S]*チェックアウト時に明示的に同意取得/,
+    );
+  });
+
+  it("[v1.4] frames the 14-day cooling-off as a voluntary alignment with UK/EU law (not a JP cooling-off claim)", () => {
+    // JP Tokushoho 法 does NOT impose a cooling-off on通販 (通販には
+    // クーリング・オフ制度は適用されない). v1.4 must say the
+    // 14-day window is a voluntary courtesy aligned with UK/EU. This
+    // protects against a claim that we are misrepresenting JP law.
+    expect(text).toContain("特定商取引法第15条の3");
+    expect(text).toContain("適用されません");
+    expect(text).toMatch(/任意の\s*14\s*日間\s*cooling-off/);
   });
 });

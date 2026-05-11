@@ -5,7 +5,7 @@ const URL_CANONICAL = "https://getpodprofit.com/legal/tokushoho";
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記",
   description:
-    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先・販売価格・支払方法・返金規定の開示。",
+    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先・販売価格・支払方法・返金規定 (v1.4: Lifetime 14日 cooling-off / Pro 日割り返金不可) の開示。",
   alternates: { canonical: URL_CANONICAL },
 };
 
@@ -14,7 +14,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-11 / バージョン: 1.3</em>
+        <em>最終更新日: 2026-05-11 / バージョン: 1.4</em>
       </p>
 
       <p>
@@ -170,29 +170,38 @@ export default function TokushohoPage() {
 
       <h2 id="refund">返品・返金規定</h2>
       <p>
-        本サービスはデジタル商品のため、お客様都合による返品・返金は原則として
-        お受けしておりません。以下の例外条件に該当する場合のみ、個別にご相談を
-        承ります。
+        本サービスはデジタル商品・デジタルサービスのため、原則として通信販売に
+        おける法定のクーリングオフ制度 (特定商取引法第15条の3) は適用されません。
+        ただし当社は、UK / EU の 14 日 cooling-off 規定との整合および顧客保護
+        の観点から、Lifetime ライセンスに限り <strong>任意の 14 日間 cooling-off
+        期間</strong>を設けています。各商品の返金規定は以下のとおりです。
       </p>
       <ul>
         <li>
-          <strong>Lifetime</strong>: ご注文後 7 日以内、かつ計算機を 1 度も
-          起動していない場合 (アクセスログで確認)。Lifetime
-          ライセンスは PODProfit のサービス運営期間中の利用権を保証するもので
-          あり、サービスが終了した場合の返金保証は含みません。
+          <strong>Lifetime</strong>: ご注文後 <strong>14 日以内</strong>は無条件
+          で全額返金 (任意の cooling-off 期間)。14 日経過後は返金不可。返金
+          された Lifetime 席は public pool に戻り、次のお客様にご提供します。
+          なお Lifetime ライセンスは PODProfit のサービス運営期間中の利用権を
+          保証するものであり、サービスが終了した場合の返金保証は含みません。
         </li>
         <li>
-          <strong>Pro Monthly</strong>: 解約以降の自動課金を停止します (日割り
-          返金は行いません)。解約後も<strong>当月末まで</strong>サービスは継続
-          利用可能です。当社側のシステム起因の課金エラーの場合は全額返金。
+          <strong>Pro Monthly</strong>: サブスクリプションは継続的供給のため、
+          <strong>日割り計算による返金は行いません</strong>。Stripe Customer
+          Portal よりいつでも解約可能 (即時、次回課金停止)、解約後も{" "}
+          <strong>当月末 (次回更新日) まで</strong>サービスを継続利用できます。
+          当社側のシステム起因の課金エラーの場合のみ全額返金します。
         </li>
         <li>
-          <strong>Pro Annual</strong>: ご注文後 14 日以内は無条件で全額返金。
-          以降は返金不可ですが、解約後も<strong>年度末 (次回更新日)
-          まで</strong>サービスは継続利用可能です。
+          <strong>Pro Annual</strong>: サブスクリプションは継続的供給のため、
+          <strong>日割り計算による返金は行いません</strong>。Stripe Customer
+          Portal よりいつでも解約可能 (即時、次回課金停止)、解約後も{" "}
+          <strong>年度末 (次回更新日) まで</strong>サービスを継続利用できます。
+          14 日無条件返金 (cooling-off) の規定は Pro Annual には設けて
+          おりません。当社側のシステム起因の課金エラーの場合のみ全額返金します。
         </li>
         <li>
-          <strong>Excel / Report</strong>: ダウンロード履歴が 0 件であることをサーバーログで確認できた場合のみ、ご注文後 14 日以内に限り返金検討
+          <strong>Excel / Report</strong>: ダウンロード履歴が 0 件であることを
+          サーバーログで確認できた場合のみ、ご注文後 14 日以内に限り返金検討
         </li>
         <li>
           <strong>重複課金</strong>: いかなる商品でも、システム起因で重複課金が
@@ -200,9 +209,13 @@ export default function TokushohoPage() {
         </li>
       </ul>
       <p>
-        EU / 英国のお客様: デジタル商品のダウンロードリンクをお送りした
-        時点で、消費者権利指令 (EU 2011/83/EU 第 16 条 m) に基づく 14 日間の
-        撤回権は失効します (チェックアウト時に明示的に同意取得)。
+        EU / 英国のお客様 (Lifetime): 上記 14 日間 cooling-off は EU 消費者
+        権利指令 (2011/83/EU) および UK Consumer Contracts Regulations 2013 の
+        14 日撤回権と完全に整合しています。Lifetime に関しては別途の Art 16(m)
+        同意取得は行いません。
+      </p>
+      <p>
+        EU / 英国のお客様 (Excel / Benchmark Report PDF): デジタル商品のダウンロードリンクをお送りした時点で、消費者権利指令 (EU 2011/83/EU 第 16 条 m) に基づく 14 日間の撤回権は失効します (チェックアウト時に明示的に同意取得)。
       </p>
       <p>
         詳細は{" "}
@@ -214,10 +227,13 @@ export default function TokushohoPage() {
       <ul>
         <li>
           <strong>Pro Monthly / Pro Annual</strong>: ログイン後、Account ページ
-          より自動更新を停止可能 (即時反映)
+          より <strong>Stripe Customer Portal</strong> を開き、自動更新を停止
+          可能 (即時反映、次回課金停止)。解約後も期間終了 (Monthly: 当月末 /
+          Annual: 年度末) までサービス利用可能。日割り返金は行いません。
         </li>
         <li>
-          <strong>Lifetime</strong>: 一括購入のため解約手続き不要
+          <strong>Lifetime</strong>: 一括購入のため解約手続き不要。ご注文後
+          14 日以内であれば cooling-off による全額返金が可能です。
         </li>
       </ul>
 
