@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   checkLifetimeRefundEligibility,
   checkProductRefundEligibility,
+  checkSubscriptionRefundEligibility,
   LIFETIME_REFUND_WINDOW_DAYS,
 } from "@/lib/refund/check-eligibility";
 import { createSupabaseMock } from "./_supabase-mock";
@@ -14,7 +15,7 @@ function daysAgo(n: number): Date {
   return new Date(NOW.getTime() - n * 24 * 60 * 60 * 1000);
 }
 
-describe("checkLifetimeRefundEligibility", () => {
+describe("checkLifetimeRefundEligibility (cooling-off policy 2026-05-11: 14 days, no launch gate)", () => {
   it("is eligible at day 6 with zero launches", async () => {
     const mock = createSupabaseMock({
       seed: { usage_events: [] },
@@ -32,9 +33,24 @@ describe("checkLifetimeRefundEligibility", () => {
     expect(result.reason).toBe("eligible");
   });
 
-  it("is NOT eligible at day 8 (outside window) — even with zero launches", async () => {
+  it("is eligible at day 13 (just inside the 14-day window)", async () => {
     const mock = createSupabaseMock({ seed: { usage_events: [] } });
-    const purchaseAt = daysAgo(8);
+    const purchaseAt = daysAgo(13);
+
+    const result = await checkLifetimeRefundEligibility(
+      mock.client,
+      USER_ID,
+      purchaseAt,
+      { now: NOW },
+    );
+
+    expect(result.eligible).toBe(true);
+    expect(result.reason).toBe("eligible");
+  });
+
+  it("is NOT eligible at day 15 (outside the 14-day window)", async () => {
+    const mock = createSupabaseMock({ seed: { usage_events: [] } });
+    const purchaseAt = daysAgo(15);
 
     const result = await checkLifetimeRefundEligibility(
       mock.client,
@@ -45,11 +61,17 @@ describe("checkLifetimeRefundEligibility", () => {
 
     expect(result.eligible).toBe(false);
     expect(result.reason).toBe("outside_window");
-    expect(result.detail).toMatch(/8 day/);
+    expect(result.detail).toMatch(/15 day/);
+    expect(result.detail).toMatch(/14 days/);
   });
 
-  it("is NOT eligible at day 6 if any launch was recorded since purchase", async () => {
-    const purchaseAt = daysAgo(6);
+  it("CORE policy-change case: eligible at day 10 even with many launches recorded since purchase", async () => {
+    // This is the heart of the 2026-05-11 policy change. Under the old
+    // rule (7-day window + zero launches), the user below would have
+    // been disqualified by `calculator_launched`. Under the new rule
+    // (14-day window only) they are eligible. We seed multiple launch
+    // rows on purpose to make the regression-detection intent explicit.
+    const purchaseAt = daysAgo(10);
     const mock = createSupabaseMock({
       seed: {
         usage_events: [
@@ -57,36 +79,23 @@ describe("checkLifetimeRefundEligibility", () => {
             id: "evt-1",
             user_id: USER_ID,
             event_type: "calculator_launched",
+            occurred_at: daysAgo(9).toISOString(),
+            product_slug: null,
+            metadata: null,
+          },
+          {
+            id: "evt-2",
+            user_id: USER_ID,
+            event_type: "calculator_launched",
             occurred_at: daysAgo(5).toISOString(),
             product_slug: null,
             metadata: null,
           },
-        ],
-      },
-    });
-
-    const result = await checkLifetimeRefundEligibility(
-      mock.client,
-      USER_ID,
-      purchaseAt,
-      { now: NOW },
-    );
-
-    expect(result.eligible).toBe(false);
-    expect(result.reason).toBe("calculator_launched");
-  });
-
-  it("ignores launches that happened BEFORE purchaseAt (free-tier exploration shouldn't disqualify)", async () => {
-    const purchaseAt = daysAgo(3);
-    const mock = createSupabaseMock({
-      seed: {
-        usage_events: [
-          // 10 days ago — clearly before purchase, must not count.
           {
-            id: "evt-old",
+            id: "evt-3",
             user_id: USER_ID,
             event_type: "calculator_launched",
-            occurred_at: daysAgo(10).toISOString(),
+            occurred_at: daysAgo(2).toISOString(),
             product_slug: null,
             metadata: null,
           },
@@ -105,16 +114,16 @@ describe("checkLifetimeRefundEligibility", () => {
     expect(result.reason).toBe("eligible");
   });
 
-  it("scopes the count to this user only — another user's launches don't disqualify", async () => {
-    const purchaseAt = daysAgo(2);
+  it("is eligible at day 5 even with launches recorded (launches are no longer disqualifying)", async () => {
+    const purchaseAt = daysAgo(5);
     const mock = createSupabaseMock({
       seed: {
         usage_events: [
           {
-            id: "evt-other",
-            user_id: "user_someone_else",
+            id: "evt-1",
+            user_id: USER_ID,
             event_type: "calculator_launched",
-            occurred_at: daysAgo(1).toISOString(),
+            occurred_at: daysAgo(4).toISOString(),
             product_slug: null,
             metadata: null,
           },
@@ -130,6 +139,7 @@ describe("checkLifetimeRefundEligibility", () => {
     );
 
     expect(result.eligible).toBe(true);
+    expect(result.reason).toBe("eligible");
   });
 
   it("treats a future-dated purchaseAt as a lookup failure (defensive)", async () => {
@@ -147,8 +157,34 @@ describe("checkLifetimeRefundEligibility", () => {
     expect(result.reason).toBe("lookup_failed");
   });
 
-  it("constant LIFETIME_REFUND_WINDOW_DAYS matches the Terms §7.1 promise", () => {
-    expect(LIFETIME_REFUND_WINDOW_DAYS).toBe(7);
+  it("constant LIFETIME_REFUND_WINDOW_DAYS reflects the 2026-05-11 cooling-off policy", () => {
+    expect(LIFETIME_REFUND_WINDOW_DAYS).toBe(14);
+  });
+});
+
+describe("checkSubscriptionRefundEligibility (Pro Monthly / Pro Annual — no proration)", () => {
+  it("returns no_proration for Pro Monthly", () => {
+    const result = checkSubscriptionRefundEligibility("pro_monthly");
+
+    expect(result.eligible).toBe(false);
+    expect(result.reason).toBe("no_proration");
+    expect(result.detail).toMatch(/Pro Monthly/);
+  });
+
+  it("returns no_proration for Pro Annual (pro_yearly)", () => {
+    const result = checkSubscriptionRefundEligibility("pro_yearly");
+
+    expect(result.eligible).toBe(false);
+    expect(result.reason).toBe("no_proration");
+    expect(result.detail).toMatch(/Pro Annual/);
+  });
+
+  it("is a pure policy function — does not depend on any database lookup", () => {
+    // No supabase client passed; if this ever starts touching the DB
+    // the signature change will break this test.
+    const r1 = checkSubscriptionRefundEligibility("pro_monthly");
+    const r2 = checkSubscriptionRefundEligibility("pro_monthly");
+    expect(r1).toEqual(r2);
   });
 });
 
