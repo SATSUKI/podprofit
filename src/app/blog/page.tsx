@@ -17,6 +17,15 @@ interface Post {
 
 const POSTS: Post[] = [
   {
+    slug: "printful-vs-printify-profit-calculator-multi-currency",
+    title:
+      "Printful vs Printify: Real Profit Comparison Across 6 Currencies (USD, EUR, GBP, CAD, AUD, JPY) — 2026",
+    description:
+      "The long-form, six-currency profit comparison between Printful and Printify. Bella+Canvas 3001, hidden subscription costs, Etsy offsite ads, FX margin — every fee itemized.",
+    publishedAt: "2026-05-30",
+    readingMinutes: 16,
+  },
+  {
     slug: "how-much-profit-do-pod-sellers-make",
     title:
       "How much profit do print-on-demand sellers actually make? (2026 benchmarks)",

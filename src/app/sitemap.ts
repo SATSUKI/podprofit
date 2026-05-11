@@ -36,6 +36,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/blog/printful-vs-printify-profit-calculator-multi-currency`,
+      lastModified: new Date("2026-05-30"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/blog/pod-margin-benchmark-2026`,
+      lastModified: new Date("2026-06-15"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
       url: `${SITE_URL}/blog/how-much-profit-do-pod-sellers-make`,
       lastModified: new Date("2026-05-26"),
       changeFrequency: "monthly",
