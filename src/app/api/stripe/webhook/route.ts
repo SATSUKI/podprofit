@@ -17,6 +17,10 @@ import {
   logInvoicePaymentFailed,
   logPaymentIntentSucceeded,
 } from "@/lib/stripe/audit-events";
+import {
+  notifyPaymentFailed,
+  notifyWebhookFailed,
+} from "@/lib/observability/slack-notify";
 
 export const runtime = "nodejs";
 
@@ -103,10 +107,14 @@ export async function POST(req: NextRequest) {
       }
 
       case "invoice.payment_failed": {
-        await logInvoicePaymentFailed(
-          supabase,
-          event.data.object as Stripe.Invoice,
-        );
+        const invoice = event.data.object as Stripe.Invoice;
+        await logInvoicePaymentFailed(supabase, invoice);
+        // Slack alert is best-effort; never throw out of the alert path.
+        await notifyPaymentFailed({
+          eventId: event.id,
+          eventType: event.type,
+          reason: invoice.last_finalization_error?.message ?? undefined,
+        });
         break;
       }
 
@@ -137,6 +145,13 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[stripe.webhook] handler failed", err);
     await releaseWebhookEventForRetry(supabase, event.id, err);
+    // Fire-and-forget Slack alert so the CEO sees the failure even if no
+    // one's tailing logs. Awaited but the helper swallows its own errors.
+    await notifyWebhookFailed({
+      eventId: event.id,
+      eventType: event.type,
+      error: err,
+    });
     return NextResponse.json(
       { error: "Handler failed", detail: (err as Error).message },
       { status: 500 },

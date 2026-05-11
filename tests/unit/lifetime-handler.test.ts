@@ -373,4 +373,60 @@ describe("handleLifetimeCheckoutCompleted", () => {
 
     expect(mock.inspect("founding_members")).toHaveLength(0);
   });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // QA G monitoring: Lifetime low-seat Slack alert wiring. We don't assert
+  // Slack payload shape here (that's covered by slack-notify.test.ts) —
+  // just that the helper is called once when the seat threshold trips.
+  // ────────────────────────────────────────────────────────────────────────
+
+  it("sends a Slack low-seats alert when remaining drops below 10 (seat 91)", async () => {
+    process.env.SLACK_WEBHOOK_URL = "https://hooks.slack.com/test/GGG";
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("ok", { status: 200 }));
+
+    const stripe = buildStripeStub();
+    const mock = createSupabaseMock({
+      seed: { audit_log: [], founding_members: [], subscriptions: [] },
+      rpcs: { fn_claim_lifetime_seat: () => ({ data: 91, error: null }) },
+    });
+
+    await handleLifetimeCheckoutCompleted(
+      stripe,
+      mock.client,
+      buildSession({ metadata: { plan_id: "lifetime", user_id: "u_91" } }),
+    );
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const body = JSON.parse(
+      (fetchSpy.mock.calls[0]![1] as RequestInit).body as string,
+    );
+    expect(body.text).toMatch(/Lifetime seats low/);
+    delete process.env.SLACK_WEBHOOK_URL;
+    vi.restoreAllMocks();
+  });
+
+  it("does NOT send a Slack low-seats alert on early seats (e.g., seat 7)", async () => {
+    process.env.SLACK_WEBHOOK_URL = "https://hooks.slack.com/test/HHH";
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response("ok", { status: 200 }));
+
+    const stripe = buildStripeStub();
+    const mock = createSupabaseMock({
+      seed: { audit_log: [], founding_members: [], subscriptions: [] },
+      rpcs: { fn_claim_lifetime_seat: () => ({ data: 7, error: null }) },
+    });
+
+    await handleLifetimeCheckoutCompleted(
+      stripe,
+      mock.client,
+      buildSession({ metadata: { plan_id: "lifetime", user_id: "u_7" } }),
+    );
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    delete process.env.SLACK_WEBHOOK_URL;
+    vi.restoreAllMocks();
+  });
 });

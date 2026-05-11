@@ -2,6 +2,10 @@ import "server-only";
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ensureFoundingMemberRow } from "@/lib/lifetime/founding-members";
+import { notifyLifetimeLowSeats } from "@/lib/observability/slack-notify";
+
+const LIFETIME_CAPACITY = 100;
+const LIFETIME_LOW_SEAT_THRESHOLD = 10;
 
 /**
  * Handler for `checkout.session.completed` events tagged
@@ -107,6 +111,19 @@ export async function handleLifetimeCheckoutCompleted(
   });
   if (auditError) {
     throw new Error(`audit_log insert failed: ${auditError.message}`);
+  }
+
+  // ── Low-seat Slack alert (QA monitoring G) ─────────────────────────────
+  // Fires once when the remaining pool first drops under the threshold.
+  // The check is RPC-returned seat_number-relative: when seat 91 lands,
+  // remaining = 9 < 10, alert fires. Subsequent seats also fire but
+  // Slack-side dedup is not our concern here (it's CEO-only channel).
+  const seatNum = seatNumber as number;
+  if (LIFETIME_CAPACITY - seatNum < LIFETIME_LOW_SEAT_THRESHOLD) {
+    await notifyLifetimeLowSeats({
+      seatsRemaining: LIFETIME_CAPACITY - seatNum,
+      capacity: LIFETIME_CAPACITY,
+    });
   }
 
   // ── PODP-12: seed founding_members row (opt-out by default) ────────────
