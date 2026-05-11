@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSsrSupabase } from "@/lib/supabase/ssr";
 import { SignupEventEmitter } from "@/components/signup-event-emitter";
+import { getOwnFoundingMember } from "@/lib/lifetime/founding-members";
 
 export const metadata: Metadata = {
   title: "Your account",
@@ -10,13 +11,20 @@ export const metadata: Metadata = {
 };
 
 interface AccountPageProps {
-  searchParams: Promise<{ signup?: string; portal?: string }>;
+  searchParams: Promise<{
+    signup?: string;
+    portal?: string;
+    founding_saved?: string;
+    founding_error?: string;
+  }>;
 }
 
 export default async function AccountPage({ searchParams }: AccountPageProps) {
-  const { signup, portal } = await searchParams;
+  const { signup, portal, founding_saved, founding_error } = await searchParams;
   const isFirstSignup = signup === "1";
   const portalUnavailable = portal === "unavailable";
+  const foundingSaved = founding_saved === "1";
+  const foundingErrorMsg = typeof founding_error === "string" ? founding_error : null;
   const supabase = await createSsrSupabase();
   if (!supabase) {
     return (
@@ -34,11 +42,13 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     redirect("/login");
   }
 
-  // Run plan, lifetime, and saved-calc reads in parallel — RLS guards them.
+  // Run plan, lifetime, saved-calc, and founding-member reads in parallel
+  // — RLS guards them all.
   const [
     { data: subscriptions },
     { data: lifetimeSeat },
     { data: calculations },
+    foundingMember,
   ] = await Promise.all([
     supabase
       .from("subscriptions")
@@ -56,6 +66,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50),
+    getOwnFoundingMember(supabase, user.id),
   ]);
 
   const activePro = (subscriptions ?? []).find(
@@ -150,6 +161,80 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           </p>
         ) : null}
       </section>
+
+      {/* Founding member opt-in (Lifetime holders only) — PODP-12 */}
+      {isLifetime ? (
+        <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900">
+          <h2 className="text-lg font-semibold">Founding supporter listing</h2>
+          <p className="mt-2 text-sm text-stone-700 dark:text-stone-300">
+            Show your name on the public{" "}
+            <Link
+              href="/about#founding-supporters"
+              className="underline"
+            >
+              Founding Supporters
+            </Link>{" "}
+            grid. Off by default — your support is private unless you turn
+            this on.
+          </p>
+
+          {foundingSaved ? (
+            <p
+              role="status"
+              className="mt-3 rounded-md bg-emerald-50 px-3 py-2 text-xs text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+            >
+              Saved. The public grid refreshes within 5 minutes.
+            </p>
+          ) : null}
+          {foundingErrorMsg ? (
+            <p
+              role="alert"
+              className="mt-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
+            >
+              {foundingErrorMsg}
+            </p>
+          ) : null}
+
+          <form
+            action="/api/account/founding-member"
+            method="post"
+            className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <label className="flex flex-1 flex-col gap-1 text-sm">
+              <span className="font-medium text-stone-900 dark:text-stone-100">
+                X handle
+              </span>
+              <input
+                type="text"
+                name="x_handle"
+                defaultValue={foundingMember?.x_handle ?? ""}
+                placeholder="o_satsuki"
+                maxLength={15}
+                pattern="[A-Za-z0-9_]{1,15}"
+                className="rounded-md border border-stone-300 bg-white px-3 py-1.5 dark:border-stone-700 dark:bg-stone-800"
+              />
+              <span className="text-xs text-stone-500">
+                1-15 letters / numbers / underscores. No leading @.
+              </span>
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="display_x_handle"
+                defaultChecked={foundingMember?.display_x_handle ?? false}
+                className="h-4 w-4 rounded border-stone-300"
+              />
+              <span>Show me on the public grid</span>
+            </label>
+            <button
+              type="submit"
+              className="rounded-md bg-brand-800 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-700 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+            >
+              Save
+            </button>
+          </form>
+        </section>
+      ) : null}
 
       <section className="mt-10">
         <h2 className="text-lg font-semibold">Saved calculations</h2>

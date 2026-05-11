@@ -29,8 +29,8 @@ describe("/about page", () => {
     expect(desc.toLowerCase()).toContain("vendor-neutral");
   });
 
-  it("renders the founder name, role and bio so Stripe E-E-A-T review can verify identity", () => {
-    const html = renderToStaticMarkup(AboutPage());
+  it("renders the founder name, role and bio so Stripe E-E-A-T review can verify identity", async () => {
+    const html = renderToStaticMarkup(await AboutPage());
     expect(html).toContain("Satsuki Okazaki");
     expect(html).toContain("Founder");
     // Bio markers — guard the operating-philosophy paragraph that Stripe will read.
@@ -43,8 +43,8 @@ describe("/about page", () => {
     expect(html).toContain('alt="Satsuki Okazaki, Founder of PODProfit"');
   });
 
-  it("emits a Person + Organization JSON-LD graph that links to the founder", () => {
-    const html = renderToStaticMarkup(AboutPage());
+  it("emits a Person + Organization JSON-LD graph that links to the founder", async () => {
+    const html = renderToStaticMarkup(await AboutPage());
     const ldMatch = html.match(
       /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
     );
@@ -83,5 +83,16 @@ describe("/about page", () => {
     const html = renderToStaticMarkup(SiteFooter());
     expect(html).toMatch(/href="\/about"/);
     expect(html).toContain(">About<");
+  });
+
+  it("renders the Founding Supporters section + Lifetime priority-access principle (PODP-12 + PODP-14)", async () => {
+    const html = renderToStaticMarkup(await AboutPage());
+    // PODP-12: section heading + anchor
+    expect(html).toContain("Our 100 Founding Supporters");
+    expect(html).toContain('id="founding-supporters"');
+    // PODP-14: principle wording + Terms link to §5.1 (so the legal source
+    // of truth is one click away from the marketing copy).
+    expect(html).toContain("permanent priority early access");
+    expect(html).toContain("/legal/terms#section-5");
   });
 });

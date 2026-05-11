@@ -5,6 +5,7 @@ import { getLifetimeClaimedCount } from "@/lib/lifetime/get-claimed";
 import { EmailSignup } from "@/components/email-signup";
 import { ProductOffersJsonLd, type ProductOffer } from "@/components/json-ld";
 import { cn } from "@/lib/utils/cn";
+import { isLaunched } from "@/lib/utils/launch-gate";
 
 const SITE_URL = "https://getpodprofit.com";
 const PRO_AVAILABLE_DATE = "June 9, 2026";
@@ -49,6 +50,10 @@ export default async function PricingPage() {
   const claimed = await getLifetimeClaimedCount();
   const lifetime = PLAN_CATALOG.lifetime;
   const remaining = (lifetime.capacity ?? 100) - claimed;
+  // PODP-39: Pro CTAs stay disabled until NEXT_PUBLIC_LAUNCH_DATE (default
+  // 2026-06-09). Lifetime stays purchasable now so founding members can
+  // claim seats during the pre-launch window.
+  const proCtaActive = isLaunched();
 
   // Product+Offers schema. We expose the four user-visible plans in their
   // current marketplace state — Pro plans are PreOrder until 2026-06-09,
@@ -132,7 +137,11 @@ export default async function PricingPage() {
           name="Pro Monthly"
           price="$9 USD"
           priceUnit="/ month"
-          availability={`Available from ${PRO_AVAILABLE_DATE}`}
+          availability={
+            proCtaActive
+              ? "Available now"
+              : `Available ${PRO_AVAILABLE_DATE}`
+          }
           tagline="Cancel anytime."
           features={[
             "Everything in Free, forever",
@@ -141,15 +150,24 @@ export default async function PricingPage() {
             "Pause subscription up to 3 months",
             "Email support",
           ]}
-          ctaHref="/api/stripe/checkout?plan=pro_monthly"
-          ctaLabel="Subscribe"
+          ctaHref={
+            proCtaActive
+              ? "/api/stripe/checkout?plan=pro_monthly"
+              : "/pricing#notify-pro"
+          }
+          ctaLabel={proCtaActive ? "Subscribe" : "Notify me"}
+          ctaDisabled={!proCtaActive}
           ctaVariant="outline"
         />
         <PlanCard
           name="Pro Annual"
           price="$79 USD"
           priceUnit="/ year"
-          availability={`Available from ${PRO_AVAILABLE_DATE}`}
+          availability={
+            proCtaActive
+              ? "Available now"
+              : `Available ${PRO_AVAILABLE_DATE}`
+          }
           tagline="Save $29 vs monthly. Lock in 12 months."
           features={[
             "Everything in Pro Monthly",
@@ -157,8 +175,13 @@ export default async function PricingPage() {
             "Locked-in pricing for 12 months",
             "Email support",
           ]}
-          ctaHref="/api/stripe/checkout?plan=pro_yearly"
-          ctaLabel="Subscribe"
+          ctaHref={
+            proCtaActive
+              ? "/api/stripe/checkout?plan=pro_yearly"
+              : "/pricing#notify-pro"
+          }
+          ctaLabel={proCtaActive ? "Subscribe" : "Notify me"}
+          ctaDisabled={!proCtaActive}
           ctaVariant="outline"
         />
         <PlanCard
@@ -175,6 +198,7 @@ export default async function PricingPage() {
             "Everything in Pro, forever",
             "All future features included (Phase 2 + beyond)",
             "Founding member status — name credit",
+            "Permanent priority early access to every future product (β invites for Phase 2-N)",
             "One-time payment, no subscription",
           ]}
           ctaHref={remaining > 0 ? "/api/stripe/checkout?plan=lifetime" : undefined}
@@ -200,8 +224,9 @@ export default async function PricingPage() {
       <section className="text-sm text-stone-600 dark:text-stone-400">
         <p>
           All prices in USD. International tax (VAT / Sales Tax) is calculated
-          and collected automatically at checkout via Stripe Tax. Refunds: 14
-          days (Pro Annual) / 7 days + 0 launches (Lifetime). See{" "}
+          and collected automatically at checkout via Stripe Tax. Refunds:
+          Lifetime within 14 days; Pro subscriptions are not pro-rated but you
+          keep access until the end of your billing period. See{" "}
           <Link href="/legal/refunds" className="underline">
             refund policy
           </Link>
@@ -271,9 +296,17 @@ function PlanCard({
       </ul>
       {ctaHref && ctaLabel ? (
         ctaDisabled ? (
-          <span className="mt-6 inline-flex cursor-not-allowed items-center justify-center rounded-lg bg-stone-300 px-4 py-2 text-sm font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-400">
+          // PODP-39: pre-launch disabled state. Visually inactive (no
+          // hover, muted palette) but still a real <Link> when ctaHref
+          // points to `#notify-pro` so keyboard / screen-reader users can
+          // jump to the email-signup section.
+          <Link
+            href={ctaHref}
+            aria-disabled="true"
+            className="mt-6 inline-flex items-center justify-center rounded-lg border border-stone-300 bg-stone-100 px-4 py-2 text-sm font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400"
+          >
             {ctaLabel}
-          </span>
+          </Link>
         ) : (
           <Link
             href={ctaHref}

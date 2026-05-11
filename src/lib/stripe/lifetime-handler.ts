@@ -1,6 +1,7 @@
 import "server-only";
 import type Stripe from "stripe";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { ensureFoundingMemberRow } from "@/lib/lifetime/founding-members";
 
 /**
  * Handler for `checkout.session.completed` events tagged
@@ -106,6 +107,28 @@ export async function handleLifetimeCheckoutCompleted(
   });
   if (auditError) {
     throw new Error(`audit_log insert failed: ${auditError.message}`);
+  }
+
+  // ── PODP-12: seed founding_members row (opt-out by default) ────────────
+  // Lifetime buyers are founding members; the row lets them opt in to the
+  // /about Founding Supporters grid later from /account. Idempotent — a
+  // webhook replay or duplicate buyer (rare) will not throw.
+  if (userId) {
+    const { ok, error } = await ensureFoundingMemberRow(supabase, userId);
+    if (!ok) {
+      // Non-fatal: the seat is claimed; founding-member seeding is a UX
+      // affordance, not a billing-correctness step. Surface to audit_log
+      // so CS can repair manually if it ever happens.
+      await supabase.from("audit_log").insert({
+        user_id: userId,
+        action: "founding_member_seed_failed",
+        metadata: {
+          seat_number: seatNumber,
+          payment_intent_id: paymentIntentId,
+          error,
+        },
+      });
+    }
   }
 
   // ── PODP-35: cancel any active Pro subscription with prorated refund ───

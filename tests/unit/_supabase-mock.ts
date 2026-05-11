@@ -29,9 +29,16 @@ interface QueryState {
     | { kind: "select" }
     | { kind: "insert"; values: Row | Row[] }
     | { kind: "update"; values: Row }
-    | { kind: "upsert"; values: Row | Row[]; onConflict?: string }
+    | {
+        kind: "upsert";
+        values: Row | Row[];
+        onConflict?: string;
+        ignoreDuplicates?: boolean;
+      }
     | { kind: "delete" }
     | null;
+  orderBy: { column: string; ascending: boolean } | null;
+  limit: number | null;
 }
 
 export interface SupabaseMockOptions {
@@ -93,6 +100,8 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       countMode: null,
       headOnly: false,
       pendingOp: null,
+      orderBy: null,
+      limit: null,
     };
 
     const finalize = () => {
@@ -100,7 +109,18 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       const rows = store[table] ?? [];
 
       if (!op || op.kind === "select") {
-        const matched = rows.filter((r) => rowMatches(r, state.filters));
+        let matched = rows.filter((r) => rowMatches(r, state.filters));
+        if (state.orderBy) {
+          const { column, ascending } = state.orderBy;
+          matched = [...matched].sort((a, b) =>
+            ascending
+              ? compareForOrder(a[column], b[column])
+              : compareForOrder(b[column], a[column]),
+          );
+        }
+        if (state.limit !== null) {
+          matched = matched.slice(0, state.limit);
+        }
         return { data: matched, error: null as null | { message: string; code?: string } };
       }
 
@@ -137,10 +157,12 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       if (op.kind === "upsert") {
         const toUpsert = Array.isArray(op.values) ? op.values : [op.values];
         const conflictCol = op.onConflict;
+        const ignoreDuplicates = op.ignoreDuplicates === true;
         for (const r of toUpsert) {
           if (conflictCol && r[conflictCol] !== undefined) {
             const idx = rows.findIndex((existing) => existing[conflictCol] === r[conflictCol]);
             if (idx >= 0) {
+              if (ignoreDuplicates) continue;
               rows[idx] = { ...rows[idx], ...r };
               continue;
             }
@@ -184,8 +206,13 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
       lte: (col: string, val: unknown) => typeof builder;
       insert: (values: Row | Row[]) => typeof builder;
       update: (values: Row) => typeof builder;
-      upsert: (values: Row | Row[], opts?: { onConflict?: string }) => typeof builder;
+      upsert: (
+        values: Row | Row[],
+        opts?: { onConflict?: string; ignoreDuplicates?: boolean },
+      ) => typeof builder;
       delete: () => typeof builder;
+      order: (col: string, opts?: { ascending?: boolean }) => typeof builder;
+      limit: (n: number) => typeof builder;
       maybeSingle: () => Promise<{
         data: Row | null;
         error: null | { message: string; code?: string };
@@ -240,11 +267,23 @@ export function createSupabaseMock(opts: SupabaseMockOptions = {}): SupabaseMock
           kind: "upsert",
           values,
           onConflict: upsertOpts?.onConflict,
+          ignoreDuplicates: upsertOpts?.ignoreDuplicates,
         };
         return builder;
       },
       delete() {
         state.pendingOp = { kind: "delete" };
+        return builder;
+      },
+      order(col, orderOpts) {
+        state.orderBy = {
+          column: col,
+          ascending: orderOpts?.ascending !== false,
+        };
+        return builder;
+      },
+      limit(n) {
+        state.limit = n;
         return builder;
       },
       async maybeSingle() {

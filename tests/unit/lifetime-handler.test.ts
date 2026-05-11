@@ -327,4 +327,50 @@ describe("handleLifetimeCheckoutCompleted", () => {
     expect(result.outcome).toBe("claimed");
     expect(stripe.subscriptions.cancel).not.toHaveBeenCalled();
   });
+
+  // ────────────────────────────────────────────────────────────────────────
+  // PODP-12: founding_members row seeding on successful Lifetime claim.
+  // ────────────────────────────────────────────────────────────────────────
+
+  it("seeds a founding_members row (opt-out by default) on successful Lifetime claim", async () => {
+    const stripe = buildStripeStub();
+    const mock = createSupabaseMock({
+      seed: { audit_log: [], founding_members: [], subscriptions: [] },
+      rpcs: {
+        fn_claim_lifetime_seat: () => ({ data: 42, error: null }),
+      },
+    });
+
+    await handleLifetimeCheckoutCompleted(
+      stripe,
+      mock.client,
+      buildSession({ metadata: { plan_id: "lifetime", user_id: "u_fm" } }),
+    );
+
+    const members = mock.inspect("founding_members");
+    expect(members).toHaveLength(1);
+    expect(members[0]).toMatchObject({
+      user_id: "u_fm",
+      display_x_handle: false,
+      x_handle: null,
+    });
+  });
+
+  it("does not seed a founding_members row when session has no user_id (anonymous Lifetime claim)", async () => {
+    const stripe = buildStripeStub();
+    const mock = createSupabaseMock({
+      seed: { audit_log: [], founding_members: [] },
+      rpcs: {
+        fn_claim_lifetime_seat: () => ({ data: 1, error: null }),
+      },
+    });
+
+    await handleLifetimeCheckoutCompleted(
+      stripe,
+      mock.client,
+      buildSession({ metadata: { plan_id: "lifetime" } }),
+    );
+
+    expect(mock.inspect("founding_members")).toHaveLength(0);
+  });
 });

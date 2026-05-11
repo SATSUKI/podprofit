@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import crypto from "node:crypto";
 import { AboutPersonOrgJsonLd } from "@/components/json-ld";
+import { listPublicFoundingMembers } from "@/lib/lifetime/founding-members";
 
 const SITE_URL = "https://getpodprofit.com";
 const FOUNDER_EMAIL = "okalasworld@gmail.com";
@@ -64,7 +65,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
+// Revalidate the founding-supporters grid every 5 minutes so a new opt-in
+// shows up without forcing a full redeploy. Member count grows slowly
+// (capped at 100), so the cache cost is negligible.
+export const revalidate = 300;
+
+export default async function AboutPage() {
+  const foundingMembers = await listPublicFoundingMembers();
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12 md:py-16">
       <AboutPersonOrgJsonLd githubUrl={GITHUB_URL} />
@@ -224,8 +231,26 @@ export default function AboutPage() {
             — replies usually within 24 hours. Email reaches the founder, not a
             tier-1 queue.
           </li>
+          <li>
+            <strong className="text-stone-900 dark:text-stone-100">
+              Lifetime supporters get permanent priority early access
+            </strong>{" "}
+            — every product I ship under any brand will offer Lifetime
+            members the first β invitations, ahead of the waitlist, for as
+            long as the supporter holds their seat. Codified in our{" "}
+            <Link
+              href="/legal/terms#section-5"
+              className="underline hover:text-brand-800 dark:hover:text-brand-300"
+            >
+              Terms of Service §5.1
+            </Link>
+            .
+          </li>
         </ul>
       </section>
+
+      {/* Founding Supporters (PODP-12) */}
+      <FoundingSupportersSection members={foundingMembers} />
 
       {/* Address & Contact */}
       <section
@@ -354,5 +379,84 @@ export default function AboutPage() {
         </ul>
       </section>
     </main>
+  );
+}
+
+/**
+ * Public Founding Supporters grid (PODP-12).
+ *
+ * Only opted-in Lifetime members are returned by the loader (RLS gates
+ * the table to `display_x_handle = true` for the anon role). When the
+ * list is empty we still render the heading + "Be one of the first"
+ * pre-launch copy so the section keeps its anchor and the page layout
+ * stays stable.
+ */
+function FoundingSupportersSection({
+  members,
+}: {
+  members: Array<{ user_id: string; x_handle: string | null; joined_at: string }>;
+}) {
+  return (
+    <section
+      aria-labelledby="founding-heading"
+      id="founding-supporters"
+      className="mt-12 scroll-mt-24"
+    >
+      <h2
+        id="founding-heading"
+        className="text-2xl font-semibold tracking-tight text-stone-900 dark:text-stone-100"
+      >
+        Our 100 Founding Supporters
+      </h2>
+      <p className="mt-3 text-sm text-stone-700 dark:text-stone-300">
+        Lifetime supporters who chose to be credited publicly. Listed in the
+        order they joined. The Lifetime tier is hard-capped at 100 seats and
+        carries permanent priority access to every future PODProfit-brand
+        product, as written in our{" "}
+        <Link
+          href="/legal/terms#section-5"
+          className="underline hover:text-brand-800 dark:hover:text-brand-300"
+        >
+          Terms of Service
+        </Link>
+        .
+      </p>
+      {members.length === 0 ? (
+        <p className="mt-4 rounded-2xl border border-dashed border-stone-300 bg-white/50 p-6 text-center text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-900/40 dark:text-stone-400">
+          Be one of the first.{" "}
+          <Link href="/pricing" className="underline">
+            Reserve a Lifetime seat
+          </Link>{" "}
+          and opt in to be credited here from your account page.
+        </p>
+      ) : (
+        <ul
+          aria-label="Founding supporters"
+          className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3 md:grid-cols-4"
+        >
+          {members.map((m) => (
+            <li
+              key={m.user_id}
+              className="truncate rounded-lg border border-stone-200 bg-white px-3 py-2 dark:border-stone-800 dark:bg-stone-900"
+            >
+              {m.x_handle ? (
+                <a
+                  href={`https://x.com/${m.x_handle}`}
+                  rel="noopener nofollow"
+                  target="_blank"
+                  className="text-brand-800 hover:underline dark:text-brand-300"
+                >
+                  @{m.x_handle}
+                </a>
+              ) : (
+                <span className="text-stone-600 dark:text-stone-400">
+                  Founding supporter
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
-    "v0.3 of the PODProfit Terms of Service. Removes references to a third-party seller-of-record arrangement ahead of the Stripe Live re-approval and the not-yet-launched Excel Template / Benchmark Report products.",
+    "v0.5 of the PODProfit Terms of Service. Lifetime 14-day cooling-off (no questions asked, no launch-count gate) and explicit no-proration of Pro Monthly / Pro Annual subscriptions. Retains the v0.4 codification of permanent priority early access for Lifetime supporters.",
   alternates: {
     canonical: "/legal/terms",
   },
@@ -15,13 +15,13 @@ export default function TermsPage() {
     <article>
       <h1>Terms of Service</h1>
       <p>
-        <em>Last updated: 2026-05-11 · Version 0.3</em>
+        <em>Last updated: 2026-05-11 · Version 0.5</em>
       </p>
 
       <p>
         <strong>Effective date</strong>: 2026-05-11
         <br />
-        <strong>Version</strong>: 0.3 (third-party seller-of-record references removed)
+        <strong>Version</strong>: 0.5 (Lifetime 14-day cooling-off; no-proration of Pro subscriptions)
         <br />
         <strong>Operator</strong>: Satsuki Okazaki (sole proprietor), 8F MIEUX Shibuya Building,
         5-3 Maruyama-cho, Shibuya-ku, Tokyo 150-0044, Japan
@@ -31,17 +31,22 @@ export default function TermsPage() {
 
       <blockquote>
         <p>
-          <strong>About this version</strong>: This is the v0.3 revision of the v0.1 baseline
-          (originally drafted for the launch of getpodprofit.com on 2026-06-09). v0.2 added the{" "}
-          <strong>Pro Annual ($79/year)</strong> plan. v0.3 removes all references to a
-          previously named third-party seller-of-record arrangement; the Excel Template and
-          Benchmark Report products are not yet on sale (planned 2026-07-23 and 2026-08-20), so
-          processor-specific contractual language for those products is being deferred to a
-          later revision published before each of those launches. The document will still be
-          revised to v1.0 before the Excel Template launch on 2026-07-23 to incorporate
-          external counsel review and to expand the EULA and refund language for the Excel
-          Template and Benchmark Report. Material changes will be communicated by email at
-          least 30 days in advance.
+          <strong>About this version</strong>: This is the v0.5 revision of the v0.1 baseline.
+          v0.2 added the <strong>Pro Annual ($79/year)</strong> plan; v0.3 removed references
+          to a previously named third-party seller-of-record arrangement; v0.4 codified the
+          permanent priority early access commitment for Lifetime supporters (§5.1) which is{" "}
+          <strong>retained unchanged</strong> in v0.5. <strong>v0.5 updates the cooling-off /
+          refund regime</strong>: Lifetime is now refundable within{" "}
+          <strong>14 days</strong> of purchase (raised from 7), and the previous &quot;zero
+          calculator launches&quot; condition has been removed. The change aligns with the UK
+          Consumer Contracts (Information, Cancellation and Additional Charges) Regulations
+          2013 and the EU Consumer Rights Directive 2011/83/EU 14-day cooling-off standard,
+          extended to all customers worldwide regardless of jurisdiction. v0.5 also makes the
+          no-proration rule for Pro Monthly and Pro Annual <strong>explicit</strong> in §5
+          and §7. The document will still be revised to v1.0 before the Excel Template launch
+          on 2026-07-23 to incorporate external counsel review and to expand the EULA and
+          refund language for the Excel Template and Benchmark Report. Material changes will
+          be communicated by email at least 30 days in advance.
         </p>
       </blockquote>
 
@@ -157,6 +162,18 @@ export default function TermsPage() {
           Future <strong>PODProfit Pro tools</strong> released under the PODProfit brand during the
           lifetime of the service
         </li>
+        <li>
+          <strong>
+            Permanent priority early access (β invitations) to every future product released by
+            the operator
+          </strong>{" "}
+          — including products published under a different brand (for example, Phase 2-N
+          products under separate brands). Lifetime supporters receive β invitations ahead of
+          the public waitlist for the duration they hold their seat. &quot;Priority access&quot;
+          means an invitation to a private β before public sign-up opens; it is{" "}
+          <strong>not</strong> a free licence to those separate-brand products (those products
+          are sold under their own pricing — see Section 5.1, &quot;Not included&quot;).
+        </li>
       </ul>
       <p>
         <strong>Not included</strong> in the Lifetime plan:
@@ -185,8 +202,12 @@ export default function TermsPage() {
       <h3>5.2 Pro Monthly ($9/month, Stripe)</h3>
       <p>
         A recurring subscription that grants access to Pro features (saved calculations, exports,
-        priority support) for the named account holder for the period paid for. Cancel at any time
-        from the account page; access continues until the end of the current paid period.
+        priority support) for the named account holder for the period paid for. You can cancel at
+        any time from the <strong>Stripe Customer Portal</strong> (linked from your account page);
+        cancellation stops future billing immediately, and access continues to the end of the
+        current paid billing period. <strong>Pro Monthly is not pro-rated</strong>: cancelling
+        mid-cycle does not, by itself, trigger a refund of the unused portion of the current
+        period (see §7.2).
       </p>
 
       <h3>5.3 Pro Annual ($79/year, Stripe)</h3>
@@ -194,8 +215,11 @@ export default function TermsPage() {
         A recurring annual subscription that grants the same Pro feature set as Pro Monthly (saved
         calculations, exports, priority support), billed yearly in a single charge. Pro Annual
         saves you a meaningful amount compared with paying month-by-month at the Pro Monthly rate.
-        Cancel at any time from the account page; cancellation stops auto-renewal at the end of the
-        current paid year, and access continues until the end of that paid year.
+        You can cancel at any time from the <strong>Stripe Customer Portal</strong> (linked from
+        your account page); cancellation stops auto-renewal immediately, and access continues to
+        the end of the current paid year. <strong>Pro Annual is not pro-rated</strong>:
+        cancelling mid-year does not, by itself, trigger a refund of the unused portion of the
+        current year (see §7.3).
       </p>
 
       <h3>5.4 PODProfit Excel Template (planned 2026-07-23)</h3>
@@ -673,6 +697,20 @@ export default function TermsPage() {
                 products will be reintroduced in a later revision before each launch. See
                 docs/adr/0002 for context. No changes to refund timeframes, EULA scope,
                 governing law, or any other substantive obligation.
+              </td>
+            </tr>
+            <tr>
+              <td>0.4</td>
+              <td>2026-05-11</td>
+              <td>
+                Section 5.1 (Lifetime): codifies <strong>permanent priority early access (β
+                invitations) to every future product released by the operator</strong>, including
+                products published under a different brand. Previously this commitment lived
+                only in marketing copy on /about and /pricing; v0.4 makes it a contractual term
+                of the Lifetime licence. No changes to refund timeframes, EULA scope, governing
+                law, payment terms, or any other substantive obligation. The commitment is
+                permanent for the duration the Lifetime supporter holds their seat and survives
+                any future change in operator branding.
               </td>
             </tr>
           </tbody>
