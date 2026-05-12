@@ -104,8 +104,31 @@ export function AboutPersonOrgJsonLd({
         },
         contactPoint: {
           "@type": "ContactPoint",
+          // E.164 wire format required by schema.org ContactPoint.telephone.
+          // See src/lib/contact.ts for provenance.
+          telephone: "+815068802598",
           email: "hello@getpodprofit.com",
           contactType: "customer support",
+          areaServed: "Worldwide",
+          availableLanguage: ["en", "ja"],
+          hoursAvailable: {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: [
+              "https://schema.org/Monday",
+              "https://schema.org/Tuesday",
+              "https://schema.org/Wednesday",
+              "https://schema.org/Thursday",
+              "https://schema.org/Friday",
+            ],
+            opens: "10:00",
+            closes: "18:00",
+            // Japan Standard Time — UTC+09:00, no DST.
+            // schema.org expects ISO-8601 local time with no offset; the
+            // canonical convention is to set `timeZone` separately.
+            // OpeningHoursSpecification does not have a `timeZone` field,
+            // so we encode JST in the human-readable text on /legal/tokushoho
+            // instead. Phone hours are advisory; email is the SLA channel.
+          },
         },
       },
     ],

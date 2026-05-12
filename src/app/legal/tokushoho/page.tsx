@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import {
+  SUPPORT_EMAIL,
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_HOURS_JA,
+} from "@/lib/contact";
 
 const URL_CANONICAL = "https://getpodprofit.com/legal/tokushoho";
 
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記",
   description:
-    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先・販売価格・支払方法・返金規定 (v1.4: Lifetime 14日 cooling-off / Pro 日割り返金不可) の開示。",
+    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先 (電話番号・メール)・販売価格・支払方法・返金規定 (v1.5: Lifetime 14日 cooling-off / Pro 日割り返金不可) の開示。",
   alternates: { canonical: URL_CANONICAL },
 };
 
@@ -14,7 +19,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-11 / バージョン: 1.4</em>
+        <em>最終更新日: 2026-05-12 / バージョン: 1.5</em>
       </p>
 
       <p>
@@ -50,21 +55,35 @@ export default function TokushohoPage() {
           <tr>
             <td>メール</td>
             <td>
-              <code>hello@getpodprofit.com</code>
+              <code>{SUPPORT_EMAIL}</code>
             </td>
           </tr>
           <tr>
             <td>電話番号</td>
-            <td>記載をご希望の方は上記メールアドレスまでご請求ください。</td>
+            <td>
+              <a href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/-/g, "")}`}>
+                {SUPPORT_PHONE_DISPLAY}
+              </a>
+              <br />
+              <em>{SUPPORT_PHONE_HOURS_JA}</em>
+            </td>
           </tr>
           <tr>
             <td>営業時間</td>
             <td>
-              メール対応のみ。原則 3 営業日以内 (繁忙時 7 営業日以内) に返信。
+              電話: 平日 10:00-18:00 JST / メール: 24 時間受付・原則 3
+              営業日以内 (繁忙時 7 営業日以内) に返信。
             </td>
           </tr>
         </tbody>
       </table>
+      <p>
+        <em>
+          ※ 電話受付は My050 (株式会社ブラステル提供) の IP 電話を利用しています。
+          通信状況により稀に着信できない場合がございますので、確実な連絡をご希望の
+          場合は上記メールアドレスをご利用ください。
+        </em>
+      </p>
 
       <h2 id="prices">販売価格</h2>
       <table>

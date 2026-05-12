@@ -5,11 +5,16 @@ import TokushohoPage, { metadata } from "@/app/legal/tokushoho/page";
 /**
  * /legal/tokushoho is the JP-mandated 特定商取引法 disclosure page. The
  * exact phrasing of certain clauses is contractual — Stripe review reads
- * this surface, and we have a v1.4 set of Legal-recommended fixes (PODP-50
- * + 2026-05-11 cooling-off policy update) that need to land before
- * re-submission.
+ * this surface, and we have a v1.5 set of Legal-recommended fixes
+ * (PODP-50 + 2026-05-11 cooling-off policy update + PODP-33 phone number
+ * publication on 2026-05-12) that need to land before re-submission.
  *
- * v1.4 (2026-05-11) realigns the Tokushoho refund section with the
+ * v1.5 (2026-05-12) adds the My050 IP phone number `050-6880-2598` to
+ * the 連絡先 table, satisfying the UK CCR 2013 Reg 13(1)(b) and EU CRD
+ * 2011/83/EU Art 6(1)(c) requirement to publish a working telephone
+ * number in the pre-contract disclosure.
+ *
+ * v1.4 (2026-05-11) realigned the Tokushoho refund section with the
  * CEO-confirmed cooling-off policy:
  *   - Lifetime: 14-day unconditional refund (no launches gate)
  *   - Pro Monthly / Pro Annual: no-proration, access continues to
@@ -31,7 +36,7 @@ function renderToText(node: React.ReactNode): string {
   return "";
 }
 
-describe("/legal/tokushoho v1.4 metadata", () => {
+describe("/legal/tokushoho v1.5 metadata", () => {
   it("declares the canonical Tokushoho URL", () => {
     expect(metadata.alternates?.canonical).toBe(
       "https://getpodprofit.com/legal/tokushoho",
@@ -42,25 +47,25 @@ describe("/legal/tokushoho v1.4 metadata", () => {
     expect(metadata.title).toBe("特定商取引法に基づく表記");
   });
 
-  it("surfaces the v1.4 cooling-off / no-proration summary in the metadata description", () => {
-    // The description is the Stripe-review-readable summary; v1.4 must
+  it("surfaces the v1.5 cooling-off / no-proration summary in the metadata description", () => {
+    // The description is the Stripe-review-readable summary; v1.5 must
     // surface both the Lifetime 14-day cooling-off and the Pro
     // no-proration commitment so reviewers can see what changed at a
     // glance without opening the page.
     expect(typeof metadata.description).toBe("string");
-    expect(metadata.description).toContain("v1.4");
+    expect(metadata.description).toContain("v1.5");
     expect(metadata.description).toMatch(/14日|14 日/);
     expect(metadata.description).toContain("cooling-off");
     expect(metadata.description).toContain("日割り");
   });
 });
 
-describe("/legal/tokushoho v1.4 content (PODP-50 + 2026-05-11 cooling-off update)", () => {
+describe("/legal/tokushoho v1.5 content (PODP-50 + 2026-05-11 cooling-off + PODP-33 phone)", () => {
   const text = renderToText(TokushohoPage());
 
-  it("publishes the v1.4 / 2026-05-11 stamp (matches the rest of the legal set)", () => {
-    expect(text).toContain("最終更新日: 2026-05-11");
-    expect(text).toContain("バージョン: 1.4");
+  it("publishes the v1.5 / 2026-05-12 stamp (matches the rest of the legal set)", () => {
+    expect(text).toContain("最終更新日: 2026-05-12");
+    expect(text).toContain("バージョン: 1.5");
   });
 
   it("strengthens 販売事業者 with the trade name (推奨-3)", () => {
@@ -189,5 +194,38 @@ describe("/legal/tokushoho v1.4 content (PODP-50 + 2026-05-11 cooling-off update
     expect(text).toContain("特定商取引法第15条の3");
     expect(text).toContain("適用されません");
     expect(text).toMatch(/任意の\s*14\s*日間\s*cooling-off/);
+  });
+
+  // ────────────────────────────────────────────────────────────────
+  // v1.5 phone-number publication (PODP-33, 2026-05-12)
+  // CEO acquired the My050 (Brastel) IP number 050-6880-2598 on
+  // 2026-05-12. UK CCR 2013 Reg 13(1)(b) and EU CRD 2011/83/EU Art
+  // 6(1)(c) both require a working telephone number in the
+  // pre-contract disclosure, and Stripe risk-review reads this
+  // surface. The previous "請求すれば開示" stance is being replaced
+  // with explicit publication.
+  // ────────────────────────────────────────────────────────────────
+
+  it("[v1.5] publishes the My050 IP phone number in the 連絡先 table (UK CCR Reg 13(1)(b))", () => {
+    // Display format with hyphens is the human-facing canonical
+    // string; the click-to-call href is hyphen-stripped separately.
+    expect(text).toContain("050-6880-2598");
+    // Hours line must be present so consumers know mail is preferred.
+    expect(text).toContain("平日 10:00-18:00 JST");
+    expect(text).toContain("メール対応推奨");
+    // The "請求すれば開示" wording from v1.4 must be gone — UK/EU law
+    // does not accept "available on request" for a B2C SaaS.
+    expect(text).not.toContain("記載をご希望の方は上記メールアドレスまでご請求");
+  });
+
+  it("[v1.5] frames the IP number as best-effort and points to email as the SLA channel", () => {
+    // My050 is an IP phone, so occasional unreachable cases are
+    // possible. The disclosure must steer consumers toward email
+    // for time-sensitive matters without weakening the legal
+    // disclosure obligation. The carrier name is named so reviewers
+    // can verify provenance.
+    expect(text).toContain("My050");
+    expect(text).toContain("IP 電話");
+    expect(text).toMatch(/確実な連絡をご希望の\s*場合は上記メールアドレス/);
   });
 });

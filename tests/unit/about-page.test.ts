@@ -69,6 +69,43 @@ describe("/about page", () => {
     expect(org?.contactPoint?.email).toBe("hello@getpodprofit.com");
   });
 
+  it("[PODP-33] exposes the support phone in JSON-LD ContactPoint in strict E.164 form", async () => {
+    // schema.org `ContactPoint.telephone` is the surface Google + Bing read
+    // for the knowledge panel call button, and Stripe risk-review reads it
+    // to confirm the legal-page phone matches the structured signal.
+    // E.164 spec: single leading `+`, country code, subscriber number, no
+    // separators, max 15 digits. JP 050 numbers drop the leading 0.
+    const html = renderToStaticMarkup(await AboutPage());
+    const ldMatch = html.match(
+      /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
+    );
+    expect(ldMatch).not.toBeNull();
+    const ld = JSON.parse(ldMatch![1]);
+    const org = ld["@graph"].find(
+      (n: { "@type": string }) => n["@type"] === "Organization",
+    );
+    expect(org?.contactPoint?.telephone).toBe("+815068802598");
+    // Strict E.164 format guard — `+` followed by 8 to 15 digits only.
+    expect(org?.contactPoint?.telephone).toMatch(/^\+[1-9]\d{7,14}$/);
+    // Worldwide service signal + bilingual language hint so Google's
+    // multi-language knowledge panel renders correctly.
+    expect(org?.contactPoint?.areaServed).toBe("Worldwide");
+    expect(org?.contactPoint?.availableLanguage).toEqual(
+      expect.arrayContaining(["en", "ja"]),
+    );
+  });
+
+  it("[PODP-33] renders the display phone number with a tel: link on the page", async () => {
+    // The visible /about Contact block must show the human-readable
+    // 050 number, click-to-call from mobile (tel: protocol with the
+    // hyphens stripped per RFC 3966), and the bilingual hours hint
+    // so non-Japanese readers know when phone support is available.
+    const html = renderToStaticMarkup(await AboutPage());
+    expect(html).toContain("050-6880-2598");
+    expect(html).toContain('href="tel:05068802598"');
+    expect(html).toContain("Weekdays 10:00-18:00 JST");
+  });
+
   it("is included in the sitemap so Google indexes /about", () => {
     const entries = sitemap();
     const about = entries.find(

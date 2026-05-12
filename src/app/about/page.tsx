@@ -3,6 +3,10 @@ import Link from "next/link";
 import crypto from "node:crypto";
 import { AboutPersonOrgJsonLd } from "@/components/json-ld";
 import { listPublicFoundingMembers } from "@/lib/lifetime/founding-members";
+import {
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_PHONE_HOURS_EN,
+} from "@/lib/contact";
 
 const SITE_URL = "https://getpodprofit.com";
 const FOUNDER_EMAIL = "okalasworld@gmail.com";
@@ -298,6 +302,16 @@ export default async function AboutPage() {
             >
               hello@getpodprofit.com
             </a>
+            <br />
+            <a
+              href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/-/g, "")}`}
+              className="underline hover:text-brand-800 dark:hover:text-brand-300"
+            >
+              {SUPPORT_PHONE_DISPLAY}
+            </a>{" "}
+            <span className="text-stone-500 dark:text-stone-400">
+              ({SUPPORT_PHONE_HOURS_EN})
+            </span>
           </dd>
 
           <dt className="font-medium text-stone-900 dark:text-stone-100">
