@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CURRENCIES, ROWS, fmt } from "./rows";
 
 const URL =
   "https://getpodprofit.com/blog/printful-vs-printify-profit-calculator-multi-currency";
 const PUBLISHED = "2026-05-30";
-const MODIFIED = "2026-05-30";
+const MODIFIED = "2026-05-12";
 
 export const metadata: Metadata = {
   title:
     "Printful vs Printify: Real Profit Comparison Across 6 Currencies (USD, EUR, GBP, CAD, AUD, JPY) — 2026",
   description:
-    "The long-form, six-currency profit comparison between Printful and Printify. Bella+Canvas 3001, hidden subscription costs, Etsy offsite ads, FX margin — every fee itemized. Updated 2026-05-30.",
+    "The long-form, six-currency profit comparison between Printful and Printify. Bella+Canvas 3001, hidden subscription costs, Etsy offsite ads, FX margin — every fee itemized. Updated 2026-05-12.",
   alternates: { canonical: URL },
   openGraph: {
     type: "article",
@@ -129,191 +130,6 @@ const FAQ_JSONLD = {
     },
   ],
 };
-
-interface CurrencyMap {
-  USD: number;
-  EUR: number;
-  GBP: number;
-  CAD: number;
-  AUD: number;
-  JPY: number;
-}
-
-interface Row {
-  scenario: string;
-  fulfillRegion: string;
-  shipTo: string;
-  printfulNet: CurrencyMap;
-  printifyNet: CurrencyMap;
-  winner: "Printful" | "Printify" | "Tie";
-  why: string;
-}
-
-// All values stored in cents of the base currency (yen has 0 decimals).
-// Bella+Canvas 3001 white M, $24.00 USD retail, Etsy storefront, no offsite ads,
-// FX: ECB mid-market 2026-04-30. Subscriptions OFF (public-list-price baseline).
-const ROWS: Row[] = [
-  {
-    scenario: "Bella+Canvas 3001 — US seller → US buyer",
-    fulfillRegion: "Printful Charlotte / Printify Monster Digital",
-    shipTo: "US",
-    printfulNet: {
-      USD: 333,
-      EUR: 310,
-      GBP: 263,
-      CAD: 462,
-      AUD: 520,
-      JPY: 50949,
-    },
-    printifyNet: {
-      USD: 583,
-      EUR: 542,
-      GBP: 461,
-      CAD: 809,
-      AUD: 911,
-      JPY: 89199,
-    },
-    winner: "Printify",
-    why:
-      "Printify's US base cost is $2.50 lower; Etsy fees are identical at $24 retail.",
-  },
-  {
-    scenario: "Bella+Canvas 3001 — US seller → UK buyer",
-    fulfillRegion: "Printful Riga / Printify Print Geek (UK)",
-    shipTo: "UK",
-    printfulNet: {
-      USD: 410,
-      EUR: 381,
-      GBP: 324,
-      CAD: 569,
-      AUD: 640,
-      JPY: 62680,
-    },
-    printifyNet: {
-      USD: 295,
-      EUR: 274,
-      GBP: 233,
-      CAD: 410,
-      AUD: 461,
-      JPY: 45094,
-    },
-    winner: "Printful",
-    why:
-      "Riga fulfillment cuts UK shipping by ~$3 vs Printify's UK partner, flipping the verdict.",
-  },
-  {
-    scenario: "Bella+Canvas 3001 — EU seller → German buyer",
-    fulfillRegion: "Printful Riga / Printify SwiftPOD-DE",
-    shipTo: "Germany",
-    printfulNet: {
-      USD: 521,
-      EUR: 485,
-      GBP: 412,
-      CAD: 723,
-      AUD: 813,
-      JPY: 79612,
-    },
-    printifyNet: {
-      USD: 442,
-      EUR: 411,
-      GBP: 349,
-      CAD: 614,
-      AUD: 690,
-      JPY: 67555,
-    },
-    winner: "Printful",
-    why:
-      "Same as UK — Riga's EU-internal shipping is faster and cheaper than Printify's DE partner network.",
-  },
-  {
-    scenario: "Bella+Canvas 3001 — CA seller → Canadian buyer",
-    fulfillRegion: "Printful Charlotte / Printify Monster Digital → CA",
-    shipTo: "Canada",
-    printfulNet: {
-      USD: 187,
-      EUR: 174,
-      GBP: 148,
-      CAD: 260,
-      AUD: 293,
-      JPY: 28593,
-    },
-    printifyNet: {
-      USD: 425,
-      EUR: 395,
-      GBP: 335,
-      CAD: 590,
-      AUD: 664,
-      JPY: 64960,
-    },
-    winner: "Printify",
-    why:
-      "Both ship from the US; Printify's lower base cost survives the cross-border shipping uplift.",
-  },
-  {
-    scenario: "Bella+Canvas 3001 — AU seller → Australian buyer",
-    fulfillRegion: "Printful no AU facility / Printify District Photo (AU)",
-    shipTo: "Australia",
-    printfulNet: {
-      USD: -245,
-      EUR: -228,
-      GBP: -193,
-      CAD: -340,
-      AUD: -383,
-      JPY: -37466,
-    },
-    printifyNet: {
-      USD: 312,
-      EUR: 290,
-      GBP: 246,
-      CAD: 433,
-      AUD: 487,
-      JPY: 47713,
-    },
-    winner: "Printify",
-    why:
-      "Printful has no AU fulfillment partner — shipping from the US loses money on a $24 retail. Printify's District Photo AU network is the only viable option.",
-  },
-  {
-    scenario: "Bella+Canvas 3001 — JP seller → Japanese buyer",
-    fulfillRegion: "Both: shipped from US, no JP partner",
-    shipTo: "Japan",
-    printfulNet: {
-      USD: -612,
-      EUR: -569,
-      GBP: -483,
-      CAD: -849,
-      AUD: -956,
-      JPY: -93578,
-    },
-    printifyNet: {
-      USD: -380,
-      EUR: -353,
-      GBP: -300,
-      CAD: -527,
-      AUD: -593,
-      JPY: -58112,
-    },
-    winner: "Tie",
-    why:
-      "Both lose money at $24 retail shipping to Japan — JP sellers need either ¥4,800+ retail or a switch to a local POD service like Up-T / Suzuri.",
-  },
-];
-
-function fmt(
-  cents: number,
-  currency: "USD" | "EUR" | "GBP" | "CAD" | "AUD" | "JPY",
-): string {
-  const decimals = currency === "JPY" ? 0 : 2;
-  const value = cents / Math.pow(10, decimals);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value);
-}
-
-const CURRENCIES = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY"] as const;
 
 export default function CornerstoneMultiCurrencyPage() {
   return (
@@ -840,8 +656,8 @@ export default function CornerstoneMultiCurrencyPage() {
             same engine that powers <Link href="/">PODProfit&apos;s</Link>{" "}
             home page calculator. When the data refreshes on the first of
             each month, the article refreshes with it (the{" "}
-            <code>{`{date_modified}`}</code> field in the article JSON-LD
-            ticks forward automatically).
+            <code>dateModified</code> field in the article JSON-LD ticks
+            forward automatically).
           </li>
         </ul>
 
