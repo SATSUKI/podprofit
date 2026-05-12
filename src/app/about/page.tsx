@@ -3,10 +3,6 @@ import Link from "next/link";
 import crypto from "node:crypto";
 import { AboutPersonOrgJsonLd } from "@/components/json-ld";
 import { listPublicFoundingMembers } from "@/lib/lifetime/founding-members";
-import {
-  SUPPORT_PHONE_DISPLAY,
-  SUPPORT_PHONE_HOURS_EN,
-} from "@/lib/contact";
 
 const SITE_URL = "https://getpodprofit.com";
 const FOUNDER_EMAIL = "okalasworld@gmail.com";
@@ -302,16 +298,16 @@ export default async function AboutPage() {
             >
               hello@getpodprofit.com
             </a>
-            <br />
-            <a
-              href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/-/g, "")}`}
-              className="underline hover:text-brand-800 dark:hover:text-brand-300"
-            >
-              {SUPPORT_PHONE_DISPLAY}
-            </a>{" "}
-            <span className="text-stone-500 dark:text-stone-400">
-              ({SUPPORT_PHONE_HOURS_EN})
-            </span>
+            {/*
+              Phone intentionally NOT shown here. Per memory
+              `feedback_contact_channel_policy` (2026-05-12), the My050
+              number is only surfaced on /legal/tokushoho where statutory
+              disclosure mandates it (JP 特定商取引法 第11条 + UK CCR Reg
+              13(1)(b) + EU CRD Art 6(1)(c)). Every other consumer
+              surface funnels traffic to email + Web form because CEO
+              is JP-monolingual and the customer base is mostly
+              English-speaking.
+            */}
           </dd>
 
           <dt className="font-medium text-stone-900 dark:text-stone-100">

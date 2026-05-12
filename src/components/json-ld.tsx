@@ -104,31 +104,16 @@ export function AboutPersonOrgJsonLd({
         },
         contactPoint: {
           "@type": "ContactPoint",
-          // E.164 wire format required by schema.org ContactPoint.telephone.
-          // See src/lib/contact.ts for provenance.
-          telephone: "+815068802598",
+          // Email-only ContactPoint on purpose. Per memory
+          // `feedback_contact_channel_policy` (2026-05-12) the support
+          // phone is only published on /legal/tokushoho (statutory
+          // disclosure). Exposing `telephone` here would surface a
+          // call button in Google's knowledge panel and conflict with
+          // the email-first SLA, so the field is omitted along with
+          // `areaServed`, `availableLanguage`, and `hoursAvailable`
+          // (those properties only make sense alongside a phone).
           email: "hello@getpodprofit.com",
           contactType: "customer support",
-          areaServed: "Worldwide",
-          availableLanguage: ["en", "ja"],
-          hoursAvailable: {
-            "@type": "OpeningHoursSpecification",
-            dayOfWeek: [
-              "https://schema.org/Monday",
-              "https://schema.org/Tuesday",
-              "https://schema.org/Wednesday",
-              "https://schema.org/Thursday",
-              "https://schema.org/Friday",
-            ],
-            opens: "10:00",
-            closes: "18:00",
-            // Japan Standard Time — UTC+09:00, no DST.
-            // schema.org expects ISO-8601 local time with no offset; the
-            // canonical convention is to set `timeZone` separately.
-            // OpeningHoursSpecification does not have a `timeZone` field,
-            // so we encode JST in the human-readable text on /legal/tokushoho
-            // instead. Phone hours are advisory; email is the SLA channel.
-          },
         },
       },
     ],

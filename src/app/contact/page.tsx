@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "./contact-form";
-import {
-  SUPPORT_EMAIL,
-  SUPPORT_PHONE_DISPLAY,
-  SUPPORT_PHONE_HOURS_EN,
-} from "@/lib/contact";
+import { SUPPORT_EMAIL } from "@/lib/contact";
 
 const SITE_URL = "https://getpodprofit.com";
 
@@ -53,25 +49,15 @@ export default function ContactPage() {
         className="mt-5 rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm text-stone-700 dark:border-stone-800 dark:bg-stone-900/40 dark:text-stone-300"
       >
         <p>
-          Prefer another channel? You can also reach us at{" "}
+          Prefer email? You can also reach us at{" "}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="underline hover:text-brand-800 dark:hover:text-brand-300"
           >
             {SUPPORT_EMAIL}
-          </a>{" "}
-          or by phone at{" "}
-          <a
-            href={`tel:${SUPPORT_PHONE_DISPLAY.replace(/-/g, "")}`}
-            className="underline hover:text-brand-800 dark:hover:text-brand-300"
-          >
-            {SUPPORT_PHONE_DISPLAY}
-          </a>{" "}
-          <span className="text-stone-500 dark:text-stone-400">
-            ({SUPPORT_PHONE_HOURS_EN})
-          </span>
-          . Email is the recommended channel — replies are tracked end-to-end
-          and we answer faster there.
+          </a>
+          . The form above and this address arrive in the same inbox, so use
+          whichever is easier — we answer both within 3 business days.
         </p>
       </aside>
 

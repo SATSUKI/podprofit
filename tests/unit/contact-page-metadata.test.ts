@@ -28,19 +28,23 @@ describe("/contact page metadata", () => {
   });
 });
 
-describe("/contact alternative-channel aside (PODP-33)", () => {
-  it("renders the 050 phone number and a tel: link alongside the form", () => {
-    // CEO acquired the My050 number on 2026-05-12. The Contact page is
-    // the highest-intent landing surface for support traffic, so the
-    // number is exposed as an alternative channel without de-emphasising
-    // the email-first SLA. Keep the display + tel: + hours assertions
-    // in lockstep with src/lib/contact.ts.
+describe("/contact alternative-channel aside (PODP-33 follow-up)", () => {
+  it("offers email as the only alternative channel and does not surface the support phone", () => {
+    // Channel-policy update 2026-05-12 (memory
+    // `feedback_contact_channel_policy`): the support phone is only
+    // exposed on /legal/tokushoho where statutory disclosure mandates
+    // it. /contact is the highest-intent support surface and must
+    // route everything to email + the Web form — no tel: link, no
+    // display number anywhere on the page.
     const html = renderToStaticMarkup(ContactPage());
-    expect(html).toContain("050-6880-2598");
-    expect(html).toContain('href="tel:05068802598"');
-    expect(html).toContain("Weekdays 10:00-18:00 JST");
-    // The aside must still steer users toward email as the SLA-tracked
-    // channel — phone is best-effort because My050 is an IP service.
-    expect(html.toLowerCase()).toContain("email is the recommended channel");
+    expect(html).toContain("hello@getpodprofit.com");
+    expect(html).toContain("mailto:hello@getpodprofit.com");
+    expect(html).not.toContain("050-6880-2598");
+    expect(html).not.toContain("05068802598");
+    expect(html).not.toContain("tel:");
+    // The aside must still acknowledge that email + the form land in
+    // the same inbox so users don't feel they have to pick the "right"
+    // channel — keeps the 3-business-day SLA copy honest.
+    expect(html).toContain("3 business days");
   });
 });

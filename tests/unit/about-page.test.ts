@@ -69,13 +69,20 @@ describe("/about page", () => {
     expect(org?.contactPoint?.email).toBe("hello@getpodprofit.com");
   });
 
-  it("[PODP-33] exposes the support phone in JSON-LD ContactPoint in strict E.164 form", async () => {
-    // schema.org `ContactPoint.telephone` is the surface Google + Bing read
-    // for the knowledge panel call button, and Stripe risk-review reads it
-    // to confirm the legal-page phone matches the structured signal.
-    // E.164 spec: single leading `+`, country code, subscriber number, no
-    // separators, max 15 digits. JP 050 numbers drop the leading 0.
+  it("[PODP-33 follow-up] never surfaces the support phone on /about (channel-policy: email-only)", async () => {
+    // Memory `feedback_contact_channel_policy` (2026-05-12) restricts
+    // phone exposure to /legal/tokushoho (statutory disclosure only).
+    // /about must funnel visitors to email + Web form because CEO is
+    // JP-monolingual and the customer base is mostly English-speaking,
+    // and Stripe-risk review reads the JSON-LD ContactPoint for the
+    // canonical contact channel. Regression guard: no display number,
+    // no tel: link, no phone-related ContactPoint fields anywhere on
+    // the rendered page.
     const html = renderToStaticMarkup(await AboutPage());
+    expect(html).not.toContain("050-6880-2598");
+    expect(html).not.toContain("05068802598");
+    expect(html).not.toContain("+815068802598");
+    expect(html).not.toContain("tel:");
     const ldMatch = html.match(
       /<script type="application\/ld\+json">([\s\S]*?)<\/script>/,
     );
@@ -84,26 +91,13 @@ describe("/about page", () => {
     const org = ld["@graph"].find(
       (n: { "@type": string }) => n["@type"] === "Organization",
     );
-    expect(org?.contactPoint?.telephone).toBe("+815068802598");
-    // Strict E.164 format guard — `+` followed by 8 to 15 digits only.
-    expect(org?.contactPoint?.telephone).toMatch(/^\+[1-9]\d{7,14}$/);
-    // Worldwide service signal + bilingual language hint so Google's
-    // multi-language knowledge panel renders correctly.
-    expect(org?.contactPoint?.areaServed).toBe("Worldwide");
-    expect(org?.contactPoint?.availableLanguage).toEqual(
-      expect.arrayContaining(["en", "ja"]),
-    );
-  });
-
-  it("[PODP-33] renders the display phone number with a tel: link on the page", async () => {
-    // The visible /about Contact block must show the human-readable
-    // 050 number, click-to-call from mobile (tel: protocol with the
-    // hyphens stripped per RFC 3966), and the bilingual hours hint
-    // so non-Japanese readers know when phone support is available.
-    const html = renderToStaticMarkup(await AboutPage());
-    expect(html).toContain("050-6880-2598");
-    expect(html).toContain('href="tel:05068802598"');
-    expect(html).toContain("Weekdays 10:00-18:00 JST");
+    // ContactPoint stays in the graph for E-E-A-T but only as an email
+    // channel — phone-shaped properties must all be absent.
+    expect(org?.contactPoint?.email).toBe("hello@getpodprofit.com");
+    expect(org?.contactPoint?.telephone).toBeUndefined();
+    expect(org?.contactPoint?.areaServed).toBeUndefined();
+    expect(org?.contactPoint?.availableLanguage).toBeUndefined();
+    expect(org?.contactPoint?.hoursAvailable).toBeUndefined();
   });
 
   it("is included in the sitemap so Google indexes /about", () => {
