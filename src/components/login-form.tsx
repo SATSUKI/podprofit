@@ -5,7 +5,17 @@ import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { stashSignupAttribution } from "@/lib/analytics/signup-attribution";
 import { cn } from "@/lib/utils/cn";
 
-export function LoginForm() {
+interface LoginFormProps {
+  /**
+   * Optional `?next=` path to round-trip through the magic link so the
+   * callback can drop the user back where they came from (e.g. a Stripe
+   * checkout intent stashed by `/api/stripe/checkout?plan=...`). The
+   * server route validates this is a same-origin path before honoring it.
+   */
+  next?: string;
+}
+
+export function LoginForm({ next }: LoginFormProps = {}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "submitting" | "ok" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -21,10 +31,17 @@ export function LoginForm() {
       stashSignupAttribution("magic_link", document.referrer);
 
       const supabase = getBrowserSupabase();
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      // PODP-66 — preserve `?next=` across the magic-link round-trip.
+      // `emailRedirectTo` is what Supabase substitutes into the email
+      // template's `{{ .ConfirmationURL }}`, so we need to encode the
+      // intent there or the callback loses it.
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      if (next && next.startsWith("/") && !next.startsWith("//")) {
+        callbackUrl.searchParams.set("next", next);
+      }
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: redirectTo },
+        options: { emailRedirectTo: callbackUrl.toString() },
       });
       if (error) {
         setErrorMsg(error.message);

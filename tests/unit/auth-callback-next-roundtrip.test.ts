@@ -26,8 +26,13 @@ describe("/auth/callback — PODP-64 ?next= round-trip", () => {
     expect(source).toMatch(/searchParams\.get\(["']next["']\)/);
   });
 
-  it("falls back to /account when `next` is missing", () => {
-    expect(source).toMatch(/\?\?\s*["']\/account["']/);
+  it("falls back to /account when `next` is missing or unsafe", () => {
+    // PODP-66 — the route now validates `next` is a same-origin path via
+    // `isSafeNextPath` before honoring it (open-redirect guard), and falls
+    // back to "/account" otherwise. We assert on the literal default so a
+    // refactor that drops the fallback breaks here.
+    expect(source).toMatch(/["']\/account["']/);
+    expect(source).toContain("isSafeNextPath");
   });
 
   it("redirects to the resolved `next` target after exchanging the code", () => {
