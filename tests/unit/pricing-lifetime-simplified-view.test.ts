@@ -1,21 +1,28 @@
 /**
- * PODP-67 — Lifetime owners get a simplified /pricing view.
+ * PODP-67 — Lifetime owners get a CTA-suppressed /pricing view.
  *
- * The CEO's verification (2026-05-12) flagged the four-card layout
- * ("Lifetime status ✓ + Free Try + Pro Monthly Included + Pro Annual
- * Included") as overly noisy for a user who already owns the top tier.
- * The new layout for Lifetime owners is:
+ * Revision (CEO feedback, 2026-05-12): the initial PODP-67 cut hid
+ * three plan cards entirely — but Lifetime owners still need to read
+ * the full plan grid when recommending PODProfit to other people. So
+ * the cards stay visible; only the Buy CTAs disappear. Final layout
+ * for Lifetime owners:
  *
  *   1. Hero header rewritten to "You're a Lifetime member."
- *   2. A single member-status card with a one-line summary explaining
- *      they have permanent access to all current + future products.
- *   3. A "Manage account →" link routing to /account.
- *   4. No Pro / Free / Lifetime "Buy" cards.
- *   5. No "Notify me when Pro launches" email signup.
- *   6. No refund-policy footnote (irrelevant for a Lifetime member).
+ *      + permanent-access summary line.
+ *   2. A "Manage account →" banner link routing to /account.
+ *   3. The full four-card plan grid (Free / Pro Monthly / Pro Annual /
+ *      Lifetime), with:
+ *        - Free card keeps its "Try now" link (calculator is free for
+ *          everyone, including Lifetime owners — not noise).
+ *        - Pro Monthly / Pro Annual show "Included with Lifetime" as
+ *          the availability line and have no Buy button.
+ *        - Lifetime shows "You're a Lifetime member ✓" and has no Buy
+ *          button.
+ *   4. No "Notify me when Pro launches" email signup.
+ *   5. No refund-policy footnote.
  *
  * Non-Lifetime visitors (anonymous, Free, Pro subscribers) must keep
- * the existing four-card grid — that path is covered by
+ * the existing CTA paths — that path is covered by
  * `pricing-lifetime-owner-gate.test.ts` and we only sanity-check the
  * regression direction here.
  */
@@ -69,7 +76,7 @@ describe("/pricing PODP-67 simplified Lifetime-owner view", () => {
     process.env.NEXT_PUBLIC_LAUNCH_DATE = "2000-01-01";
   });
 
-  it("renders only the member-status card + summary line + Manage account link", async () => {
+  it("renders the full four-card grid + member-status banner with no Buy CTAs", async () => {
     ssrMock.mockResolvedValue(authedSsr("user_owns_lifetime"));
     snapshotMock.mockResolvedValue({
       stripeCustomerId: "cus_X",
@@ -80,30 +87,46 @@ describe("/pricing PODP-67 simplified Lifetime-owner view", () => {
     const html = renderToStaticMarkup(await PricingPage());
 
     // Hero rewritten for Lifetime owners. renderToStaticMarkup escapes
-    // the JS-literal apostrophe in the h1 to `&#x27;`, while the JSX
-    // entity `&rsquo;` in the member-status card renders as the literal
-    // U+2019 right-single-quote (’). Both flavours are asserted below.
+    // the JS-literal apostrophe in the h1 to `&#x27;`, while the
+    // Lifetime card's availability line keeps the literal apostrophe.
     expect(html).toContain("You&#x27;re a Lifetime member.");
-    expect(html).toContain("You’re a Lifetime member ✓");
     // The one-line summary from the spec.
     expect(html).toContain(
       "You have permanent access to all current and future PODProfit products. No additional plans needed.",
     );
-    // Manage account → /account link is present.
+    // Manage account → /account banner link is present.
     expect(html).toContain("Manage account");
     expect(html).toContain('href="/account"');
+    expect(html).toContain('data-testid="lifetime-manage-account"');
 
-    // The three other plan cards must not render.
-    expect(html).not.toContain(">Free</h3>");
-    expect(html).not.toContain(">Pro Monthly</h3>");
-    expect(html).not.toContain(">Pro Annual</h3>");
+    // All four plan cards must still render so the Lifetime owner can
+    // reference them when recommending PODProfit to other people.
+    expect(html).toContain(">Free</h3>");
+    expect(html).toContain(">Pro Monthly</h3>");
+    expect(html).toContain(">Pro Annual</h3>");
+    expect(html).toContain(">Lifetime</h3>");
 
-    // No checkout URLs for any plan (Lifetime owners cannot re-buy).
+    // Free card keeps its "Try now" link — the calculator is free for
+    // everyone, including Lifetime owners.
+    expect(html).toContain("Try now");
+
+    // Pro Monthly / Pro Annual show "Included with Lifetime" in place
+    // of a Buy button.
+    expect(html).toContain("Included with Lifetime");
+
+    // Lifetime card shows the member-status line as its availability.
+    expect(html).toContain("You&#x27;re a Lifetime member ✓");
+
+    // No checkout URLs for any paid plan (Lifetime owners cannot
+    // re-buy and Pro Subscribe must stay suppressed).
     expect(html).not.toContain("/api/stripe/checkout?plan=");
     // No Pro-launch notify form.
     expect(html).not.toContain('id="notify-pro"');
     // No refund-policy footnote.
     expect(html).not.toContain("Lifetime within 14 days");
+    // The PlanCard "No signup required" fallback must NOT leak onto
+    // the Pro/Lifetime cards just because their CTAs are absent.
+    expect(html).not.toContain("No signup required");
   });
 
   it("keeps the four-card layout for anonymous visitors (regression guard)", async () => {

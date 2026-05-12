@@ -80,8 +80,11 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
 
     // The Stripe Lifetime checkout URL must NOT be on the page.
     expect(html).not.toContain("/api/stripe/checkout?plan=lifetime");
-    // The member-status card confirms membership instead (PODP-67).
-    expect(html).toContain("You’re a Lifetime member");
+    // The Hero copy + Lifetime card availability line confirm
+    // membership instead (PODP-67). renderToStaticMarkup escapes the
+    // JS-literal apostrophe to `&#x27;`.
+    expect(html).toContain("You&#x27;re a Lifetime member.");
+    expect(html).toContain("You&#x27;re a Lifetime member ✓");
   });
 
   it("renders the Lifetime Buy CTA for anonymous visitors (regression guard)", async () => {
@@ -124,7 +127,7 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
     expect(html).toContain("/api/stripe/checkout?plan=lifetime");
   });
 
-  it("hides the Free / Pro Monthly / Pro Annual cards entirely when the user owns Lifetime (PODP-67)", async () => {
+  it("keeps all four plan cards visible but strips Buy CTAs when the user owns Lifetime (PODP-67 revision)", async () => {
     ssrMock.mockResolvedValue(authedSsr("user_owns_lifetime"));
     snapshotMock.mockResolvedValue({
       stripeCustomerId: "cus_X",
@@ -134,21 +137,34 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
 
     const html = renderToStaticMarkup(await PricingPage());
 
-    // PODP-67: the other three plan cards collapse into a single
-    // member-status card + "Manage account →" link. No Pro/Free CTAs.
+    // PODP-67 (revision, 2026-05-12): Lifetime owners still need to see
+    // the full plan grid so they can reference plans when recommending
+    // PODProfit. So the cards stay visible — only the Buy CTAs are
+    // suppressed, replaced by status lines on each card.
+    expect(html).toContain(">Free</h3>");
+    expect(html).toContain(">Pro Monthly</h3>");
+    expect(html).toContain(">Pro Annual</h3>");
+    expect(html).toContain(">Lifetime</h3>");
+
+    // None of the paid-plan checkout URLs may appear.
     expect(html).not.toContain("/api/stripe/checkout?plan=pro_monthly");
     expect(html).not.toContain("/api/stripe/checkout?plan=pro_yearly");
     expect(html).not.toContain("/api/stripe/checkout?plan=lifetime");
-    // The legacy "Included with Lifetime" availability copy is gone —
-    // it lived on the Pro Monthly / Pro Annual cards which we now hide.
-    expect(html).not.toContain("Included with Lifetime");
-    // The Pro-notify email signup is also suppressed for Lifetime
+
+    // The Pro Monthly / Pro Annual availability line communicates that
+    // Lifetime bundles them — this copy is now expected (not banned).
+    expect(html).toContain("Included with Lifetime");
+    // Lifetime card availability line confirms membership.
+    expect(html).toContain("You&#x27;re a Lifetime member ✓");
+
+    // The Pro-notify email signup is still suppressed for Lifetime
     // owners (no notify-pro anchor).
     expect(html).not.toContain('id="notify-pro"');
-    // Member-status card + Manage account link are present.
-    expect(html).toContain("You’re a Lifetime member");
+
+    // "Manage account →" banner link is present above the grid.
     expect(html).toContain("Manage account");
     expect(html).toContain('href="/account"');
+    expect(html).toContain('data-testid="lifetime-manage-account"');
   });
 
   it("falls back to anonymous CTAs when SSR / snapshot throws (no per-user gating crash)", async () => {

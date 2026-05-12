@@ -149,31 +149,22 @@ export default async function PricingPage() {
       </header>
 
       {ownsLifetime ? (
-        // PODP-67: Lifetime owners only see their member-status card +
-        // an Account link. The other three plan cards (Free / Pro
-        // Monthly / Pro Annual) are noise to a Lifetime member, who
-        // already has access to everything those plans bundle.
-        <section
-          aria-label="Lifetime membership"
-          className="mx-auto w-full max-w-xl"
+        // PODP-67 (revision, 2026-05-12): Lifetime owners keep the full
+        // four-card grid so they can still reference plan details when
+        // recommending PODProfit to others. Only the Buy CTAs are
+        // suppressed and replaced with a status line ("Included with
+        // Lifetime" / "You're a Lifetime member ✓"). A separate
+        // "Manage account →" banner above the grid gives them the
+        // single relevant action.
+        <Link
+          href="/account"
+          className="mx-auto inline-flex items-center justify-center self-center rounded-lg bg-brand-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+          data-testid="lifetime-manage-account"
         >
-          <div className="flex flex-col rounded-2xl border border-brand-800 bg-brand-50 p-8 text-center shadow-sm dark:border-brand-400 dark:bg-brand-900/30">
-            <h2 className="text-2xl font-semibold">
-              You&rsquo;re a Lifetime member ✓
-            </h2>
-            <p className="mt-3 text-sm text-stone-700 dark:text-stone-300">
-              Thank you for being a founding member. Your seat is permanent —
-              all current and future PODProfit features are included.
-            </p>
-            <Link
-              href="/account"
-              className="mt-6 inline-flex items-center justify-center self-center rounded-lg bg-brand-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
-            >
-              Manage account &rarr;
-            </Link>
-          </div>
-        </section>
-      ) : (
+          Manage account &rarr;
+        </Link>
+      ) : null}
+
       <section
         aria-label="Plans"
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
@@ -190,6 +181,9 @@ export default async function PricingPage() {
             "Share-able URLs with dynamic preview images",
             "No account, no rate limit",
           ]}
+          // PODP-67 (revision): keep the Free "Try now" CTA for Lifetime
+          // owners too — the calculator itself is the product, so it's
+          // not noise to let them jump in from this card.
           ctaHref="/"
           ctaLabel="Try now"
           ctaVariant="outline"
@@ -215,9 +209,13 @@ export default async function PricingPage() {
             "Pause subscription up to 3 months",
             "Email support",
           ]}
+          // PODP-67 (revision): Lifetime owners see no Buy CTA — just
+          // the "Included with Lifetime" availability line above. We
+          // omit ctaHref entirely so `PlanCard` renders the static
+          // status state instead of a link.
           ctaHref={
             ownsLifetime
-              ? "/account"
+              ? undefined
               : ownsPro
                 ? "/api/stripe/portal"
                 : proCtaActive
@@ -226,7 +224,7 @@ export default async function PricingPage() {
           }
           ctaLabel={
             ownsLifetime
-              ? "You have Lifetime"
+              ? undefined
               : ownsPro
                 ? "Manage subscription"
                 : proCtaActive
@@ -240,6 +238,7 @@ export default async function PricingPage() {
               ? "Sign-in required"
               : undefined
           }
+          statusOnly={ownsLifetime}
         />
         <PlanCard
           name="Pro Annual"
@@ -261,9 +260,11 @@ export default async function PricingPage() {
             "Locked-in pricing for 12 months",
             "Email support",
           ]}
+          // PODP-67 (revision): mirror of Pro Monthly — Lifetime owners
+          // get the status line, no Buy link.
           ctaHref={
             ownsLifetime
-              ? "/account"
+              ? undefined
               : ownsPro
                 ? "/api/stripe/portal"
                 : proCtaActive
@@ -272,7 +273,7 @@ export default async function PricingPage() {
           }
           ctaLabel={
             ownsLifetime
-              ? "You have Lifetime"
+              ? undefined
               : ownsPro
                 ? "Manage subscription"
                 : proCtaActive
@@ -286,6 +287,7 @@ export default async function PricingPage() {
               ? "Sign-in required"
               : undefined
           }
+          statusOnly={ownsLifetime}
         />
         <PlanCard
           name="Lifetime"
@@ -293,7 +295,7 @@ export default async function PricingPage() {
           priceUnit="one-time"
           availability={
             ownsLifetime
-              ? "You're a Lifetime member"
+              ? "You're a Lifetime member ✓"
               : remaining > 0
                 ? `Available now — ${remaining} of ${lifetime.capacity} seats remaining`
                 : "All seats claimed"
@@ -310,19 +312,21 @@ export default async function PricingPage() {
             "Permanent priority early access to every future product (β invites for Phase 2-N)",
             "One-time payment, no subscription",
           ]}
-          // PODP-62: Lifetime owners must NEVER see a Buy CTA on the
-          // Lifetime card. We route them to /account so they can see
-          // their seat number; the Buy button is suppressed entirely.
+          // PODP-62 + PODP-67 (revision): Lifetime owners must NEVER see
+          // a Buy CTA on the Lifetime card. We suppress both ctaHref and
+          // ctaLabel so the Buy button disappears entirely — membership
+          // is communicated via the availability line above and the
+          // "Manage account →" banner outside the grid.
           ctaHref={
             ownsLifetime
-              ? "/account"
+              ? undefined
               : remaining > 0
                 ? "/api/stripe/checkout?plan=lifetime"
                 : undefined
           }
           ctaLabel={
             ownsLifetime
-              ? "You're a Lifetime member ✓"
+              ? undefined
               : remaining > 0
                 ? "Reserve seat"
                 : "Sold out"
@@ -335,9 +339,9 @@ export default async function PricingPage() {
               ? "Sign-in required"
               : undefined
           }
+          statusOnly={ownsLifetime}
         />
       </section>
-      )}
 
       {/*
         PODP-67: Lifetime owners skip the Pro-notify signup and the
@@ -391,6 +395,7 @@ function PlanCard({
   ctaVariant = "outline",
   highlighted,
   ctaHint,
+  statusOnly,
 }: {
   name: string;
   price: string;
@@ -410,6 +415,16 @@ function PlanCard({
    * coming when they click Buy.
    */
   ctaHint?: string;
+  /**
+   * PODP-67 (revision, 2026-05-12): when true, the card omits the CTA
+   * area entirely (no button, no "No signup required" fallback text).
+   * Used for Lifetime owners on the Pro/Lifetime cards so the only
+   * affordance is the availability line ("Included with Lifetime" /
+   * "You're a Lifetime member ✓") above. The card itself stays visible
+   * so a Lifetime owner can still reference plan details when sharing
+   * PODProfit with someone else.
+   */
+  statusOnly?: boolean;
 }) {
   return (
     <div
@@ -443,7 +458,12 @@ function PlanCard({
           </li>
         ))}
       </ul>
-      {ctaHref && ctaLabel ? (
+      {statusOnly ? (
+        // PODP-67 (revision): Lifetime-owner view on the Pro / Lifetime
+        // cards — CTA area is intentionally empty. The availability line
+        // above already carries the only message they need.
+        null
+      ) : ctaHref && ctaLabel ? (
         ctaDisabled ? (
           // PODP-39: pre-launch disabled state. Visually inactive (no
           // hover, muted palette) but still a real <Link> when ctaHref
