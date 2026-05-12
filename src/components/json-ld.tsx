@@ -84,7 +84,17 @@ export function AboutPersonOrgJsonLd({
         "@id": `${SITE_URL}/about#founder`,
         name: "Satsuki Okazaki",
         url: `${SITE_URL}/about`,
-        sameAs: ["https://x.com/o_satsuki", githubUrl],
+        // X (Twitter) is intentionally absent from `sameAs`.
+        // Per memory `user_founder_identity` (2026-05-12) the active X
+        // handle is `@lastarna` — a Japanese-language personal account
+        // mismatched with PODProfit's English-speaking POD-seller
+        // audience. The previously-listed `https://x.com/o_satsuki` URL
+        // pointed at a Reddit handle that is permanently banned (Reddit
+        // 2026-05-04) and was never an actual X account; surfacing it
+        // in JSON-LD let knowledge-graph crawlers resolve a dead link.
+        // GitHub is the only first-party identity surface we want
+        // crawlers to follow from this page.
+        sameAs: [githubUrl],
         jobTitle: "Founder",
         worksFor: { "@id": `${SITE_URL}/#organization` },
       },

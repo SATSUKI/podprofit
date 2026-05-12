@@ -59,11 +59,22 @@ describe("/about page", () => {
       (n: { "@type": string }) => n["@type"] === "Organization",
     );
     expect(person?.name).toBe("Satsuki Okazaki");
-    expect(person?.sameAs).toContain("https://x.com/o_satsuki");
     // GitHub URL must be in sameAs so search engines can build a knowledge panel.
     expect(
       person?.sameAs.some((u: string) => u.includes("github.com")),
     ).toBe(true);
+    // X (Twitter) MUST NOT appear in sameAs. Per memory
+    // `user_founder_identity` (2026-05-12) the active handle `@lastarna`
+    // is a Japanese-language personal account mismatched with
+    // PODProfit's English audience, and the previously-listed
+    // `https://x.com/o_satsuki` was a stale carry-over pointing at a
+    // banned Reddit handle that never existed on X. Regression guard so
+    // a future copy-paste doesn't re-introduce a dead identity link.
+    expect(
+      person?.sameAs.some((u: string) =>
+        /(?:x|twitter)\.com/.test(u),
+      ),
+    ).toBe(false);
     expect(org?.name).toBe("PODProfit");
     expect(org?.address?.addressCountry).toBe("JP");
     expect(org?.contactPoint?.email).toBe("hello@getpodprofit.com");

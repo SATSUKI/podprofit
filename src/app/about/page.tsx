@@ -9,7 +9,17 @@ const FOUNDER_EMAIL = "okalasworld@gmail.com";
 // Footer keeps the canonical GitHub URL — duplicating here on purpose so the
 // JSON-LD `sameAs` doesn't have to import a React component to read a string.
 const GITHUB_URL = "https://github.com/SATSUKI/podprofit";
-const X_URL = "https://x.com/o_satsuki";
+// X (Twitter) is intentionally omitted from this page and JSON-LD `sameAs`.
+// Per memory `user_founder_identity` + `feedback_no_continuous_sns` (2026-05-12):
+//   - The active X handle is @lastarna (a Japanese-language personal account),
+//     mismatched with PODProfit's English-speaking POD-seller audience.
+//   - The previously-listed `@o_satsuki` Reddit handle is permanently banned
+//     (Reddit 2026-05-04) and is not a Twitter/X handle either — that line
+//     was a stale carry-over from an earlier draft and surfaced an account
+//     that does not exist on X.
+//   - SNS continuous operation is dropped from the launch strategy; HN/IH are
+//     the only launch channels, so exposing any X handle on /about would add
+//     a dead link to a Stripe-risk-review surface for zero discoverability win.
 
 /**
  * Gravatar URL for the founder photo.
@@ -121,14 +131,6 @@ export default async function AboutPage() {
               Founder &amp; Solo developer
             </p>
             <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <a
-                href={X_URL}
-                rel="me noopener"
-                target="_blank"
-                className="underline hover:text-brand-800 dark:hover:text-brand-300"
-              >
-                X (@o_satsuki)
-              </a>
               <a
                 href={GITHUB_URL}
                 rel="me noopener"
