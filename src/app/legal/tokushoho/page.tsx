@@ -10,7 +10,7 @@ const URL_CANONICAL = "https://getpodprofit.com/legal/tokushoho";
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記",
   description:
-    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先 (電話番号・メール)・販売価格・支払方法・返金規定 (v1.5: Lifetime 14日 cooling-off / Pro 日割り返金不可) の開示。",
+    "PODProfit (運営者: 岡崎五月) の特定商取引法に基づく表記。販売事業者情報・所在地・連絡先 (電話番号・メール)・販売価格・支払方法・返金規定 (v1.6: Lifetime 14日 cooling-off / Pro 日割り返金不可 / 電話対応は日本語のみ・英語問い合わせはメール) の開示。",
   alternates: { canonical: URL_CANONICAL },
 };
 
@@ -19,7 +19,7 @@ export default function TokushohoPage() {
     <article>
       <h1>特定商取引法に基づく表記</h1>
       <p>
-        <em>最終更新日: 2026-05-12 / バージョン: 1.5</em>
+        <em>最終更新日: 2026-05-12 / バージョン: 1.6</em>
       </p>
 
       <p>
@@ -82,6 +82,16 @@ export default function TokushohoPage() {
           ※ 電話受付は My050 (株式会社ブラステル提供) の IP 電話を利用しています。
           通信状況により稀に着信できない場合がございますので、確実な連絡をご希望の
           場合は上記メールアドレスをご利用ください。
+        </em>
+      </p>
+      <p>
+        <em>
+          ※ <strong>電話対応は日本語のみ</strong>となります。英語
+          (English) でのお問い合わせは上記メールアドレス (
+          <code>{SUPPORT_EMAIL}</code>) までご連絡ください。
+          <br />
+          Phone support is available in <strong>Japanese only</strong>. For
+          inquiries in English, please email <code>{SUPPORT_EMAIL}</code>.
         </em>
       </p>
 

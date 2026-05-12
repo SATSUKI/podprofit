@@ -5,9 +5,20 @@ import TokushohoPage, { metadata } from "@/app/legal/tokushoho/page";
 /**
  * /legal/tokushoho is the JP-mandated 特定商取引法 disclosure page. The
  * exact phrasing of certain clauses is contractual — Stripe review reads
- * this surface, and we have a v1.5 set of Legal-recommended fixes
+ * this surface, and we have a v1.6 set of Legal-recommended fixes
  * (PODP-50 + 2026-05-11 cooling-off policy update + PODP-33 phone number
- * publication on 2026-05-12) that need to land before re-submission.
+ * publication on 2026-05-12 + PODP-33 final Japanese-only phone note on
+ * 2026-05-12) that need to land before re-submission.
+ *
+ * v1.6 (2026-05-12) adds an explicit bilingual disclosure that phone
+ * support is Japanese-only and English-language inquiries should be
+ * routed to the support email. CEO is JP-monolingual; the customer
+ * base is predominantly English-speaking (US/UK/EU/CA/AU), so without
+ * this note an English-speaking customer reading an auto-translated
+ * page would dial the 050 number and reach a JP-only operator. The
+ * note is rendered in both Japanese and English so the disclosure is
+ * legible even if the visitor never machine-translates the page.
+ * (memory `feedback_contact_channel_policy.md` codifies this stance.)
  *
  * v1.5 (2026-05-12) adds the My050 IP phone number `050-6880-2598` to
  * the 連絡先 table, satisfying the UK CCR 2013 Reg 13(1)(b) and EU CRD
@@ -36,7 +47,7 @@ function renderToText(node: React.ReactNode): string {
   return "";
 }
 
-describe("/legal/tokushoho v1.5 metadata", () => {
+describe("/legal/tokushoho v1.6 metadata", () => {
   it("declares the canonical Tokushoho URL", () => {
     expect(metadata.alternates?.canonical).toBe(
       "https://getpodprofit.com/legal/tokushoho",
@@ -47,25 +58,26 @@ describe("/legal/tokushoho v1.5 metadata", () => {
     expect(metadata.title).toBe("特定商取引法に基づく表記");
   });
 
-  it("surfaces the v1.5 cooling-off / no-proration summary in the metadata description", () => {
-    // The description is the Stripe-review-readable summary; v1.5 must
-    // surface both the Lifetime 14-day cooling-off and the Pro
-    // no-proration commitment so reviewers can see what changed at a
-    // glance without opening the page.
+  it("surfaces the v1.6 cooling-off / no-proration / Japanese-only-phone summary in the metadata description", () => {
+    // The description is the Stripe-review-readable summary; v1.6 must
+    // surface the Lifetime 14-day cooling-off, the Pro no-proration
+    // commitment, AND the Japanese-only-phone note so reviewers can
+    // see what changed at a glance without opening the page.
     expect(typeof metadata.description).toBe("string");
-    expect(metadata.description).toContain("v1.5");
+    expect(metadata.description).toContain("v1.6");
     expect(metadata.description).toMatch(/14日|14 日/);
     expect(metadata.description).toContain("cooling-off");
     expect(metadata.description).toContain("日割り");
+    expect(metadata.description).toContain("日本語のみ");
   });
 });
 
-describe("/legal/tokushoho v1.5 content (PODP-50 + 2026-05-11 cooling-off + PODP-33 phone)", () => {
+describe("/legal/tokushoho v1.6 content (PODP-50 + 2026-05-11 cooling-off + PODP-33 phone + PODP-33 final JP-only note)", () => {
   const text = renderToText(TokushohoPage());
 
-  it("publishes the v1.5 / 2026-05-12 stamp (matches the rest of the legal set)", () => {
+  it("publishes the v1.6 / 2026-05-12 stamp (matches the rest of the legal set)", () => {
     expect(text).toContain("最終更新日: 2026-05-12");
-    expect(text).toContain("バージョン: 1.5");
+    expect(text).toContain("バージョン: 1.6");
   });
 
   it("strengthens 販売事業者 with the trade name (推奨-3)", () => {
@@ -227,5 +239,45 @@ describe("/legal/tokushoho v1.5 content (PODP-50 + 2026-05-11 cooling-off + PODP
     expect(text).toContain("My050");
     expect(text).toContain("IP 電話");
     expect(text).toMatch(/確実な連絡をご希望の\s*場合は上記メールアドレス/);
+  });
+
+  // ────────────────────────────────────────────────────────────────
+  // v1.6 Japanese-only phone disclosure (PODP-33 final, 2026-05-12)
+  // CEO is JP-monolingual; the PODProfit customer base is
+  // predominantly English-speaking (US/UK/EU/CA/AU). Without an
+  // explicit bilingual note, an English-speaking customer reading
+  // an auto-translated tokushoho page would dial the 050 number
+  // and reach an operator with whom they cannot communicate. The
+  // note must be rendered in BOTH Japanese and English so the
+  // English disclosure is legible even if the visitor never
+  // machine-translates the page.
+  // (memory `feedback_contact_channel_policy.md`)
+  // ────────────────────────────────────────────────────────────────
+
+  it("[v1.6] discloses in Japanese that phone support is Japanese-only and routes English inquiries to email", () => {
+    // Japanese-language note: the literal phrase "電話対応は日本語のみ"
+    // is contractual — softening to "原則として" or similar weakens
+    // the consumer-protection signal we want Stripe / regulators
+    // to read.
+    expect(text).toContain("電話対応は日本語のみ");
+    // The same Japanese note must redirect English speakers (read
+    // through machine translation) to the support email so they
+    // know the correct fallback channel.
+    expect(text).toMatch(/英語[^。]*メールアドレス/);
+    // The support email must appear in the same disclosure paragraph
+    // so a translated reader sees the address without having to
+    // scroll back up to the 連絡先 table.
+    expect(text).toContain("hello@getpodprofit.com");
+  });
+
+  it("[v1.6] renders an English-language phone-support disclosure so untranslated visitors still see it", () => {
+    // English-language note: the page is JP-first and most US/UK/EU
+    // visitors will read it via auto-translation, but a non-trivial
+    // subset (especially Stripe risk reviewers and EU/UK regulators)
+    // may read the source. The English sentence must stand on its
+    // own and direct them to the support email.
+    expect(text).toContain("Phone support is available in");
+    expect(text).toContain("Japanese only");
+    expect(text).toMatch(/email\s+hello@getpodprofit\.com/);
   });
 });
