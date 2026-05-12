@@ -37,31 +37,59 @@ export async function SiteHeader() {
     }
   }
 
+  // PODP-65 mobile fit notes (CEO 2026-05-12 Android Chrome bug report):
+  //   The header was `gap-5` + full "PODProfit" wordmark + `px-6` + a
+  //   `Sign in` pill with no nowrap. At iPhone SE width (375px) that
+  //   pushed the right-most pill past the available row and Chrome
+  //   broke it as "Sign" / "in" on two lines, making the header look
+  //   visibly broken on the very page anonymous visitors land on.
+  //
+  //   We fix it with the smallest surface change that holds at 320px:
+  //     - `whitespace-nowrap` on Sign in / Account so the pill text can
+  //       never wrap, even if the row is tight (single source of truth
+  //       for the bug, do not remove).
+  //     - Drop the "PODProfit" wordmark below `sm` — the P$ glyph still
+  //       reads as a brand mark and reclaims ~80px on the left.
+  //     - Tighter gap + padding below `sm` to give the row breathing
+  //       room without touching the desktop layout.
+  //     - `min-h-[44px]` on the pill so the tap target stays WCAG-
+  //       compliant after we squeeze padding for width.
+  //   Hamburger nav is intentionally out of scope — wrap fix is the
+  //   launch-blocker; a richer mobile nav is a post-launch follow-up.
   return (
     <header className="border-b border-stone-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-stone-800 dark:bg-stone-950/80 dark:supports-[backdrop-filter]:bg-stone-950/60">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-3">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 font-semibold tracking-tight"
+        >
           <span
             aria-hidden
             className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-brand-800 font-mono text-sm text-white dark:bg-brand-300 dark:text-brand-900"
           >
             P$
           </span>
-          <span>PODProfit</span>
+          <span className="hidden sm:inline">PODProfit</span>
         </Link>
         <nav
           aria-label="Primary"
-          className="flex items-center gap-5 text-sm text-stone-700 dark:text-stone-300"
+          className="flex items-center gap-3 text-sm text-stone-700 sm:gap-5 dark:text-stone-300"
         >
-          <Link href="/" className="hover:text-brand-800 dark:hover:text-brand-300">
+          <Link
+            href="/"
+            className="whitespace-nowrap hover:text-brand-800 dark:hover:text-brand-300"
+          >
             Calculator
           </Link>
-          <Link href="/pricing" className="hover:text-brand-800 dark:hover:text-brand-300">
+          <Link
+            href="/pricing"
+            className="whitespace-nowrap hover:text-brand-800 dark:hover:text-brand-300"
+          >
             Pricing
           </Link>
           <Link
             href="/blog/how-much-profit-do-pod-sellers-make"
-            className="hidden sm:inline hover:text-brand-800 dark:hover:text-brand-300"
+            className="hidden whitespace-nowrap hover:text-brand-800 sm:inline dark:hover:text-brand-300"
           >
             Blog
           </Link>
@@ -69,7 +97,7 @@ export async function SiteHeader() {
             <Link
               href="/account"
               data-testid="nav-account"
-              className="rounded-md border border-stone-300 px-3 py-1 font-medium hover:border-brand-800 hover:text-brand-800 dark:border-stone-700 dark:hover:border-brand-300 dark:hover:text-brand-300"
+              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md border border-stone-300 px-3 py-1 font-medium hover:border-brand-800 hover:text-brand-800 dark:border-stone-700 dark:hover:border-brand-300 dark:hover:text-brand-300"
             >
               Account
             </Link>
@@ -77,7 +105,7 @@ export async function SiteHeader() {
             <Link
               href="/login"
               data-testid="nav-signin"
-              className="rounded-md border border-stone-300 px-3 py-1 font-medium hover:border-brand-800 hover:text-brand-800 dark:border-stone-700 dark:hover:border-brand-300 dark:hover:text-brand-300"
+              className="inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md border border-stone-300 px-3 py-1 font-medium hover:border-brand-800 hover:text-brand-800 dark:border-stone-700 dark:hover:border-brand-300 dark:hover:text-brand-300"
             >
               Sign in
             </Link>
