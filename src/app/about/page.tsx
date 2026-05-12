@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     // layout's openGraph when a child page sets its own block.
     images: [
       {
-        url: "/api/og",
+        url: "/api/og?variant=about",
         width: 1200,
         height: 630,
         alt: "About PODProfit — Built by a POD seller for POD sellers",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     title: "About PODProfit — Built by a POD seller",
     description:
       "Solo-operated and built in public by Satsuki Okazaki. 20+ years engineering, vendor-neutral pricing, fast personal support.",
-    images: ["/api/og"],
+    images: ["/api/og?variant=about"],
   },
 };
 

@@ -37,12 +37,19 @@ export const metadata: Metadata = {
     // /api/og image declaration on every page with its own openGraph.
     images: [
       {
-        url: "/api/og",
+        url: "/api/og?variant=pricing",
         width: 1200,
         height: 630,
         alt: "PODProfit Pricing — Free, Pro Monthly, Pro Annual, Lifetime",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PODProfit Pricing — Free, Pro Monthly, Pro Annual, Lifetime",
+    description:
+      "$9/mo · $79/yr · $149 one-time (100 seats). Honest pricing, no upsell tricks.",
+    images: ["/api/og?variant=pricing"],
   },
 };
 

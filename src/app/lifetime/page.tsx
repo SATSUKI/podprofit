@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     // block. See pricing/page.tsx for the same pattern.
     images: [
       {
-        url: "/api/og",
+        url: "/api/og?variant=lifetime",
         width: 1200,
         height: 630,
         alt: "PODProfit Lifetime — $149 for 100 builders",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "PODProfit Lifetime — $149 for 100 builders",
     description:
       "100 seats, $149 one-time. Calculator + every future Pro tool, forever.",
-    images: ["/api/og"],
+    images: ["/api/og?variant=lifetime"],
   },
 };
 

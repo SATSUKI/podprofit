@@ -28,7 +28,10 @@ describe("root layout metadata (defaults inherited by all pages)", () => {
     expect(Array.isArray(images)).toBe(true);
     expect(images).toBeDefined();
     const first = (images as Array<{ url: string; width?: number; height?: number; alt?: string }>)[0];
-    expect(first?.url).toBe("/api/og");
+    // PODP-59 added the `?variant=default` qualifier so /api/og can render
+    // a brand poster instead of falling back to the share-link template
+    // when no share-link state is present in the URL.
+    expect(first?.url).toBe("/api/og?variant=default");
     // 1200x630 is what /api/og's ImageResponse emits — keeping the
     // declared dimensions in sync prevents Twitter / LinkedIn cropping.
     expect(first?.width).toBe(1200);

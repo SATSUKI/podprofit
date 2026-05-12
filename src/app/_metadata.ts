@@ -24,7 +24,7 @@ export const SITE_URL = "https://getpodprofit.com";
  * Twitter / LinkedIn cropping the image to a default aspect ratio.
  */
 export const DEFAULT_OG_IMAGE = {
-  url: "/api/og",
+  url: "/api/og?variant=default",
   width: 1200,
   height: 630,
   alt: "PODProfit — Real Print-on-Demand profit calculator",

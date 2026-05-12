@@ -24,7 +24,7 @@ export const metadata: Metadata = {
       "Bella+Canvas 3001 in the US, EU, UK, Canada, Australia, and Japan. Subscriptions, offsite ads, FX margin, shipping zones — every cost named.",
     images: [
       {
-        url: "https://getpodprofit.com/og/cornerstone-multicurrency.png",
+        url: "https://getpodprofit.com/api/og?variant=cornerstone-multicurrency",
         width: 1200,
         height: 630,
         alt: "Printful vs Printify profit comparison across 6 currencies",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
       "Printful vs Printify: Real Profit Across 6 Currencies (2026)",
     description:
       "Bella+Canvas 3001 across US/EU/UK/CA/AU/JP. Every fee itemized.",
-    images: ["https://getpodprofit.com/og/cornerstone-multicurrency.png"],
+    images: ["https://getpodprofit.com/api/og?variant=cornerstone-multicurrency"],
   },
 };
 
@@ -69,7 +69,7 @@ const ARTICLE_JSONLD = {
     },
   },
   mainEntityOfPage: URL,
-  image: "https://getpodprofit.com/og/cornerstone-multicurrency.png",
+  image: "https://getpodprofit.com/api/og?variant=cornerstone-multicurrency",
   about: [
     { "@type": "Thing", name: "Printful" },
     { "@type": "Thing", name: "Printify" },
