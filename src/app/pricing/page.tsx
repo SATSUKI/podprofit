@@ -64,17 +64,21 @@ export default async function PricingPage() {
   // claim seats during the pre-launch window.
   const proCtaActive = isLaunched();
 
-  // ── PODP-62: per-user entitlement gate ────────────────────────────────
+  // ── PODP-62 / PODP-64: per-user entitlement gate ─────────────────────
   // If the visitor is signed in, look up their current plan snapshot via
-  // service-role Supabase. We only need three booleans: ownsLifetime,
-  // ownsPro, and (implicitly) anonymous. Failures here are non-fatal —
-  // we fall through to anonymous CTAs so the page still renders.
+  // service-role Supabase. We need three booleans: ownsLifetime, ownsPro,
+  // and `isSignedIn` (PODP-64 — used to suppress the "(Sign-in required)"
+  // hint when the user is already authenticated). Failures here are
+  // non-fatal — we fall through to anonymous CTAs so the page still
+  // renders.
   let ownsLifetime = false;
   let ownsPro = false;
+  let isSignedIn = false;
   try {
     const ssr = await createSsrSupabase();
     const authedUser = ssr ? (await ssr.auth.getUser()).data.user : null;
     if (authedUser) {
+      isSignedIn = true;
       const admin = createServerSupabase();
       const snapshot = await getCurrentPlanSnapshot(admin, authedUser.id);
       ownsLifetime = snapshot.hasLifetime;
@@ -203,6 +207,11 @@ export default async function PricingPage() {
           }
           ctaDisabled={!ownsLifetime && !ownsPro && !proCtaActive}
           ctaVariant="outline"
+          ctaHint={
+            !isSignedIn && proCtaActive && !ownsLifetime && !ownsPro
+              ? "Sign-in required"
+              : undefined
+          }
         />
         <PlanCard
           name="Pro Annual"
@@ -244,6 +253,11 @@ export default async function PricingPage() {
           }
           ctaDisabled={!ownsLifetime && !ownsPro && !proCtaActive}
           ctaVariant="outline"
+          ctaHint={
+            !isSignedIn && proCtaActive && !ownsLifetime && !ownsPro
+              ? "Sign-in required"
+              : undefined
+          }
         />
         <PlanCard
           name="Lifetime"
@@ -288,6 +302,11 @@ export default async function PricingPage() {
           ctaDisabled={!ownsLifetime && remaining <= 0}
           ctaVariant="solid"
           highlighted
+          ctaHint={
+            !isSignedIn && !ownsLifetime && remaining > 0
+              ? "Sign-in required"
+              : undefined
+          }
         />
       </section>
 
@@ -331,6 +350,7 @@ function PlanCard({
   ctaDisabled,
   ctaVariant = "outline",
   highlighted,
+  ctaHint,
 }: {
   name: string;
   price: string;
@@ -343,6 +363,13 @@ function PlanCard({
   ctaDisabled?: boolean;
   ctaVariant?: "solid" | "outline";
   highlighted?: boolean;
+  /**
+   * PODP-64: small hint below the CTA (e.g. "Sign-in required"). Rendered
+   * only when defined; pricing/page.tsx passes it for paid-plan cards
+   * when the visitor is anonymous so they know a /login round-trip is
+   * coming when they click Buy.
+   */
+  ctaHint?: string;
 }) {
   return (
     <div
@@ -411,6 +438,14 @@ function PlanCard({
           No signup required
         </span>
       )}
+      {ctaHint ? (
+        <p
+          className="mt-2 text-center text-xs text-stone-500 dark:text-stone-400"
+          data-testid="plan-cta-hint"
+        >
+          {ctaHint}
+        </p>
+      ) : null}
     </div>
   );
 }

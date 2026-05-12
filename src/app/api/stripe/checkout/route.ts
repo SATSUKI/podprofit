@@ -11,6 +11,7 @@ import {
 } from "@/lib/stripe/current-plan";
 import { evaluateCheckoutPrecheck } from "@/lib/stripe/checkout-precheck";
 import { hasPriorLifetimePurchaseByEmail } from "@/lib/stripe/email-fallback-check";
+import { buildLoginRedirect } from "@/lib/stripe/checkout-login-redirect";
 
 export const runtime = "nodejs";
 
@@ -21,9 +22,17 @@ export const runtime = "nodejs";
  *   GET  /api/stripe/checkout?plan=lifetime
  *   POST /api/stripe/checkout?plan=lifetime    ← preferred for forms
  *
- * Pre-Stripe gates (PODP-35):
- *   - Auth required for Pro plans (anonymous Lifetime is allowed; user_id is
- *     linked at webhook time when present).
+ * Pre-Stripe gates:
+ *   - Auth required for ALL plans (PODP-64). Anonymous purchase is forbidden
+ *     so we always have a `metadata.user_id` to link the resulting Stripe
+ *     customer / seat / subscription back to a Supabase user at webhook
+ *     time. The previous "anonymous Lifetime allowed" carve-out (5a1bbb6)
+ *     produced orphaned `lifetime_seats.user_id = NULL` rows that the
+ *     /pricing UI gate (PODP-62) could not see, which the CEO ruled
+ *     unacceptable on UX grounds ("charging without an account doesn't
+ *     happen on real products"). Anonymous requests get a 303 to
+ *     `/login?next=<self>`; the magic-link callback honours `?next=` and
+ *     hands the user back to this endpoint after sign-in.
  *   - Lifetime + Pro conflict → deny / redirect / confirm (see
  *     `evaluateCheckoutPrecheck`).
  *
@@ -64,101 +73,100 @@ async function handleCheckout(req: NextRequest) {
   const planEntry = PLAN_CATALOG[plan];
   const stripe = getStripe();
 
-  // ── Auth (optional for Lifetime, required for Pro) ─────────────────────
-  // Lifetime allows anonymous purchase because Stripe creates the customer at
-  // checkout and the webhook links the seat back to the user_id present in
-  // metadata. Pro plans must be tied to a Supabase user up-front so the
-  // billing portal link in /account works.
+  // ── Auth required for ALL plans (PODP-64) ──────────────────────────────
+  // Anonymous purchase is rejected outright. The magic-link callback
+  // (`/auth/callback`) honours `?next=` and returns the user to this
+  // endpoint after sign-in. This eliminates the anonymous Lifetime class
+  // entirely — every checkout session is guaranteed to carry
+  // `metadata.user_id`, which the webhook uses to link
+  // `lifetime_seats` / `subscriptions` rows back to a Supabase user
+  // without any email-fallback heuristics.
   const sessionSupabase = await createSsrSupabase();
   const authedUser = sessionSupabase
     ? (await sessionSupabase.auth.getUser()).data.user
     : null;
 
-  if (planEntry.mode === "subscription" && !authedUser) {
+  if (!authedUser) {
     const origin = getOrigin(req);
     return NextResponse.redirect(
-      `${origin}/login?next=${encodeURIComponent(`/api/stripe/checkout?plan=${plan}`)}`,
+      buildLoginRedirect(origin, plan, confirmed),
       { status: 303 },
     );
   }
 
-  // ── PODP-35 pre-check (only when we know who the user is) ──────────────
-  let preCustomerId: string | null = null;
-  if (authedUser) {
-    const supabaseAdmin = createServerSupabase();
-    const [snapshot, lifetimeRemaining] = await Promise.all([
-      getCurrentPlanSnapshot(supabaseAdmin, authedUser.id),
-      planEntry.id === "lifetime"
-        ? getLifetimeRemaining(supabaseAdmin)
-        : Promise.resolve(Number.POSITIVE_INFINITY),
-    ]);
-    preCustomerId = snapshot.stripeCustomerId;
+  // ── PODP-35 pre-check ──────────────────────────────────────────────────
+  const supabaseAdmin = createServerSupabase();
+  const [snapshot, lifetimeRemaining] = await Promise.all([
+    getCurrentPlanSnapshot(supabaseAdmin, authedUser.id),
+    planEntry.id === "lifetime"
+      ? getLifetimeRemaining(supabaseAdmin)
+      : Promise.resolve(Number.POSITIVE_INFINITY),
+  ]);
+  const preCustomerId: string | null = snapshot.stripeCustomerId;
 
-    const decision = evaluateCheckoutPrecheck({
-      desiredPlan: plan,
-      snapshot,
-      lifetimeRemaining,
-      confirmed,
+  const decision = evaluateCheckoutPrecheck({
+    desiredPlan: plan,
+    snapshot,
+    lifetimeRemaining,
+    confirmed,
+  });
+
+  if (decision.decision === "deny") {
+    return NextResponse.json(
+      { error: decision.message, reason: decision.reason },
+      { status: 400 },
+    );
+  }
+  if (decision.decision === "redirect_portal") {
+    const origin = getOrigin(req);
+    return NextResponse.redirect(`${origin}/api/stripe/portal`, {
+      status: 303,
     });
+  }
+  if (decision.decision === "confirm_required") {
+    return NextResponse.json(
+      {
+        error: decision.message,
+        reason: "confirm_required",
+        retry_url: `${getOrigin(req)}/api/stripe/checkout?plan=${plan}&confirmed=true`,
+      },
+      { status: 409 },
+    );
+  }
 
-    if (decision.decision === "deny") {
-      return NextResponse.json(
-        { error: decision.message, reason: decision.reason },
-        { status: 400 },
-      );
-    }
-    if (decision.decision === "redirect_portal") {
-      const origin = getOrigin(req);
-      return NextResponse.redirect(`${origin}/api/stripe/portal`, {
-        status: 303,
+  // ── PODP-62 defense-in-depth: email-based Stripe fallback ──────────────
+  // PODP-64 makes anonymous Lifetime impossible going forward, but legacy
+  // orphaned `lifetime_seats.user_id = NULL` rows can still exist from
+  // pre-fix purchases. Before we hand off to Stripe for ANOTHER Lifetime
+  // purchase, ask Stripe directly: does any customer with this email
+  // already have a successful Lifetime payment? If so, deny + heal the
+  // orphaned seat row so subsequent precheck calls block at the DB layer.
+  if (plan === "lifetime" && authedUser.email) {
+    const stripeForCheck = getStripe();
+    const lifetimePriceId = await resolvePriceId(
+      stripeForCheck,
+      "lifetime",
+      PLAN_CATALOG.lifetime.stripeLookupKey,
+    );
+    const prior = await hasPriorLifetimePurchaseByEmail(stripeForCheck, {
+      email: authedUser.email,
+      lifetimePriceId,
+    });
+    if (prior.hasPriorPurchase) {
+      // Best-effort heal: link the orphaned seat row to this auth user
+      // so the next request hits the cheap DB check instead of Stripe.
+      await healOrphanedLifetimeSeat({
+        paymentIntentId: prior.paymentIntentId,
+        userId: authedUser.id,
+        customerId: prior.customerId,
       });
-    }
-    if (decision.decision === "confirm_required") {
       return NextResponse.json(
         {
-          error: decision.message,
-          reason: "confirm_required",
-          retry_url: `${getOrigin(req)}/api/stripe/checkout?plan=${plan}&confirmed=true`,
+          error: "You already have Lifetime access.",
+          reason: "buying_lifetime_again",
         },
-        { status: 409 },
+        { status: 400 },
       );
-    }
-
-    // ── PODP-62 defense-in-depth: email-based Stripe fallback ──────────────
-    // The DB-side `hasLifetime` check above can miss when a previous
-    // anonymous Lifetime purchase left `lifetime_seats.user_id` NULL (the
-    // webhook only fills user_id when the buyer was signed-in at
-    // checkout). Before we hand off to Stripe for ANOTHER Lifetime
-    // purchase, ask Stripe directly: does any customer with this email
-    // already have a successful Lifetime payment? If so, deny + heal the
-    // orphaned seat row so subsequent precheck calls block at the DB layer.
-    if (plan === "lifetime" && authedUser?.email) {
-      const stripeForCheck = getStripe();
-      const lifetimePriceId = await resolvePriceId(
-        stripeForCheck,
-        "lifetime",
-        PLAN_CATALOG.lifetime.stripeLookupKey,
-      );
-      const prior = await hasPriorLifetimePurchaseByEmail(stripeForCheck, {
-        email: authedUser.email,
-        lifetimePriceId,
-      });
-      if (prior.hasPriorPurchase) {
-        // Best-effort heal: link the orphaned seat row to this auth user
-        // so the next request hits the cheap DB check instead of Stripe.
-        await healOrphanedLifetimeSeat({
-          paymentIntentId: prior.paymentIntentId,
-          userId: authedUser.id,
-          customerId: prior.customerId,
-        });
-        return NextResponse.json(
-          {
-            error: "You already have Lifetime access.",
-            reason: "buying_lifetime_again",
-          },
-          { status: 400 },
-        );
-      }
     }
   }
 
@@ -207,35 +215,35 @@ async function handleCheckout(req: NextRequest) {
     },
     metadata: {
       plan_id: planEntry.id,
-      ...(authedUser ? { user_id: authedUser.id } : {}),
+      user_id: authedUser.id,
     },
     // Bind to existing Stripe customer when we have one (preserves payment
-    // methods + tax id). For Lifetime without a known customer, tell Stripe
-    // to always create one so we can link it via webhook.
+    // methods + tax id). Otherwise pre-fill the email so Stripe finds /
+    // creates the customer record tied to the signed-in user. PODP-64
+    // guarantees `authedUser` is non-null here, so we never reach a path
+    // without an email or user_id to anchor the customer to.
     ...(preCustomerId
       ? { customer: preCustomerId }
-      : authedUser
-        ? { customer_email: authedUser.email ?? undefined }
-        : {}),
+      : { customer_email: authedUser.email ?? undefined }),
+    // For one-shot Lifetime purchases (payment mode) without a pre-existing
+    // customer we still need Stripe to materialise one so the webhook can
+    // upsert `user_profiles.stripe_customer_id`. Subscriptions auto-create.
     customer_creation:
       !preCustomerId && planEntry.mode === "payment" ? "always" : undefined,
     // Carry user_id onto subscription/PI objects too, so webhooks for
     // `customer.subscription.*` and `payment_intent.*` can find the user
     // even when `checkout.session.completed` arrives later.
-    ...(planEntry.mode === "subscription" && authedUser
+    ...(planEntry.mode === "subscription"
       ? {
           subscription_data: {
             metadata: { plan_id: planEntry.id, user_id: authedUser.id },
           },
         }
-      : {}),
-    ...(planEntry.mode === "payment" && authedUser
-      ? {
+      : {
           payment_intent_data: {
             metadata: { plan_id: planEntry.id, user_id: authedUser.id },
           },
-        }
-      : {}),
+        }),
   });
 
   if (!session.url) {
