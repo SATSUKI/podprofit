@@ -86,5 +86,9 @@ function clientIp(req: NextRequest): string {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // PODP-53: also gate `/api/admin/*` so the admin-only mutation routes
+  // (status updates, refund actions) fail closed without ADMIN_USER /
+  // ADMIN_PASS. We must list the matchers explicitly — Next's matcher
+  // syntax does not support a single pattern that captures both.
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
