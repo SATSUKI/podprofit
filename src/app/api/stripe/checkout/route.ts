@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { PLAN_CATALOG, type PlanId } from "@/lib/stripe/products";
 import { createSsrSupabase } from "@/lib/supabase/ssr";
@@ -9,6 +10,7 @@ import {
   getLifetimeRemaining,
 } from "@/lib/stripe/current-plan";
 import { evaluateCheckoutPrecheck } from "@/lib/stripe/checkout-precheck";
+import { hasPriorLifetimePurchaseByEmail } from "@/lib/stripe/email-fallback-check";
 
 export const runtime = "nodejs";
 
@@ -121,6 +123,43 @@ async function handleCheckout(req: NextRequest) {
         { status: 409 },
       );
     }
+
+    // ── PODP-62 defense-in-depth: email-based Stripe fallback ──────────────
+    // The DB-side `hasLifetime` check above can miss when a previous
+    // anonymous Lifetime purchase left `lifetime_seats.user_id` NULL (the
+    // webhook only fills user_id when the buyer was signed-in at
+    // checkout). Before we hand off to Stripe for ANOTHER Lifetime
+    // purchase, ask Stripe directly: does any customer with this email
+    // already have a successful Lifetime payment? If so, deny + heal the
+    // orphaned seat row so subsequent precheck calls block at the DB layer.
+    if (plan === "lifetime" && authedUser?.email) {
+      const stripeForCheck = getStripe();
+      const lifetimePriceId = await resolvePriceId(
+        stripeForCheck,
+        "lifetime",
+        PLAN_CATALOG.lifetime.stripeLookupKey,
+      );
+      const prior = await hasPriorLifetimePurchaseByEmail(stripeForCheck, {
+        email: authedUser.email,
+        lifetimePriceId,
+      });
+      if (prior.hasPriorPurchase) {
+        // Best-effort heal: link the orphaned seat row to this auth user
+        // so the next request hits the cheap DB check instead of Stripe.
+        await healOrphanedLifetimeSeat({
+          paymentIntentId: prior.paymentIntentId,
+          userId: authedUser.id,
+          customerId: prior.customerId,
+        });
+        return NextResponse.json(
+          {
+            error: "You already have Lifetime access.",
+            reason: "buying_lifetime_again",
+          },
+          { status: 400 },
+        );
+      }
+    }
   }
 
   // ── Resolve the Stripe price (lookup_key preferred, env fallback) ──────
@@ -222,8 +261,45 @@ function envSuffix(planId: PlanId): string {
   return "LIFETIME";
 }
 
+/**
+ * PODP-62: heal an orphaned `lifetime_seats` row whose `user_id` is NULL
+ * because the buyer was anonymous at checkout time. Idempotent — runs
+ * inside the email-fallback branch above, only when Stripe confirmed the
+ * email owns a prior Lifetime PI. Safe to no-op on errors; the deny
+ * response has already been chosen by the caller.
+ */
+async function healOrphanedLifetimeSeat(params: {
+  paymentIntentId: string | null;
+  userId: string;
+  customerId: string | null;
+}): Promise<void> {
+  const { paymentIntentId, userId, customerId } = params;
+  if (!paymentIntentId) return;
+  try {
+    const admin = createServerSupabase();
+    // Only patch the seat if it's currently orphaned — never overwrite a
+    // row that already points at a (different) user. The PostgREST filter
+    // `user_id=is.null` guarantees this.
+    await admin
+      .from("lifetime_seats")
+      .update({ user_id: userId })
+      .eq("stripe_payment_intent_id", paymentIntentId)
+      .is("user_id", null);
+    if (customerId) {
+      await admin
+        .from("user_profiles")
+        .upsert(
+          { user_id: userId, stripe_customer_id: customerId },
+          { onConflict: "user_id" },
+        );
+    }
+  } catch {
+    // Healing is best-effort; the deny response is the contract.
+  }
+}
+
 async function resolvePriceId(
-  stripe: ReturnType<typeof getStripe>,
+  stripe: Stripe,
   planId: PlanId,
   lookupKey: string,
 ): Promise<string | null> {

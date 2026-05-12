@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { metadata, revalidate } from "@/app/pricing/page";
+import { metadata, dynamic } from "@/app/pricing/page";
 
 describe("/pricing page metadata", () => {
   it("declares the canonical Pricing URL (overrides root layout default)", () => {
@@ -33,7 +33,10 @@ describe("/pricing page metadata", () => {
     expect(og.type).toBe("website");
   });
 
-  it("revalidates the live counter at most every 60 seconds", () => {
-    expect(revalidate).toBe(60);
+  it("is force-dynamic so per-user entitlement gating (PODP-62) takes effect", () => {
+    // /pricing now reads the auth cookie to branch CTAs; opting out of
+    // static generation guarantees a Lifetime owner never sees a stale
+    // Buy CTA from a build-time render.
+    expect(dynamic).toBe("force-dynamic");
   });
 });

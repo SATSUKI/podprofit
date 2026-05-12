@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getStripe } from "@/lib/stripe/server";
 import { createSsrSupabase } from "@/lib/supabase/ssr";
+import { createServerSupabase } from "@/lib/supabase/server";
 import { SignupEventEmitter } from "@/components/signup-event-emitter";
 
 /**
@@ -105,6 +106,18 @@ export default async function WelcomePage({ searchParams }: WelcomePageProps) {
   const authedUser = supabase ? (await supabase.auth.getUser()).data.user : null;
   const isLifetime = planId === "lifetime";
   const isPro = planId === "pro_monthly" || planId === "pro_yearly";
+
+  // ── PODP-62 backfill: heal anonymous→signed-in Lifetime purchases ──────
+  // If a signed-in user lands on /account/welcome with a Lifetime
+  // session_id whose webhook stored user_id=NULL (anonymous flow), patch
+  // the seat row + user_profiles now. Idempotent: only updates rows where
+  // user_id IS NULL, so we never overwrite another user's claim.
+  if (isLifetime && authedUser && sessionId) {
+    await backfillLifetimeSeatFromSession({
+      sessionId,
+      userId: authedUser.id,
+    });
+  }
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12 md:py-16">
@@ -266,6 +279,54 @@ export default async function WelcomePage({ searchParams }: WelcomePageProps) {
       </section>
     </main>
   );
+}
+
+/**
+ * PODP-62: when a Lifetime buyer who paid anonymously lands here after
+ * signing in (Stripe success_url → magic-link sign-in → back to this
+ * page), link the orphaned seat row to their auth user.
+ *
+ * Idempotent and tolerant: the .is("user_id", null) guard prevents us
+ * from clobbering another user's claim, and Stripe/Supabase failures
+ * are swallowed (we still want the welcome page to render).
+ */
+async function backfillLifetimeSeatFromSession(params: {
+  sessionId: string;
+  userId: string;
+}): Promise<void> {
+  const { sessionId, userId } = params;
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) return;
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.metadata?.plan_id !== "lifetime") return;
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : session.payment_intent?.id ?? null;
+    const customerId =
+      typeof session.customer === "string"
+        ? session.customer
+        : session.customer?.id ?? null;
+    if (!paymentIntentId) return;
+
+    const admin = createServerSupabase();
+    await admin
+      .from("lifetime_seats")
+      .update({ user_id: userId })
+      .eq("stripe_payment_intent_id", paymentIntentId)
+      .is("user_id", null);
+    if (customerId) {
+      await admin
+        .from("user_profiles")
+        .upsert(
+          { user_id: userId, stripe_customer_id: customerId },
+          { onConflict: "user_id" },
+        );
+    }
+  } catch {
+    // Non-fatal: the seat is claimed in Stripe + Supabase regardless.
+  }
 }
 
 function NextStepCard({

@@ -6,6 +6,9 @@ import { EmailSignup } from "@/components/email-signup";
 import { ProductOffersJsonLd, type ProductOffer } from "@/components/json-ld";
 import { cn } from "@/lib/utils/cn";
 import { isLaunched } from "@/lib/utils/launch-gate";
+import { createSsrSupabase } from "@/lib/supabase/ssr";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { getCurrentPlanSnapshot } from "@/lib/stripe/current-plan";
 
 const SITE_URL = "https://getpodprofit.com";
 const PRO_AVAILABLE_DATE = "June 9, 2026";
@@ -43,8 +46,14 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidate the Lifetime counter every 60 seconds.
-export const revalidate = 60;
+// PODP-62: /pricing now branches on the signed-in user's entitlement so
+// a Lifetime owner cannot see a Buy CTA (which used to bypass the
+// /api/stripe/checkout precheck if their seat row was data-orphaned).
+// Reading `cookies()` via `createSsrSupabase` opts the route out of
+// static caching automatically, so we don't need an explicit
+// `revalidate`. Anonymous visitors still get the full plan grid; only
+// the per-user CTA labels change.
+export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
   const claimed = await getLifetimeClaimedCount();
@@ -54,6 +63,26 @@ export default async function PricingPage() {
   // 2026-06-09). Lifetime stays purchasable now so founding members can
   // claim seats during the pre-launch window.
   const proCtaActive = isLaunched();
+
+  // ── PODP-62: per-user entitlement gate ────────────────────────────────
+  // If the visitor is signed in, look up their current plan snapshot via
+  // service-role Supabase. We only need three booleans: ownsLifetime,
+  // ownsPro, and (implicitly) anonymous. Failures here are non-fatal —
+  // we fall through to anonymous CTAs so the page still renders.
+  let ownsLifetime = false;
+  let ownsPro = false;
+  try {
+    const ssr = await createSsrSupabase();
+    const authedUser = ssr ? (await ssr.auth.getUser()).data.user : null;
+    if (authedUser) {
+      const admin = createServerSupabase();
+      const snapshot = await getCurrentPlanSnapshot(admin, authedUser.id);
+      ownsLifetime = snapshot.hasLifetime;
+      ownsPro = Boolean(snapshot.activeProSubscription);
+    }
+  } catch {
+    // Swallow — treat as anonymous if env / Supabase is unavailable.
+  }
 
   // Product+Offers schema. We expose the four user-visible plans in their
   // current marketplace state — Pro plans are PreOrder until 2026-06-09,
@@ -138,9 +167,13 @@ export default async function PricingPage() {
           price="$9 USD"
           priceUnit="/ month"
           availability={
-            proCtaActive
-              ? "Available now"
-              : `Available ${PRO_AVAILABLE_DATE}`
+            ownsLifetime
+              ? "Included with Lifetime"
+              : ownsPro
+                ? "Active subscription"
+                : proCtaActive
+                  ? "Available now"
+                  : `Available ${PRO_AVAILABLE_DATE}`
           }
           tagline="Cancel anytime."
           features={[
@@ -151,12 +184,24 @@ export default async function PricingPage() {
             "Email support",
           ]}
           ctaHref={
-            proCtaActive
-              ? "/api/stripe/checkout?plan=pro_monthly"
-              : "/pricing#notify-pro"
+            ownsLifetime
+              ? "/account"
+              : ownsPro
+                ? "/api/stripe/portal"
+                : proCtaActive
+                  ? "/api/stripe/checkout?plan=pro_monthly"
+                  : "/pricing#notify-pro"
           }
-          ctaLabel={proCtaActive ? "Subscribe" : "Notify me"}
-          ctaDisabled={!proCtaActive}
+          ctaLabel={
+            ownsLifetime
+              ? "You have Lifetime"
+              : ownsPro
+                ? "Manage subscription"
+                : proCtaActive
+                  ? "Subscribe"
+                  : "Notify me"
+          }
+          ctaDisabled={!ownsLifetime && !ownsPro && !proCtaActive}
           ctaVariant="outline"
         />
         <PlanCard
@@ -164,9 +209,13 @@ export default async function PricingPage() {
           price="$79 USD"
           priceUnit="/ year"
           availability={
-            proCtaActive
-              ? "Available now"
-              : `Available ${PRO_AVAILABLE_DATE}`
+            ownsLifetime
+              ? "Included with Lifetime"
+              : ownsPro
+                ? "Active subscription"
+                : proCtaActive
+                  ? "Available now"
+                  : `Available ${PRO_AVAILABLE_DATE}`
           }
           tagline="Save $29 vs monthly. Lock in 12 months."
           features={[
@@ -176,12 +225,24 @@ export default async function PricingPage() {
             "Email support",
           ]}
           ctaHref={
-            proCtaActive
-              ? "/api/stripe/checkout?plan=pro_yearly"
-              : "/pricing#notify-pro"
+            ownsLifetime
+              ? "/account"
+              : ownsPro
+                ? "/api/stripe/portal"
+                : proCtaActive
+                  ? "/api/stripe/checkout?plan=pro_yearly"
+                  : "/pricing#notify-pro"
           }
-          ctaLabel={proCtaActive ? "Subscribe" : "Notify me"}
-          ctaDisabled={!proCtaActive}
+          ctaLabel={
+            ownsLifetime
+              ? "You have Lifetime"
+              : ownsPro
+                ? "Manage subscription"
+                : proCtaActive
+                  ? "Subscribe"
+                  : "Notify me"
+          }
+          ctaDisabled={!ownsLifetime && !ownsPro && !proCtaActive}
           ctaVariant="outline"
         />
         <PlanCard
@@ -189,11 +250,17 @@ export default async function PricingPage() {
           price="$149 USD"
           priceUnit="one-time"
           availability={
-            remaining > 0
-              ? `Available now — ${remaining} of ${lifetime.capacity} seats remaining`
-              : "All seats claimed"
+            ownsLifetime
+              ? "You're a Lifetime member"
+              : remaining > 0
+                ? `Available now — ${remaining} of ${lifetime.capacity} seats remaining`
+                : "All seats claimed"
           }
-          tagline="Limited to first 100 customers."
+          tagline={
+            ownsLifetime
+              ? "Thank you for being a founding member."
+              : "Limited to first 100 customers."
+          }
           features={[
             "Everything in Pro, forever",
             "All future features included (Phase 2 + beyond)",
@@ -201,9 +268,24 @@ export default async function PricingPage() {
             "Permanent priority early access to every future product (β invites for Phase 2-N)",
             "One-time payment, no subscription",
           ]}
-          ctaHref={remaining > 0 ? "/api/stripe/checkout?plan=lifetime" : undefined}
-          ctaLabel={remaining > 0 ? "Reserve seat" : "Sold out"}
-          ctaDisabled={remaining <= 0}
+          // PODP-62: Lifetime owners must NEVER see a Buy CTA on the
+          // Lifetime card. We route them to /account so they can see
+          // their seat number; the Buy button is suppressed entirely.
+          ctaHref={
+            ownsLifetime
+              ? "/account"
+              : remaining > 0
+                ? "/api/stripe/checkout?plan=lifetime"
+                : undefined
+          }
+          ctaLabel={
+            ownsLifetime
+              ? "You're a Lifetime member ✓"
+              : remaining > 0
+                ? "Reserve seat"
+                : "Sold out"
+          }
+          ctaDisabled={!ownsLifetime && remaining <= 0}
           ctaVariant="solid"
           highlighted
         />
