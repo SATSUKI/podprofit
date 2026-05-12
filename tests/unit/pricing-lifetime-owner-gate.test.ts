@@ -80,8 +80,8 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
 
     // The Stripe Lifetime checkout URL must NOT be on the page.
     expect(html).not.toContain("/api/stripe/checkout?plan=lifetime");
-    // The CTA label confirms membership instead.
-    expect(html).toContain("You&#x27;re a Lifetime member");
+    // The member-status card confirms membership instead (PODP-67).
+    expect(html).toContain("You’re a Lifetime member");
   });
 
   it("renders the Lifetime Buy CTA for anonymous visitors (regression guard)", async () => {
@@ -124,7 +124,7 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
     expect(html).toContain("/api/stripe/checkout?plan=lifetime");
   });
 
-  it("labels the Pro cards as 'Included with Lifetime' when the user owns Lifetime", async () => {
+  it("hides the Free / Pro Monthly / Pro Annual cards entirely when the user owns Lifetime (PODP-67)", async () => {
     ssrMock.mockResolvedValue(authedSsr("user_owns_lifetime"));
     snapshotMock.mockResolvedValue({
       stripeCustomerId: "cus_X",
@@ -134,10 +134,21 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
 
     const html = renderToStaticMarkup(await PricingPage());
 
-    expect(html).toContain("Included with Lifetime");
-    expect(html).toContain("You have Lifetime");
+    // PODP-67: the other three plan cards collapse into a single
+    // member-status card + "Manage account →" link. No Pro/Free CTAs.
     expect(html).not.toContain("/api/stripe/checkout?plan=pro_monthly");
     expect(html).not.toContain("/api/stripe/checkout?plan=pro_yearly");
+    expect(html).not.toContain("/api/stripe/checkout?plan=lifetime");
+    // The legacy "Included with Lifetime" availability copy is gone —
+    // it lived on the Pro Monthly / Pro Annual cards which we now hide.
+    expect(html).not.toContain("Included with Lifetime");
+    // The Pro-notify email signup is also suppressed for Lifetime
+    // owners (no notify-pro anchor).
+    expect(html).not.toContain('id="notify-pro"');
+    // Member-status card + Manage account link are present.
+    expect(html).toContain("You’re a Lifetime member");
+    expect(html).toContain("Manage account");
+    expect(html).toContain('href="/account"');
   });
 
   it("falls back to anonymous CTAs when SSR / snapshot throws (no per-user gating crash)", async () => {

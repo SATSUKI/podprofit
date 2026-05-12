@@ -137,15 +137,43 @@ export default async function PricingPage() {
           Pricing
         </p>
         <h1 className="mt-3 text-balance text-4xl font-bold tracking-tight md:text-5xl">
-          Honest pricing for an honest calculator.
+          {ownsLifetime
+            ? "You're a Lifetime member."
+            : "Honest pricing for an honest calculator."}
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-stone-700 dark:text-stone-300">
-          The calculator is free forever — no signup, no rate limit. Pro Monthly,
-          Pro Annual, and Lifetime unlock saved history, exports, and direct
-          support for power users.
+          {ownsLifetime
+            ? "You have permanent access to all current and future PODProfit products. No additional plans needed."
+            : "The calculator is free forever — no signup, no rate limit. Pro Monthly, Pro Annual, and Lifetime unlock saved history, exports, and direct support for power users."}
         </p>
       </header>
 
+      {ownsLifetime ? (
+        // PODP-67: Lifetime owners only see their member-status card +
+        // an Account link. The other three plan cards (Free / Pro
+        // Monthly / Pro Annual) are noise to a Lifetime member, who
+        // already has access to everything those plans bundle.
+        <section
+          aria-label="Lifetime membership"
+          className="mx-auto w-full max-w-xl"
+        >
+          <div className="flex flex-col rounded-2xl border border-brand-800 bg-brand-50 p-8 text-center shadow-sm dark:border-brand-400 dark:bg-brand-900/30">
+            <h2 className="text-2xl font-semibold">
+              You&rsquo;re a Lifetime member ✓
+            </h2>
+            <p className="mt-3 text-sm text-stone-700 dark:text-stone-300">
+              Thank you for being a founding member. Your seat is permanent —
+              all current and future PODProfit features are included.
+            </p>
+            <Link
+              href="/account"
+              className="mt-6 inline-flex items-center justify-center self-center rounded-lg bg-brand-800 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 dark:bg-brand-300 dark:text-brand-900 dark:hover:bg-brand-200"
+            >
+              Manage account &rarr;
+            </Link>
+          </div>
+        </section>
+      ) : (
       <section
         aria-label="Plans"
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
@@ -309,31 +337,43 @@ export default async function PricingPage() {
           }
         />
       </section>
+      )}
 
-      <section
-        id="notify-pro"
-        aria-label="Notify me when Pro launches"
-        className="scroll-mt-24"
-      >
-        <EmailSignup
-          source="pricing_pro_notify"
-          headline={`Get notified when Pro launches on ${PRO_AVAILABLE_DATE}`}
-          subline="One email on launch day with the founding-member discount code. No spam, no other emails."
-        />
-      </section>
+      {/*
+        PODP-67: Lifetime owners skip the Pro-notify signup and the
+        "All prices in USD / refund policy" footnote — both are noise to
+        someone who already owns the top-tier plan. Anonymous, Free, and
+        Pro users keep the full layout.
+      */}
+      {ownsLifetime ? null : (
+        <>
+          <section
+            id="notify-pro"
+            aria-label="Notify me when Pro launches"
+            className="scroll-mt-24"
+          >
+            <EmailSignup
+              source="pricing_pro_notify"
+              headline={`Get notified when Pro launches on ${PRO_AVAILABLE_DATE}`}
+              subline="One email on launch day with the founding-member discount code. No spam, no other emails."
+            />
+          </section>
 
-      <section className="text-sm text-stone-600 dark:text-stone-400">
-        <p>
-          All prices in USD. International tax (VAT / Sales Tax) is calculated
-          and collected automatically at checkout via Stripe Tax. Refunds:
-          Lifetime within 14 days; Pro subscriptions are not pro-rated but you
-          keep access until the end of your billing period. See{" "}
-          <Link href="/legal/refunds" className="underline">
-            refund policy
-          </Link>
-          .
-        </p>
-      </section>
+          <section className="text-sm text-stone-600 dark:text-stone-400">
+            <p>
+              All prices in USD. International tax (VAT / Sales Tax) is
+              calculated and collected automatically at checkout via Stripe
+              Tax. Refunds: Lifetime within 14 days; Pro subscriptions are not
+              pro-rated but you keep access until the end of your billing
+              period. See{" "}
+              <Link href="/legal/refunds" className="underline">
+                refund policy
+              </Link>
+              .
+            </p>
+          </section>
+        </>
+      )}
     </main>
   );
 }
