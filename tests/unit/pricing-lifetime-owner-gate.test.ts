@@ -151,6 +151,10 @@ describe("/pricing PODP-62 per-user CTA gating", () => {
     expect(html).not.toContain("/api/stripe/checkout?plan=pro_yearly");
     expect(html).not.toContain("/api/stripe/checkout?plan=lifetime");
 
+    // PODP-67 revision 2 (2026-05-12, CEO feedback): the $0 "Try now"
+    // CTA on the Free card is also suppressed for Lifetime owners.
+    expect(html).not.toMatch(/>\s*Try now\s*</);
+
     // The Pro Monthly / Pro Annual availability line communicates that
     // Lifetime bundles them — this copy is now expected (not banned).
     expect(html).toContain("Included with Lifetime");

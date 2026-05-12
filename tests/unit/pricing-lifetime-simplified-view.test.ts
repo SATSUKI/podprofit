@@ -106,13 +106,16 @@ describe("/pricing PODP-67 simplified Lifetime-owner view", () => {
     expect(html).toContain(">Pro Annual</h3>");
     expect(html).toContain(">Lifetime</h3>");
 
-    // Free card keeps its "Try now" link — the calculator is free for
-    // everyone, including Lifetime owners.
-    expect(html).toContain("Try now");
+    // PODP-67 revision 2 (2026-05-12, CEO feedback): the $0 Try now CTA
+    // on the Free card is also suppressed — a Lifetime owner already
+    // has access to the calculator, so the button is noise.
+    expect(html).not.toMatch(/>\s*Try now\s*</);
 
-    // Pro Monthly / Pro Annual show "Included with Lifetime" in place
-    // of a Buy button.
+    // Free + Pro Monthly + Pro Annual now all show "Included with
+    // Lifetime" in place of any Buy / Try now affordance.
     expect(html).toContain("Included with Lifetime");
+    const includedMatches = html.match(/Included with Lifetime/g) ?? [];
+    expect(includedMatches.length).toBeGreaterThanOrEqual(3);
 
     // Lifetime card shows the member-status line as its availability.
     expect(html).toContain("You&#x27;re a Lifetime member ✓");

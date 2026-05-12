@@ -51,7 +51,15 @@ describe("/pricing PODP-67 revision — Lifetime owner card visibility", () => {
     process.env.NEXT_PUBLIC_LAUNCH_DATE = "2000-01-01";
   });
 
-  it("keeps the Free card's Try now link (calculator stays accessible)", async () => {
+  it("keeps the Free card visible but suppresses the $0 Try now CTA for Lifetime owners (revision 2, 2026-05-12)", async () => {
+    // PODP-67 revision 2 (CEO feedback 2026-05-12): the Free card stays
+    // on the grid so a Lifetime owner can reference the calculator copy
+    // when recommending PODProfit, but the "Try now" button itself is
+    // noise — they already have access to everything. So we expect:
+    //   - Free heading + tagline + feature list survive
+    //   - "Try now" button is GONE
+    //   - href="/" Try-now link is GONE
+    //   - availability line on Free reads "Included with Lifetime" too
     ssrMock.mockResolvedValue(authedSsr("user_owns_lifetime"));
     snapshotMock.mockResolvedValue({
       stripeCustomerId: "cus_X",
@@ -61,10 +69,34 @@ describe("/pricing PODP-67 revision — Lifetime owner card visibility", () => {
 
     const html = renderToStaticMarkup(await PricingPage());
 
-    // Free card heading + tagline + Try now link are present.
+    // Free card heading + tagline + feature list survive.
     expect(html).toContain(">Free</h3>");
     expect(html).toContain("Forever. No signup.");
-    // Try now button text + href to "/" (the calculator landing page).
+    expect(html).toContain("Full calculator (all products, vendors, currencies)");
+
+    // Try now button + href to "/" are GONE for Lifetime owners.
+    expect(html).not.toMatch(/>\s*Try now\s*</);
+    expect(html).not.toMatch(/href="\/"[^>]*>\s*Try now/);
+
+    // Availability line now matches the Pro cards.
+    // "Included with Lifetime" appears at least 3 times — Free + Pro
+    // Monthly + Pro Annual.
+    const includedMatches = html.match(/Included with Lifetime/g) ?? [];
+    expect(includedMatches.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("still renders the Free Try now CTA for anonymous visitors (regression guard)", async () => {
+    // Anonymous visitors keep the existing Try now → / link on the Free
+    // card — only Lifetime owners lose it.
+    ssrMock.mockResolvedValue({
+      auth: {
+        getUser: async () => ({ data: { user: null } }),
+      },
+    });
+
+    const html = renderToStaticMarkup(await PricingPage());
+
+    expect(html).toContain(">Free</h3>");
     expect(html).toContain("Try now");
     expect(html).toMatch(/href="\/"[^>]*>\s*Try now/);
   });

@@ -173,7 +173,9 @@ export default async function PricingPage() {
           name="Free"
           price="$0"
           priceUnit=""
-          availability="Available now"
+          availability={
+            ownsLifetime ? "Included with Lifetime" : "Available now"
+          }
           tagline="Forever. No signup."
           features={[
             "Full calculator (all products, vendors, currencies)",
@@ -181,12 +183,17 @@ export default async function PricingPage() {
             "Share-able URLs with dynamic preview images",
             "No account, no rate limit",
           ]}
-          // PODP-67 (revision): keep the Free "Try now" CTA for Lifetime
-          // owners too — the calculator itself is the product, so it's
-          // not noise to let them jump in from this card.
-          ctaHref="/"
-          ctaLabel="Try now"
+          // PODP-67 (revision 2, 2026-05-12, CEO feedback): Lifetime
+          // owners no longer see the Free "Try now" CTA either — they
+          // already have access to the calculator + everything else, so
+          // a $0 Try-now button on the Free card is just noise. We pass
+          // `statusOnly={ownsLifetime}` and drop ctaHref/ctaLabel for
+          // Lifetime owners; anonymous / Free / Pro users keep the
+          // existing Try-now → / link.
+          ctaHref={ownsLifetime ? undefined : "/"}
+          ctaLabel={ownsLifetime ? undefined : "Try now"}
           ctaVariant="outline"
+          statusOnly={ownsLifetime}
         />
         <PlanCard
           name="Pro Monthly"
